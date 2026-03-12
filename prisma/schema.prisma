@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+model User {
+  id          String        @id @default(cuid())
+  memberCode  String?       @unique
+  username    String        @unique
+  email       String        @unique
+  password    String
+  phone       String?
+  dateJoined  DateTime      @default(now())
+  groups      GroupMember[]
+  savings     Saving[]
+  loans       Loan[]
+  votes       LoanVote[]
+  activities  Activity[]
+  createdGroups Group[]
+
+  @@map("users")
+}
+
+model Group {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  joinCode    String        @unique @default(cuid())
+  createdBy   String
+  creator     User          @relation(fields: [createdBy], references: [id])
+  createdAt   DateTime      @default(now())
+  members     GroupMember[]
+  savings     Saving[]
+  loans       Loan[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  userId   String
+  groupId  String
+  role     String   @default("MEMBER") // MEMBER | ADMIN
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  group    Group    @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+model Saving {
+  id      String   @id @default(cuid())
+  userId  String
+  groupId String
+  amount  Float
+  note    String?
+  date    DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id])
+  group   Group    @relation(fields: [groupId], references: [id])
+
+  @@map("savings")
+}
+
+model Loan {
+  id           String        @id @default(cuid())
+  userId       String
+  groupId      String
+  amount       Float
+  reason       String
+  duration     Int           // in months
+  interestRate Float         @default(10.0) // percentage
+  status       String        @default("PENDING") // PENDING | APPROVED | REJECTED | PAID
+  createdAt    DateTime      @default(now())
+  user         User          @relation(fields: [userId], references: [id])
+  group        Group         @relation(fields: [groupId], references: [id])
+  votes        LoanVote[]
+  payments     LoanPayment[]
+
+  @@map("loans")
+}
+
+model LoanVote {
+  id        String   @id @default(cuid())
+  loanId    String
+  userId    String
+  vote      String   // APPROVE | REJECT
+  createdAt DateTime @default(now())
+  loan      Loan     @relation(fields: [loanId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([loanId, userId])
+  @@map("loan_votes")
+}
+
+model LoanPayment {
+  id      String   @id @default(cuid())
+  loanId  String
+  amount  Float
+  note    String?
+  date    DateTime @default(now())
+  loan    Loan     @relation(fields: [loanId], references: [id])
+
+  @@map("loan_payments")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String?
+  action    String
+  amount    Float?
+  date      DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}
