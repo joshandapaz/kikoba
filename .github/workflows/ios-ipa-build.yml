@@ -1,52 +1,55 @@
-name: Build iOS IPA
+name: Build iOS Native IPA
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build_ios:
+    name: Build iOS IPA (Clean)
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Project Dependencies
         run: npm install
 
-      - name: Build Next.js Static Site
+      - name: Build Web Assets (Static)
         run: npm run static
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Add iOS Platform
+      - name: Add Capacitor iOS
         run: npx cap add ios
 
-      - name: Sync Capacitor
+      - name: Capacitor Sync
         run: npx cap sync ios
 
-      - name: Build iOS App (Unsigned)
+      - name: Xcode Build (Unsigned)
         run: |
           cd ios/App
           xcodebuild -workspace App.xcworkspace -scheme App -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO | xcpretty
 
-      - name: Prepare IPA
+      - name: Create IPA Package
         run: |
           mkdir -p build/Payload
           cp -r ios/App/build/Release-iphoneos/App.app build/Payload
           cd build
-          zip -r Kikoba-Unsigned.ipa Payload
+          zip -m -r Kikoba-App.ipa Payload
 
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Finished Artifact
+        uses: actions/upload-artifact@v4.3.3
         with:
-          name: Kikoba-Unsigned-IPA
-          path: build/Kikoba-Unsigned.ipa
+          name: Kikoba-App-IPA
+          path: build/Kikoba-App.ipa
+          if-no-files-found: error
+          retention-days: 1
