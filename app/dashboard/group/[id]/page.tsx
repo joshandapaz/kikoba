@@ -441,3 +441,6 @@ export default function GroupDashboardPage({ params }: { params: Promise<{ id: s
     </div>
   )
 }
+
+
+export function generateStaticParams() { return [{ id: '1' }]; }

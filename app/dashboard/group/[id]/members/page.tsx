@@ -205,3 +205,6 @@ export default function GroupMembersPage({ params }: { params: Promise<{ id: str
     </div>
   )
 }
+
+
+export function generateStaticParams() { return [{ id: '1' }]; }

@@ -140,3 +140,6 @@ export default function RepayLoanPage({ params }: { params: Promise<{ id: string
     </div>
   )
 }
+
+
+export function generateStaticParams() { return [{ id: '1' }]; }
