@@ -1,0 +1,4 @@
+﻿C:\Users\HP\Desktop\anti\app\api\auth\[...nextauth]\route.ts
+C:\Users\HP\Desktop\anti\app\api\group\[id]\route.ts
+C:\Users\HP\Desktop\anti\app\api\loans\[id]\repay\route.ts
+C:\Users\HP\Desktop\anti\app\api\loans\[id]\vote\route.ts

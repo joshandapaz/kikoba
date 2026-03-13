@@ -1,4 +1,5 @@
 export const dynamic = 'force-static'
+export function generateStaticParams() { return []; }
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -119,5 +120,3 @@ export async function GET(
     return NextResponse.json({ error: 'Hitilafu ya ndani' }, { status: 500 })
   }
 }
-
-export function generateStaticParams() { return []; }

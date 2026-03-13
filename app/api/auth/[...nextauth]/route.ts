@@ -1,8 +1,7 @@
 export const dynamic = 'force-static'
+export function generateStaticParams() { return [{ nextauth: ['placeholder'] }]; }
 import NextAuth from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
 const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
-
-export function generateStaticParams() { return []; }

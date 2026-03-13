@@ -9,22 +9,30 @@ function walk(dir) {
       walk(fullPath);
     } else if (file === 'route.ts' || file === 'route.js') {
       let content = fs.readFileSync(fullPath, 'utf8');
-      let changed = false;
       
-      if (!content.includes('export const dynamic')) {
-        content = "export const dynamic = 'force-static'\n" + content;
-        changed = true;
+      // Clean existing if we ran before to avoid duplicates
+      content = content.replace(/export const dynamic = 'force-static'\n/g, '');
+      content = content.replace(/\nexport function generateStaticParams[\s\S]*?\}\n/g, '');
+      
+      let prefix = "export const dynamic = 'force-static'\n";
+      
+      if (fullPath.includes('[') && fullPath.includes(']')) {
+        let paramName = 'id';
+        const match = fullPath.match(/\[([^\]]+)\]/);
+        if (match) {
+          paramName = match[1];
+          if (paramName.startsWith('...')) {
+            paramName = paramName.substring(3);
+            prefix += `export function generateStaticParams() { return [{ ${paramName}: ['placeholder'] }]; }\n`;
+          } else {
+            prefix += `export function generateStaticParams() { return []; }\n`;
+          }
+        }
       }
       
-      if (fullPath.includes('[') && fullPath.includes(']') && !content.includes('export function generateStaticParams')) {
-        content = content + "\nexport function generateStaticParams() { return []; }\n";
-        changed = true;
-      }
-      
-      if (changed) {
-        fs.writeFileSync(fullPath, content);
-        console.log(`Updated ${fullPath}`);
-      }
+      const newContent = prefix + content;
+      fs.writeFileSync(fullPath, newContent);
+      console.log(`Updated ${fullPath}`);
     }
   });
 }
