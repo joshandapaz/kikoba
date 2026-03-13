@@ -39,15 +39,7 @@ const memberNav = [
   }
 ]
 
-const adminNav = [
-  {
-    section: 'Usimamizi',
-    items: [
-      { href: '/dashboard/admin/members', label: 'Wanachama', icon: Shield },
-      { href: '/dashboard/admin/report', label: 'Ripoti za Fedha', icon: FileBarChart },
-    ]
-  }
-]
+const adminNav: any[] = [] // Empty for now, management is contextual
 
 export default function Sidebar() {
   const pathname = usePathname()
@@ -95,29 +87,17 @@ export default function Sidebar() {
           </div>
         ))}
 
-        {/* Admin section */}
-        {adminNav.map((section) => (
-          <div key={section.section}>
-            <p className="nav-section-title" style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12, paddingLeft: 16 }}>{section.section}</p>
-            {section.items.map((item) => {
-              const Icon = item.icon
-              const active = pathname.startsWith(item.href)
-              return (
-                <Link key={item.href} href={item.href} className={`nav-item ${active ? 'active' : ''}`}>
-                  <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </div>
-        ))}
       </nav>
 
       {/* User footer */}
       <div style={{ padding: '24px 16px', borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>
-            {session?.user?.name?.[0]?.toUpperCase() || 'U'}
+          <div className="avatar" style={{ width: 36, height: 36, fontSize: 14, borderRadius: '50%', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {session?.user?.image ? (
+              <img src={session.user.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+            ) : (
+              session?.user?.name?.[0]?.toUpperCase() || 'U'
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

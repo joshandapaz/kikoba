@@ -87,6 +87,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Una mkopo unaoendelea, subiri ulipe kwanza' }, { status: 400 })
     }
 
+    // Check group balance
+    const { data: group } = await supabaseAdmin
+      .from('groups')
+      .select('wallet_balance')
+      .eq('id', groupId)
+      .single()
+
+    if ((group?.wallet_balance || 0) < amount) {
+      return NextResponse.json({ error: 'Salio la mfuko wa kikundi halitoshi kutoa mkopo huu' }, { status: 400 })
+    }
+
     // Create loan
     const { data: loan, error: loanError } = await supabaseAdmin
       .from('loans')
@@ -95,7 +106,8 @@ export async function POST(req: NextRequest) {
         groupId,
         amount,
         reason,
-        duration
+        duration,
+        status: 'PENDING_ADMIN'
       })
       .select()
       .single()

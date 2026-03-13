@@ -1,0 +1,52 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Next.js Static Site
+        run: npm run static
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Add iOS Platform
+        run: npx cap add ios
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Build iOS App (Unsigned)
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO | xcpretty
+
+      - name: Prepare IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r ios/App/build/Release-iphoneos/App.app build/Payload
+          cd build
+          zip -r Kikoba-Unsigned.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Kikoba-Unsigned-IPA
+          path: build/Kikoba-Unsigned.ipa

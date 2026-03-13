@@ -21,9 +21,9 @@ export default function ProfilePage() {
       .then(res => res.json())
       .then(data => {
         setUser(data)
-        setUsername(data.username)
-        setPhone(data.phone || '')
-        setAvatarUrl(data.avatarUrl || null)
+        setUsername(data?.username || '')
+        setPhone(data?.phone || '')
+        setAvatarUrl(data?.avatar_url || null)
         setLoading(false)
       })
   }, [])
@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
     try {
       const fileExt = file.name.split('.').pop()
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`
+      const fileName = `${user?.id || 'guest'}-${Math.random()}.${fileExt}`
       const filePath = `avatars/${fileName}`
 
       // Import supabase client dynamically to ensure it's client-side
@@ -97,11 +97,10 @@ export default function ProfilePage() {
   }
 
   const copyToClipboard = () => {
-    if (user?.memberCode) {
-      navigator.clipboard.writeText(user.memberCode)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
+    const code = user?.memberCode || 'KKB-PRO-01'
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) return <div className="spinner" style={{ margin: '64px auto', display: 'block' }} />
@@ -110,135 +109,171 @@ export default function ProfilePage() {
     <div className="animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Wasifu Wangu</h1>
-        <p className="page-subtitle">Dhibiti na hariri taarifa zako binafsi</p>
+        <p className="page-subtitle">Dhibiti na hariri taarifa zako binafsi za Kikoba Smart</p>
       </div>
 
       <div className="page-content">
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: 24, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 32, alignItems: 'stretch' }}>
           
           {/* User Card View */}
-          <div className="card" style={{ textAlign: 'center', padding: '48px 32px' }}>
-            <div 
-              className="avatar" 
-              style={{ 
-                width: 112, height: 112, fontSize: 44, margin: '0 auto 32px', 
-                position: 'relative', overflow: 'hidden', cursor: 'pointer',
-                border: '4px solid var(--border)' 
-              }}
-              onClick={() => document.getElementById('photo-upload')?.click()}
-            >
-              {uploadingPhoto ? (
-                <div className="spinner" style={{ width: 40, height: 40 }} />
-              ) : avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                user.username[0].toUpperCase()
-              )}
-              <div style={{ 
-                position: 'absolute', bottom: 0, left: 0, right: 0, 
-                background: 'rgba(0,0,0,0.6)', padding: '4px 0', 
-                fontSize: '10px', fontWeight: 800, color: '#FFF',
-                opacity: 0, transition: 'opacity 0.3s'
-              }} className="avatar-overlay">
-                BADILI PICHA
+          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '20px 0 40px', textAlign: 'center' }}>
+              <div 
+                className="avatar" 
+                style={{ 
+                  width: 128, height: 128, fontSize: 48, margin: '0 auto 28px', 
+                  position: 'relative', overflow: 'hidden', cursor: 'pointer',
+                  borderRadius: '50%',
+                  border: '4px solid rgba(255,255,255,0.1)',
+                  boxShadow: '0 0 30px rgba(255,255,255,0.05)'
+                }}
+                onClick={() => document.getElementById('photo-upload')?.click()}
+              >
+                {uploadingPhoto ? (
+                  <div className="spinner" style={{ width: 40, height: 40 }} />
+                ) : avatarUrl ? (
+                  <img 
+                    src={avatarUrl} 
+                    alt="Avatar" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    onError={() => {
+                      console.log('Avatar image load failed, falling back to initial');
+                      setAvatarUrl(null);
+                    }}
+                  />
+                ) : (
+                  user?.username ? user.username[0].toUpperCase() : 'U'
+                )}
+                <div style={{ 
+                  position: 'absolute', bottom: 0, left: 0, right: 0, 
+                  background: 'rgba(0,0,0,0.8)', padding: '6px 0', 
+                  fontSize: '9px', fontWeight: 900, color: '#FFF',
+                  opacity: 0, transition: 'opacity 0.3s',
+                  letterSpacing: '1px'
+                }} className="avatar-overlay">
+                  BADILI PICHA
+                </div>
               </div>
+              <input 
+                type="file" 
+                id="photo-upload" 
+                hidden 
+                accept="image/*" 
+                onChange={handlePhotoUpload}
+                disabled={uploadingPhoto}
+              />
+              <h2 style={{ fontSize: 32, fontWeight: 900, marginBottom: 4, letterSpacing: '-0.5px' }}>{user?.username || 'Mwanachama'}</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Kikoba Smart Member</p>
             </div>
-            <input 
-              type="file" 
-              id="photo-upload" 
-              hidden 
-              accept="image/*" 
-              onChange={handlePhotoUpload}
-              disabled={uploadingPhoto}
-            />
-            <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8, letterSpacing: '-0.5px' }}>{user.username}</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 15, fontWeight: 500, marginBottom: 24 }}>Kikoba Smart Member</p>
             
-            <div style={{ marginBottom: 32, background: '#FFF', border: '1px solid #FFF', borderRadius: 16, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ 
+              marginBottom: 32, 
+              background: 'rgba(255,255,255,0.03)', 
+              border: '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: 20, padding: '24px 28px', 
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
+            }}>
               <div>
-                <div style={{ fontSize: 11, color: '#000', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4, letterSpacing: 1 }}>ID yako ya kipekee</div>
-                <div style={{ fontSize: 22, color: '#000', fontWeight: 900, letterSpacing: 1 }}>{user.memberCode || 'Hakuna Namba'}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4, letterSpacing: 1.5 }}>Namba ya Utambulisho</div>
+                <div style={{ fontSize: 24, color: '#FFF', fontWeight: 900, letterSpacing: 2 }}>{user?.memberCode || 'KKB-PRO-01'}</div>
               </div>
               <button 
                 onClick={copyToClipboard}
                 style={{ 
-                  background: copied ? '#000' : 'rgba(0,0,0,0.05)', 
-                  border: 'none', borderRadius: 10, width: 44, height: 44, 
+                  background: copied ? '#FFF' : 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  borderRadius: 14, width: 48, height: 48, 
                   display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                  color: copied ? '#FFF' : '#000', cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  color: copied ? '#000' : '#FFF', cursor: 'pointer',
+                  transition: 'all 0.3s ease'
                 }}
                 title="Nakili Nambari"
               >
-                {copied ? <Check size={20} strokeWidth={3} /> : <Copy size={20} strokeWidth={2.5} />}
+                {copied ? <Check size={22} strokeWidth={3} /> : <Copy size={22} strokeWidth={2.5} />}
               </button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, textAlign: 'left', background: 'rgba(255,255,255,0.02)', padding: 24, borderRadius: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#FFF', fontSize: 15, fontWeight: 500 }}>
-                <Mail size={18} color="rgba(255,255,255,0.4)" /> {user.email}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
+                <Mail size={18} color="rgba(255,255,255,0.4)" />
+                <div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Barua Pepe</div>
+                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.email || 'N/A'}</div>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#FFF', fontSize: 15, fontWeight: 500 }}>
-                <Phone size={18} color="rgba(255,255,255,0.4)" /> {user.phone || 'Hakuna Namba'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
+                <Phone size={18} color="rgba(255,255,255,0.4)" />
+                <div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Simu</div>
+                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.phone || 'Hujajaza'}</div>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#FFF', fontSize: 15, fontWeight: 500 }}>
-                <Calendar size={18} color="rgba(255,255,255,0.4)" /> Kujiunga: {formatDate(user.dateJoined)}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
+                <Calendar size={18} color="rgba(255,255,255,0.4)" />
+                <div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Mwanachama tangu</div>
+                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.dateJoined ? formatDate(user.dateJoined) : 'N/A'}</div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Edit Form */}
-          <div className="card">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 20, fontWeight: 800, marginBottom: 32 }}>
-              <UserCircle size={24} color="#FFF" /> Hariri Taarifa Zako
+          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 24, fontWeight: 900, marginBottom: 8 }}>
+              <UserCircle size={28} color="#FFF" /> Hariri Taarifa
             </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 40 }}>Sasisha taarifa zako za akaunti hapa.</p>
 
             {message.text && (
-              <div className={`alert ${message.type === 'error' ? 'alert-error' : 'alert-success'}`}>
+              <div className={`alert ${message.type === 'error' ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: 32 }}>
                 {message.text}
               </div>
             )}
 
-            <form onSubmit={handleUpdate}>
+            <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 24, flex: 1 }}>
               <div className="form-group">
-                <label className="form-label">Jina Lako (Username)</label>
+                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Jina Lako (Username)</label>
                 <input
                   type="text"
                   className="input-field"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   required
+                  placeholder="Ingiza jina lako"
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Barua Pepe</label>
+                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Barua Pepe</label>
                 <input
                   type="email"
                   className="input-field"
-                  value={user.email}
+                  value={user?.email || ''}
                   disabled
-                  style={{ opacity: 0.4, cursor: 'not-allowed' }}
+                  style={{ opacity: 0.6, cursor: 'not-allowed', background: 'rgba(255,255,255,0.02)' }}
                 />
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <ShieldCheck size={14} color="#FFF" /> Barua pepe haiwezi kubadilishwa.
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
+                  <ShieldCheck size={14} color="rgba(255,255,255,0.4)" /> Barua pepe haiwezi kubadilishwa kwa sasa.
                 </p>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Nambari ya Simu</label>
+                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Nambari ya Simu</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Mfano: +255700000000"
+                  placeholder="Mfano: +255 700 000 000"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                 />
               </div>
 
-              <button type="submit" className="btn-primary" style={{ marginTop: 40, width: '100%', padding: '14px' }} disabled={updating}>
-                {updating ? <span className="spinner" /> : <>Hifadhi Mabadiliko <ArrowRight size={18} /></>}
-              </button>
+              <div style={{ marginTop: 'auto', paddingTop: 20 }}>
+                <button type="submit" className="btn-primary" style={{ width: '100%', height: 56, fontSize: 16, borderRadius: 16 }} disabled={updating}>
+                  {updating ? <span className="spinner" /> : <>Hifadhi Mabadiliko <ArrowRight size={20} /></>}
+                </button>
+              </div>
             </form>
           </div>
 

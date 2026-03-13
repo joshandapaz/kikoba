@@ -8,13 +8,27 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: user, error } = await supabaseAdmin
+    // Try selecting all fields including avatar_url
+    let { data: user, error } = await supabaseAdmin
       .from('users')
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
       .eq('id', session.user.id)
       .single()
 
-    if (error) throw error
+    // If avatar_url column doesn't exist (error code 42703), fallback to selecting without it
+    if (error && error.code === '42703') {
+      const { data: userData, error: userError } = await supabaseAdmin
+        .from('users')
+        .select('id, memberCode, username, email, phone, dateJoined')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (userError) throw userError
+      user = userData
+    } else if (error) {
+      throw error
+    }
+
     return NextResponse.json(user)
   } catch (err: any) {
     console.error('Profile GET error:', err)
@@ -34,14 +48,31 @@ export async function PUT(req: NextRequest) {
     if (phone !== undefined) updateData.phone = phone
     if (avatarUrl) updateData.avatar_url = avatarUrl
 
-    const { data: user, error } = await supabaseAdmin
+    let { data: user, error } = await supabaseAdmin
       .from('users')
       .update(updateData)
       .eq('id', session.user.id)
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
       .single()
 
-    if (error) throw error
+    // Fallback if avatar_url column is missing
+    if (error && error.code === '42703') {
+      const fallbackData = { ...updateData }
+      delete fallbackData.avatar_url
+      
+      const { data: fallbackUser, error: fallbackError } = await supabaseAdmin
+        .from('users')
+        .update(fallbackData)
+        .eq('id', session.user.id)
+        .select('id, memberCode, username, email, phone, dateJoined')
+        .single()
+      
+      if (fallbackError) throw fallbackError
+      user = fallbackUser
+    } else if (error) {
+      throw error
+    }
+
     return NextResponse.json(user)
   } catch (err: any) {
     console.error('Profile PUT error:', err)

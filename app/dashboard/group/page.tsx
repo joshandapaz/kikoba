@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Plus, Users, Copy, Check, Hash, Building, Shield } from 'lucide-react'
+import { Plus, Users, Copy, Check, Hash, Building, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 
@@ -127,13 +127,13 @@ export default function GroupPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <Link href="/dashboard/admin/members" style={{ flex: 1 }}>
+                  <Link href={`/dashboard/group/${group.id}`} style={{ flex: 1 }}>
                     <button className="btn-secondary" style={{ width: '100%', padding: '12px', fontSize: 14 }}>
                       <Users size={16} /> Angalia
                     </button>
                   </Link>
                   {group.userRole === 'ADMIN' && (
-                    <Link href="/dashboard/admin/members" style={{ flex: 1 }}>
+                    <Link href={`/dashboard/group/${group.id}`} style={{ flex: 1 }}>
                       <button className="btn-primary" style={{ width: '100%', padding: '12px', fontSize: 14 }}>
                         <Shield size={16} /> Dhibiti
                       </button>
@@ -154,6 +154,16 @@ export default function GroupPage() {
             
             {formState.error && <div className="alert alert-error">{formState.error}</div>}
             {formState.success && <div className="alert alert-success">{formState.success}</div>}
+            
+            <div style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 12, padding: 16, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,215,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TrendingUp size={20} color="#FFD700" />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 13, color: '#FFD700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Tahadhari ya Makato</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,215,0,0.8)', fontWeight: 500 }}>Gharama ya kuunda kikundi kipya ni **TZS 10,000**. Kiasi hiki kitakatwa kwenye mfuko wako binafsi.</div>
+              </div>
+            </div>
             
             <form onSubmit={handleCreate}>
               <div className="form-group">

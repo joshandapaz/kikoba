@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
+import { Wallet, Phone, Lock, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,13 +17,13 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     const res = await signIn('credentials', {
-      email,
+      phone,
       password,
       redirect: false,
     })
     setLoading(false)
     if (res?.error) {
-      setError('Barua pepe au nywila si sahihi. Jaribu tena.')
+      setError('Namba ya simu au nywila si sahihi. Jaribu tena.')
     } else {
       router.push('/dashboard')
     }
@@ -60,16 +60,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Barua Pepe</label>
+            <label className="form-label">Namba ya Simu</label>
             <div style={{ position: 'relative' }}>
-              <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+              <Phone size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
               <input
                 className="input-field"
                 style={{ paddingLeft: 40 }}
-                type="email"
-                placeholder="mfano@kikoba.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                placeholder="+255700000000"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
                 required
               />
             </div>

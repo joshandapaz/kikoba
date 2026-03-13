@@ -60,6 +60,39 @@ export async function POST(req: NextRequest) {
     const { name, description, memberCodes } = await req.json()
     if (!name) return NextResponse.json({ error: 'Jina la kikundi linahitajika' }, { status: 400 })
 
+    // 1. Check Personal Wallet Balance
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('wallet_balance')
+      .eq('id', session.user.id)
+      .single()
+
+    if (userError || !user) throw userError || new Error('User not found')
+
+    const FEE = 10000
+    if (user.wallet_balance < FEE) {
+      return NextResponse.json({ error: `Salio halitoshi. Unahitaji TZS ${FEE.toLocaleString()} kuunda kikundi.` }, { status: 400 })
+    }
+
+    // 2. Deduct fee from wallet
+    const { error: deductError } = await supabaseAdmin
+      .from('users')
+      .update({ wallet_balance: user.wallet_balance - FEE })
+      .eq('id', session.user.id)
+
+    if (deductError) throw deductError
+
+    // 3. Record transaction
+    await supabaseAdmin
+      .from('transactions')
+      .insert({
+        userId: session.user.id,
+        amount: FEE,
+        type: 'WITHDRAWAL',
+        description: 'Gharama ya kuunda kikundi kipya',
+        status: 'COMPLETED'
+      })
+
     // Generate random joinCode
     const joinCode = 'JNC-' + Math.random().toString(36).substring(2, 6).toUpperCase()
 
@@ -74,7 +107,6 @@ export async function POST(req: NextRequest) {
       })
       .select()
       .single()
-
 
     if (groupError) throw groupError
 

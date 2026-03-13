@@ -1,16 +1,19 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { HandCoins, Calculator, ArrowRight, AlertCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
 export default function RequestLoanPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const preSelectedGroupId = searchParams.get('groupId')
+  
   const [loading, setLoading] = useState(false)
   const [groups, setGroups] = useState<{ id: string, name: string }[]>([])
   
   // Form state
-  const [groupId, setGroupId] = useState('')
+  const [groupId, setGroupId] = useState(preSelectedGroupId || '')
   const [amount, setAmount] = useState('')
   const [reason, setReason] = useState('')
   const [duration, setDuration] = useState('3')
@@ -23,10 +26,13 @@ export default function RequestLoanPage() {
     fetch('/api/group').then(res => res.json()).then(data => {
       if (Array.isArray(data) && data.length > 0) {
         setGroups(data.map(g => ({ id: g.id, name: g.name })))
-        setGroupId(data[0].id)
+        // Only set default if not already set by preSelectedGroupId
+        if (!preSelectedGroupId) {
+          setGroupId(data[0].id)
+        }
       }
     })
-  }, [])
+  }, [preSelectedGroupId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

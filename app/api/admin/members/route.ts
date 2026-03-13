@@ -3,16 +3,21 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 
-// Admin: Get all members of user's group
-export async function GET() {
+// Admin: Get all members of a specific group
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const { searchParams } = new URL(req.url)
+    const groupId = searchParams.get('groupId')
+    if (!groupId) return NextResponse.json({ error: 'groupId inahitajika' }, { status: 400 })
+
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
-      .select('groupId')
+      .select('role')
       .eq('userId', session.user.id)
+      .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
 
@@ -20,8 +25,8 @@ export async function GET() {
 
     const { data: members, error } = await supabaseAdmin
       .from('group_members')
-      .select('*, user:users(id, memberCode, username, email, phone, dateJoined)')
-      .eq('groupId', adminMembership.groupId)
+      .select('*, user:users(id, memberCode, username, email, phone, dateJoined, avatar_url)')
+      .eq('groupId', groupId)
       .order('joinedAt', { ascending: true })
 
     if (error) throw error
@@ -39,22 +44,24 @@ export async function PUT(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const { memberId, role, groupId } = await req.json()
+    if (!groupId) return NextResponse.json({ error: 'groupId inahitajika' }, { status: 400 })
+
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
-      .select('groupId')
+      .select('role')
       .eq('userId', session.user.id)
+      .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
 
     if (!adminMembership) return NextResponse.json({ error: 'Ruhusa inahitajika' }, { status: 403 })
 
-    const { memberId, role } = await req.json()
-    
     const { error } = await supabaseAdmin
       .from('group_members')
       .update({ role })
       .eq('id', memberId)
-      .eq('groupId', adminMembership.groupId) // Safety check
+      .eq('groupId', groupId)
 
     if (error) throw error
 
@@ -71,24 +78,27 @@ export async function DELETE(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const { searchParams } = new URL(req.url)
+    const memberId = searchParams.get('memberId')
+    const groupId = searchParams.get('groupId')
+    
+    if (!memberId || !groupId) return NextResponse.json({ error: 'Data inahitajika' }, { status: 400 })
+
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
-      .select('groupId')
+      .select('role')
       .eq('userId', session.user.id)
+      .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
 
     if (!adminMembership) return NextResponse.json({ error: 'Ruhusa inahitajika' }, { status: 403 })
 
-    const { searchParams } = new URL(req.url)
-    const memberId = searchParams.get('memberId')
-    if (!memberId) return NextResponse.json({ error: 'memberId inahitajika' }, { status: 400 })
-
     const { error } = await supabaseAdmin
       .from('group_members')
       .delete()
       .eq('id', memberId)
-      .eq('groupId', adminMembership.groupId) // Safety check
+      .eq('groupId', groupId)
 
     if (error) throw error
 
@@ -105,20 +115,21 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const { memberCode, groupId } = await req.json()
+    if (!memberCode || !groupId) {
+      return NextResponse.json({ error: 'Tafadhali jaza sehemu zote' }, { status: 400 })
+    }
+
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
-      .select('groupId')
+      .select('role')
       .eq('userId', session.user.id)
+      .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
     
     if (!adminMembership) {
       return NextResponse.json({ error: 'Ruhusa inahitajika' }, { status: 403 })
-    }
-
-    const { memberCode } = await req.json()
-    if (!memberCode) {
-      return NextResponse.json({ error: 'Tafadhali weka ID ya mwanachama' }, { status: 400 })
     }
 
     // Find user by code
@@ -137,7 +148,7 @@ export async function POST(req: NextRequest) {
       .from('group_members')
       .select('id')
       .eq('userId', userToAdd.id)
-      .eq('groupId', adminMembership.groupId)
+      .eq('groupId', groupId)
       .maybeSingle()
 
     if (existing) {
@@ -149,7 +160,7 @@ export async function POST(req: NextRequest) {
       .from('group_members')
       .insert({
         userId: userToAdd.id,
-        groupId: adminMembership.groupId,
+        groupId: groupId,
         role: 'MEMBER'
       })
 

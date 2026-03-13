@@ -23,6 +23,16 @@ export async function GET() {
 
     const group = membership.group as any
     const isAdmin = membership.role === 'ADMIN'
+    const groupBalance = group.wallet_balance || 0
+
+    // 1.5 Get user's wallet balance
+    const { data: userData } = await supabaseAdmin
+      .from('users')
+      .select('wallet_balance, phone')
+      .eq('id', userId)
+      .single()
+    
+    const walletBalance = userData?.wallet_balance || 0
 
     // 2. User stats - Savings
     const { data: userSavings } = await supabaseAdmin
@@ -31,7 +41,7 @@ export async function GET() {
       .eq('userId', userId)
       .eq('groupId', group.id)
     
-    const totalSavings = (userSavings || []).reduce((sum, s) => sum + s.amount, 0)
+    const totalSavings = (userSavings || []).reduce((sum: number, s: any) => sum + s.amount, 0)
 
     // 3. User stats - Loans
     const { data: userLoans } = await supabaseAdmin
@@ -63,29 +73,47 @@ export async function GET() {
       .select('*', { count: 'exact', head: true })
       .eq('groupId', group.id)
 
-    const groupSavingsTotal = (allSavings || []).reduce((s, sv) => s + sv.amount, 0)
+    const groupSavingsTotal = (allSavings || []).reduce((s: number, sv: any) => s + sv.amount, 0)
     const approvedLoansTotal = (allLoans || [])
       .filter((l: any) => ['APPROVED', 'PAID'].includes(l.status))
-      .reduce((s, l) => s + l.amount, 0)
+      .reduce((s: number, l: any) => s + l.amount, 0)
     const pendingVotes = (allLoans || []).filter((l: any) => l.status === 'PENDING').length
 
-    // 5. Recent activities
+    // 5. Recent activities (Showing group activities OR personal wallet activities)
     const { data: activities } = await supabaseAdmin
       .from('activities')
       .select('*, user:users(username)')
-      .eq('groupId', group.id)
+      .or(`groupId.eq.${group.id},and(userId.eq.${userId},groupId.is.null)`)
       .order('date', { ascending: false })
-      .limit(8)
+      .limit(10)
+
+    // NEW: Fetch structured transactions
+    const { data: transactions } = await supabaseAdmin
+      .from('transactions')
+      .select('*, user:users(username)')
+      .or(`groupId.eq.${group.id},userId.eq.${userId}`)
+      .order('createdAt', { ascending: false })
+      .limit(10)
+
+    // 6. Active Group Withdrawal Requests
+    const { data: withdrawalRequests } = await supabaseAdmin
+      .from('group_withdrawals')
+      .select('*, requested_by_user:users(username), votes:group_withdrawal_votes(*)')
+      .eq('groupId', group.id)
+      .eq('status', 'PENDING')
 
     return NextResponse.json({
+      userId,
       noGroup: false,
       isAdmin,
       group: { id: group.id, name: group.name, joinCode: group.joinCode },
       userStats: {
+        walletBalance,
         totalSavings,
         activeLoans: activeLoans.length,
         loanBalance,
         pendingRequests: (userLoans || []).filter((l: any) => l.status === 'PENDING').length,
+        registeredPhone: userData?.phone || undefined
       },
       groupStats: {
         totalFunds: Math.max(0, groupSavingsTotal - approvedLoansTotal),
@@ -93,8 +121,11 @@ export async function GET() {
         totalLoansIssued: approvedLoansTotal,
         membersCount: membersCount || 0,
         pendingVotes,
+        groupBalance,
       },
+      withdrawalRequests: withdrawalRequests || [],
       recentActivities: activities || [],
+      recentTransactions: transactions || [],
     })
   } catch (err: any) {
     console.error('Dashboard error:', err)

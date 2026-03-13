@@ -1,0 +1,2654 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "title": "standard public schema",
+    "version": "14.4"
+  },
+  "host": "bggiguzhkdxfwgfbuqfy.supabase.co:443",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json",
+    "application/vnd.pgrst.object+json;nulls=stripped",
+    "application/vnd.pgrst.object+json",
+    "text/csv"
+  ],
+  "produces": [
+    "application/json",
+    "application/vnd.pgrst.object+json;nulls=stripped",
+    "application/vnd.pgrst.object+json",
+    "text/csv"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "produces": [
+          "application/openapi+json",
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "summary": "OpenAPI description (this document)",
+        "tags": [
+          "Introspection"
+        ]
+      }
+    },
+    "/payments": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.order_tracking_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.merchant_reference"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.currency"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.metadata"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/payments"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "payments"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.payments"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "payments"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.order_tracking_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.merchant_reference"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.currency"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.metadata"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "payments"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.user_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.order_tracking_id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.merchant_reference"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.currency"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.created_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.updated_at"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.payments.metadata"
+          },
+          {
+            "$ref": "#/parameters/body.payments"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "payments"
+        ]
+      }
+    },
+    "/otp_verifications": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.code"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.expiresAt"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.createdAt"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/otp_verifications"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "otp_verifications"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.otp_verifications"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "otp_verifications"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.code"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.expiresAt"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.createdAt"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "otp_verifications"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.code"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.expiresAt"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.otp_verifications.createdAt"
+          },
+          {
+            "$ref": "#/parameters/body.otp_verifications"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "otp_verifications"
+        ]
+      }
+    },
+    "/groups": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.groups.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.joinCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdBy"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdAt"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/groups"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "groups"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.groups"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "groups"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.groups.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.joinCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdBy"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdAt"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "groups"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.groups.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.name"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.description"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.joinCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdBy"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.groups.createdAt"
+          },
+          {
+            "$ref": "#/parameters/body.groups"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "groups"
+        ]
+      }
+    },
+    "/loan_payments": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.date"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/loan_payments"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "loan_payments"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.loan_payments"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "loan_payments"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.date"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loan_payments"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_payments.date"
+          },
+          {
+            "$ref": "#/parameters/body.loan_payments"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loan_payments"
+        ]
+      }
+    },
+    "/savings": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.savings.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.date"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/savings"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "savings"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.savings"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "savings"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.savings.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.date"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "savings"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.savings.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.note"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.savings.date"
+          },
+          {
+            "$ref": "#/parameters/body.savings"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "savings"
+        ]
+      }
+    },
+    "/loans": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loans.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.reason"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.duration"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.interestRate"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.createdAt"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/loans"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "loans"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.loans"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "loans"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loans.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.reason"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.duration"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.interestRate"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.createdAt"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loans"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loans.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.reason"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.duration"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.interestRate"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.status"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loans.createdAt"
+          },
+          {
+            "$ref": "#/parameters/body.loans"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loans"
+        ]
+      }
+    },
+    "/loan_votes": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.vote"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.createdAt"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/loan_votes"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "loan_votes"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.loan_votes"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "loan_votes"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.vote"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.createdAt"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loan_votes"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.loanId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.vote"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.loan_votes.createdAt"
+          },
+          {
+            "$ref": "#/parameters/body.loan_votes"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "loan_votes"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.users.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.memberCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.username"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.email"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.password"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.dateJoined"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.avatar_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.wallet_balance"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/users"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.users"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.users.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.memberCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.username"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.email"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.password"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.dateJoined"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.avatar_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.wallet_balance"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.users.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.memberCode"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.username"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.email"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.password"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.phone"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.dateJoined"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.avatar_url"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.users.wallet_balance"
+          },
+          {
+            "$ref": "#/parameters/body.users"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/activities": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.activities.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.date"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/activities"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "activities"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.activities"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "activities"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.activities.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.date"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "activities"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.activities.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.action"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.amount"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.activities.date"
+          },
+          {
+            "$ref": "#/parameters/body.activities"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "activities"
+        ]
+      }
+    },
+    "/group_members": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.group_members.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.joinedAt"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/order"
+          },
+          {
+            "$ref": "#/parameters/range"
+          },
+          {
+            "$ref": "#/parameters/rangeUnit"
+          },
+          {
+            "$ref": "#/parameters/offset"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          },
+          {
+            "$ref": "#/parameters/preferCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/group_members"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "Partial Content"
+          }
+        },
+        "tags": [
+          "group_members"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/body.group_members"
+          },
+          {
+            "$ref": "#/parameters/select"
+          },
+          {
+            "$ref": "#/parameters/preferPost"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "group_members"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.group_members.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.joinedAt"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "group_members"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "$ref": "#/parameters/rowFilter.group_members.id"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.userId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.groupId"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.role"
+          },
+          {
+            "$ref": "#/parameters/rowFilter.group_members.joinedAt"
+          },
+          {
+            "$ref": "#/parameters/body.group_members"
+          },
+          {
+            "$ref": "#/parameters/preferReturn"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "group_members"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "payments": {
+      "required": [
+        "id",
+        "amount"
+      ],
+      "properties": {
+        "id": {
+          "default": "extensions.uuid_generate_v4()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "user_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "order_tracking_id": {
+          "format": "text",
+          "type": "string"
+        },
+        "merchant_reference": {
+          "format": "text",
+          "type": "string"
+        },
+        "amount": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "currency": {
+          "default": "TZS",
+          "format": "text",
+          "type": "string"
+        },
+        "status": {
+          "default": "PENDING",
+          "format": "text",
+          "type": "string"
+        },
+        "description": {
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "metadata": {
+          "format": "jsonb"
+        }
+      },
+      "type": "object"
+    },
+    "otp_verifications": {
+      "required": [
+        "id",
+        "phone",
+        "code",
+        "expiresAt",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "default": "(gen_random_uuid())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "phone": {
+          "format": "text",
+          "type": "string"
+        },
+        "code": {
+          "format": "text",
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "timestamp without time zone",
+          "type": "string"
+        },
+        "createdAt": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "groups": {
+      "required": [
+        "id",
+        "name",
+        "joinCode",
+        "createdBy",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "name": {
+          "format": "text",
+          "type": "string"
+        },
+        "description": {
+          "format": "text",
+          "type": "string"
+        },
+        "joinCode": {
+          "format": "text",
+          "type": "string"
+        },
+        "createdBy": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "createdAt": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "loan_payments": {
+      "required": [
+        "id",
+        "loanId",
+        "amount",
+        "date"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "loanId": {
+          "description": "Note:\nThis is a Foreign Key to `loans.id`.<fk table='loans' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "amount": {
+          "format": "double precision",
+          "type": "number"
+        },
+        "note": {
+          "format": "text",
+          "type": "string"
+        },
+        "date": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "savings": {
+      "required": [
+        "id",
+        "userId",
+        "groupId",
+        "amount",
+        "date"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "userId": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "groupId": {
+          "description": "Note:\nThis is a Foreign Key to `groups.id`.<fk table='groups' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "amount": {
+          "format": "double precision",
+          "type": "number"
+        },
+        "note": {
+          "format": "text",
+          "type": "string"
+        },
+        "date": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "loans": {
+      "required": [
+        "id",
+        "userId",
+        "groupId",
+        "amount",
+        "reason",
+        "duration",
+        "interestRate",
+        "status",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "userId": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "groupId": {
+          "description": "Note:\nThis is a Foreign Key to `groups.id`.<fk table='groups' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "amount": {
+          "format": "double precision",
+          "type": "number"
+        },
+        "reason": {
+          "format": "text",
+          "type": "string"
+        },
+        "duration": {
+          "format": "integer",
+          "type": "integer"
+        },
+        "interestRate": {
+          "default": 10,
+          "format": "double precision",
+          "type": "number"
+        },
+        "status": {
+          "default": "PENDING",
+          "format": "text",
+          "type": "string"
+        },
+        "createdAt": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "loan_votes": {
+      "required": [
+        "id",
+        "loanId",
+        "userId",
+        "vote",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "loanId": {
+          "description": "Note:\nThis is a Foreign Key to `loans.id`.<fk table='loans' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "userId": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "vote": {
+          "format": "text",
+          "type": "string"
+        },
+        "createdAt": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "users": {
+      "required": [
+        "id",
+        "username",
+        "email",
+        "password",
+        "dateJoined"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "memberCode": {
+          "format": "text",
+          "type": "string"
+        },
+        "username": {
+          "format": "text",
+          "type": "string"
+        },
+        "email": {
+          "format": "text",
+          "type": "string"
+        },
+        "password": {
+          "format": "text",
+          "type": "string"
+        },
+        "phone": {
+          "format": "text",
+          "type": "string"
+        },
+        "dateJoined": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        },
+        "avatar_url": {
+          "format": "text",
+          "type": "string"
+        },
+        "wallet_balance": {
+          "default": 0,
+          "format": "double precision",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "activities": {
+      "required": [
+        "id",
+        "userId",
+        "action",
+        "date"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "userId": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "groupId": {
+          "format": "text",
+          "type": "string"
+        },
+        "action": {
+          "format": "text",
+          "type": "string"
+        },
+        "amount": {
+          "format": "double precision",
+          "type": "number"
+        },
+        "date": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "group_members": {
+      "required": [
+        "id",
+        "userId",
+        "groupId",
+        "role",
+        "joinedAt"
+      ],
+      "properties": {
+        "id": {
+          "default": "(extensions.uuid_generate_v4())",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "text",
+          "type": "string"
+        },
+        "userId": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "groupId": {
+          "description": "Note:\nThis is a Foreign Key to `groups.id`.<fk table='groups' column='id'/>",
+          "format": "text",
+          "type": "string"
+        },
+        "role": {
+          "default": "MEMBER",
+          "format": "text",
+          "type": "string"
+        },
+        "joinedAt": {
+          "default": "CURRENT_TIMESTAMP",
+          "format": "timestamp without time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "parameters": {
+    "preferParams": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "in": "header",
+      "type": "string"
+    },
+    "preferReturn": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": [
+        "return=representation",
+        "return=minimal",
+        "return=none"
+      ],
+      "in": "header",
+      "type": "string"
+    },
+    "preferCount": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": [
+        "count=none"
+      ],
+      "in": "header",
+      "type": "string"
+    },
+    "preferPost": {
+      "name": "Prefer",
+      "description": "Preference",
+      "required": false,
+      "enum": [
+        "return=representation",
+        "return=minimal",
+        "return=none",
+        "resolution=ignore-duplicates",
+        "resolution=merge-duplicates"
+      ],
+      "in": "header",
+      "type": "string"
+    },
+    "select": {
+      "name": "select",
+      "description": "Filtering Columns",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "on_conflict": {
+      "name": "on_conflict",
+      "description": "On Conflict",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "order": {
+      "name": "order",
+      "description": "Ordering",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "range": {
+      "name": "Range",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "header",
+      "type": "string"
+    },
+    "rangeUnit": {
+      "name": "Range-Unit",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "default": "items",
+      "in": "header",
+      "type": "string"
+    },
+    "offset": {
+      "name": "offset",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "limit": {
+      "name": "limit",
+      "description": "Limiting and Pagination",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.payments": {
+      "name": "payments",
+      "description": "payments",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/payments"
+      }
+    },
+    "rowFilter.payments.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.user_id": {
+      "name": "user_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.order_tracking_id": {
+      "name": "order_tracking_id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.merchant_reference": {
+      "name": "merchant_reference",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.currency": {
+      "name": "currency",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.status": {
+      "name": "status",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.description": {
+      "name": "description",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.created_at": {
+      "name": "created_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.updated_at": {
+      "name": "updated_at",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.payments.metadata": {
+      "name": "metadata",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.otp_verifications": {
+      "name": "otp_verifications",
+      "description": "otp_verifications",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/otp_verifications"
+      }
+    },
+    "rowFilter.otp_verifications.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.otp_verifications.phone": {
+      "name": "phone",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.otp_verifications.code": {
+      "name": "code",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.otp_verifications.expiresAt": {
+      "name": "expiresAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.otp_verifications.createdAt": {
+      "name": "createdAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.groups": {
+      "name": "groups",
+      "description": "groups",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/groups"
+      }
+    },
+    "rowFilter.groups.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.groups.name": {
+      "name": "name",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.groups.description": {
+      "name": "description",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.groups.joinCode": {
+      "name": "joinCode",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.groups.createdBy": {
+      "name": "createdBy",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.groups.createdAt": {
+      "name": "createdAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.loan_payments": {
+      "name": "loan_payments",
+      "description": "loan_payments",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/loan_payments"
+      }
+    },
+    "rowFilter.loan_payments.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_payments.loanId": {
+      "name": "loanId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_payments.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_payments.note": {
+      "name": "note",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_payments.date": {
+      "name": "date",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.savings": {
+      "name": "savings",
+      "description": "savings",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/savings"
+      }
+    },
+    "rowFilter.savings.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.savings.userId": {
+      "name": "userId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.savings.groupId": {
+      "name": "groupId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.savings.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.savings.note": {
+      "name": "note",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.savings.date": {
+      "name": "date",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.loans": {
+      "name": "loans",
+      "description": "loans",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/loans"
+      }
+    },
+    "rowFilter.loans.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.userId": {
+      "name": "userId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.groupId": {
+      "name": "groupId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.reason": {
+      "name": "reason",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.duration": {
+      "name": "duration",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.interestRate": {
+      "name": "interestRate",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.status": {
+      "name": "status",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loans.createdAt": {
+      "name": "createdAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.loan_votes": {
+      "name": "loan_votes",
+      "description": "loan_votes",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/loan_votes"
+      }
+    },
+    "rowFilter.loan_votes.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_votes.loanId": {
+      "name": "loanId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_votes.userId": {
+      "name": "userId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_votes.vote": {
+      "name": "vote",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.loan_votes.createdAt": {
+      "name": "createdAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.users": {
+      "name": "users",
+      "description": "users",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/users"
+      }
+    },
+    "rowFilter.users.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.memberCode": {
+      "name": "memberCode",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.username": {
+      "name": "username",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.email": {
+      "name": "email",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.password": {
+      "name": "password",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.phone": {
+      "name": "phone",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.dateJoined": {
+      "name": "dateJoined",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.avatar_url": {
+      "name": "avatar_url",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.users.wallet_balance": {
+      "name": "wallet_balance",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.activities": {
+      "name": "activities",
+      "description": "activities",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/activities"
+      }
+    },
+    "rowFilter.activities.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.activities.userId": {
+      "name": "userId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.activities.groupId": {
+      "name": "groupId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.activities.action": {
+      "name": "action",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.activities.amount": {
+      "name": "amount",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.activities.date": {
+      "name": "date",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "body.group_members": {
+      "name": "group_members",
+      "description": "group_members",
+      "required": false,
+      "in": "body",
+      "schema": {
+        "$ref": "#/definitions/group_members"
+      }
+    },
+    "rowFilter.group_members.id": {
+      "name": "id",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.group_members.userId": {
+      "name": "userId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.group_members.groupId": {
+      "name": "groupId",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.group_members.role": {
+      "name": "role",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    },
+    "rowFilter.group_members.joinedAt": {
+      "name": "joinedAt",
+      "required": false,
+      "in": "query",
+      "type": "string"
+    }
+  },
+  "externalDocs": {
+    "description": "PostgREST Documentation",
+    "url": "https://postgrest.org/en/v14/references/api.html"
+  }
+}

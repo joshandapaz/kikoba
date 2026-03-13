@@ -17,7 +17,7 @@ model User {
   username    String        @unique
   email       String        @unique
   password    String
-  phone       String?
+  phone       String?       @unique
   dateJoined  DateTime      @default(now())
   groups      GroupMember[]
   savings     Saving[]
@@ -112,6 +112,7 @@ model LoanPayment {
   @@map("loan_payments")
 }
 
+
 model Activity {
   id        String   @id @default(cuid())
   userId    String
@@ -122,4 +123,15 @@ model Activity {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("activities")
+}
+
+model OTPVerification {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@map("otp_verifications")
 }

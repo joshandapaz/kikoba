@@ -10,6 +10,7 @@ CREATE TABLE "users" (
     "password" TEXT NOT NULL,
     "phone" TEXT,
     "dateJoined" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "wallet_balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -22,6 +23,7 @@ CREATE TABLE "groups" (
     "joinCode" TEXT NOT NULL,
     "createdBy" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "wallet_balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
 
     CONSTRAINT "groups_pkey" PRIMARY KEY ("id")
 );
@@ -137,3 +139,71 @@ ALTER TABLE "loan_payments" ADD CONSTRAINT "loan_payments_loanId_fkey" FOREIGN K
 -- AddForeignKey
 ALTER TABLE "activities" ADD CONSTRAINT "activities_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- CreateTable
+CREATE TABLE "otp_verifications" (
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
+    "phone" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "otp_verifications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "otp_verifications_phone_idx" ON "otp_verifications"("phone");
+
+-- CreateTable
+CREATE TABLE "payments" (
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
+    "merchant_reference" TEXT NOT NULL,
+    "order_tracking_id" TEXT,
+    "userId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payments_merchant_reference_key" ON "payments"("merchant_reference");
+CREATE INDEX "payments_order_tracking_id_idx" ON "payments"("order_tracking_id");
+
+-- AddForeignKey
+ALTER TABLE "payments" ADD CONSTRAINT "payments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "group_withdrawals" (
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
+    "groupId" TEXT NOT NULL,
+    "requestedBy" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "reason" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "group_withdrawals_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "group_withdrawal_votes" (
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
+    "withdrawalId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "vote" TEXT NOT NULL, -- 'YES' or 'NO'
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "group_withdrawal_votes_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "group_withdrawals" ADD CONSTRAINT "group_withdrawals_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "groups"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "group_withdrawals" ADD CONSTRAINT "group_withdrawals_requestedBy_fkey" FOREIGN KEY ("requestedBy") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "group_withdrawal_votes" ADD CONSTRAINT "group_withdrawal_votes_withdrawalId_fkey" FOREIGN KEY ("withdrawalId") REFERENCES "group_withdrawals"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "group_withdrawal_votes" ADD CONSTRAINT "group_withdrawal_votes_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "group_withdrawal_votes_withdrawalId_userId_key" ON "group_withdrawal_votes"("withdrawalId", "userId");
