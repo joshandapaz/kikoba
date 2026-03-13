@@ -119,3 +119,5 @@ export async function GET(
     return NextResponse.json({ error: 'Hitilafu ya ndani' }, { status: 500 })
   }
 }
+
+export function generateStaticParams() { return []; }

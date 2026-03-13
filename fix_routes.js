@@ -8,10 +8,21 @@ function walk(dir) {
     if (fs.statSync(fullPath).isDirectory()) {
       walk(fullPath);
     } else if (file === 'route.ts' || file === 'route.js') {
-      const content = fs.readFileSync(fullPath, 'utf8');
+      let content = fs.readFileSync(fullPath, 'utf8');
+      let changed = false;
+      
       if (!content.includes('export const dynamic')) {
-        const newContent = "export const dynamic = 'force-static'\n" + content;
-        fs.writeFileSync(fullPath, newContent);
+        content = "export const dynamic = 'force-static'\n" + content;
+        changed = true;
+      }
+      
+      if (fullPath.includes('[') && fullPath.includes(']') && !content.includes('export function generateStaticParams')) {
+        content = content + "\nexport function generateStaticParams() { return []; }\n";
+        changed = true;
+      }
+      
+      if (changed) {
+        fs.writeFileSync(fullPath, content);
         console.log(`Updated ${fullPath}`);
       }
     }

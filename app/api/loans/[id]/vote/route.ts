@@ -86,3 +86,5 @@ export async function POST(
   }
 }
 
+
+export function generateStaticParams() { return []; }
