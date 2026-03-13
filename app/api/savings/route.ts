@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
 
-    const total = (savings || []).reduce((sum, s) => sum + s.amount, 0)
+    const total = (savings || []).reduce((sum: number, s: any) => sum + s.amount, 0)
     return NextResponse.json({ savings: savings || [], total })
   } catch (err: any) {
     console.error('Savings GET error:', err)

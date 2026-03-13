@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
         .select('groupId')
         .eq('userId', session.user.id)
       
-      const groupIds = (userGroups || []).map(g => g.groupId)
+      const groupIds = (userGroups || []).map((g: any) => g.groupId)
       if (groupIds.length > 0) {
         query = query.in('groupId', groupIds)
       } else {

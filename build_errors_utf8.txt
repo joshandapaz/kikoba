@@ -1,0 +1,5 @@
+﻿app/api/loans/route.ts(34,47): error TS7006: Parameter 'g' implicitly has an 'any' type.
+app/api/savings/route.ts(28,43): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+app/api/savings/route.ts(28,48): error TS7006: Parameter 's' implicitly has an 'any' type.
+test-prisma.ts(1,20): error TS2307: Cannot find module './lib/prisma.js' or its corresponding type declarations.
+test-prisma.ts(11,41): error TS18046: 'error' is of type 'unknown'.
