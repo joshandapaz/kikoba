@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Wallet, Mail, Lock, User, Phone, ArrowRight, ShieldCheck } from 'lucide-react'
+import { apiClient } from '@/lib/api-client'
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ username: '', email: '', password: '', phone: '', otp: '' })
@@ -19,9 +20,8 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/otp/send', {
+      const res = await apiClient('/api/otp/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: form.phone }),
       })
       const data = await res.json()
@@ -48,9 +48,8 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
     
-    const res = await fetch('/api/register', {
+    const res = await apiClient('/api/register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
     const data = await res.json()

@@ -24,6 +24,7 @@ export default function LoginPage() {
     setLoading(false)
     if (res?.error) {
       setError('Namba ya simu au nywila si sahihi. Jaribu tena.')
+      console.error('Login Failed:', res.error)
     } else {
       router.push('/dashboard')
     }
@@ -56,7 +57,17 @@ export default function LoginPage() {
           <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Karibu tena 👋</p>
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && (
+          <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span>{error}</span>
+            <button 
+              onClick={() => (window as any).toggleErrorDetector?.()}
+              style={{ fontSize: 11, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#FFF', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', width: 'fit-content' }}
+            >
+              Fungua Kithibitishaji Hitilafu (Error Detector)
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
