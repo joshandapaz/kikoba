@@ -11,6 +11,22 @@ export default function ErrorDetector() {
     // Expose toggle globally for the login page to use
     (window as any).toggleErrorDetector = () => setIsOpen(true)
     
+    // Intercept console.log for debug-net
+    const originalLog = console.log
+    console.log = (...args) => {
+      const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+      
+      if (msg.includes('[DEBUG-NET]')) {
+        setErrorLogs(prev => [{
+          msg,
+          time: new Date().toLocaleTimeString(),
+          type: 'info'
+        }, ...prev].slice(0, 100))
+        setShowNotification(true)
+      }
+      originalLog.apply(console, args)
+    }
+
     // Intercept console.error
     const originalError = console.error
     console.error = (...args) => {
@@ -22,7 +38,7 @@ export default function ErrorDetector() {
         msg,
         time: new Date().toLocaleTimeString(),
         type: 'error'
-      }, ...prev].slice(0, 50))
+      }, ...prev].slice(0, 100))
       
       setShowNotification(true)
       originalError.apply(console, args)
@@ -42,6 +58,7 @@ export default function ErrorDetector() {
     window.addEventListener('unhandledrejection', handleRejection)
 
     return () => {
+      console.log = originalLog
       console.error = originalError
       window.removeEventListener('unhandledrejection', handleRejection)
     }
@@ -109,10 +126,12 @@ export default function ErrorDetector() {
 
             <div style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#000' }}>
               {errorLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 16, borderLeft: `4px solid ${log.type === 'error' ? '#EF4444' : '#F59E0B'}`, paddingLeft: 12 }}>
+                <div key={i} style={{ marginBottom: 16, borderLeft: `4px solid ${log.type === 'error' ? '#EF4444' : (log.type === 'rejection' ? '#F59E0B' : '#3B82F6')}`, paddingLeft: 12 }}>
                   <div style={{ display: 'flex', gap: 8, fontSize: 11, fontWeight: 800, color: 'var(--text-secondary)', marginBottom: 4, textTransform: 'uppercase' }}>
                     <span>[{log.time}]</span>
-                    <span>{log.type}</span>
+                    <span style={{ color: log.type === 'error' ? '#EF4444' : (log.type === 'rejection' ? '#F59E0B' : '#3B82F6') }}>
+                      {log.type}
+                    </span>
                   </div>
                   <div style={{ fontSize: 13, color: '#FFF', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                     {log.msg}

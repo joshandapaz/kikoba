@@ -25,7 +25,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isNative = window.location.protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
-                console.log('[DEBUG-AUTH] Nucleus Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
+                console.log('[DEBUG-NET] STARTUP. Native:', isNative, 'Base:', apiBaseUrl);
+
+                // Quick Connection Probe
+                if (isNative) {
+                  fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
+                    console.log('[DEBUG-NET] PROBE SUCCESS. Status:', r.status);
+                  }).catch(function(e) {
+                    console.error('[DEBUG-NET] PROBE FAILED. Check Wi-Fi/Firewall:', e.message);
+                  });
+                }
 
                 var OriginalRequest = window.Request;
                 var originalFetch = window.fetch;
@@ -51,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       path = '/' + url;
                     }
                     var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
-                    console.log('[DEBUG-AUTH] REDIRECT:', url, '->', absoluteUrl);
+                    console.log('[DEBUG-NET] REDIRECT:', url, '->', absoluteUrl);
                     return absoluteUrl;
                   }
                   return url;
@@ -60,7 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 function rewriteContent(content) {
                   if (typeof content !== 'string') return content;
                   if (content.indexOf(apiBaseUrl) === -1) return content;
-                  console.log('[DEBUG-AUTH] REWRITING CONTENT');
                   var escapedBase = apiBaseUrl.replace(/[.*+?^$\\{()|[\\]\\\\]/g, '\\\\$&');
                   var re = new RegExp(escapedBase, 'g');
                   return content.replace(re, '');
@@ -69,13 +77,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 function scrubInit(init) {
                   var options = init || {};
                   if (typeof options !== 'object' || options === null) return options;
-                  
-                  // Defensive copy to avoid mutating frozen/sealed objects
                   var scrubbed = {};
                   for (var key in options) { scrubbed[key] = options[key]; }
-                  
                   if (isNative && 'keepalive' in scrubbed) {
-                    console.log('[DEBUG-AUTH] SCRUBBED KEEPALIVE');
                     delete scrubbed.keepalive;
                     Object.defineProperty(scrubbed, 'keepalive', { value: false, writable: false, enumerable: true });
                   }
@@ -87,26 +91,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   var redirectUrl = getRedirection(url);
                   var scrubbedInit = scrubInit(init);
                   
-                  // If input is a Request object, we must extract its properties
                   if (input instanceof OriginalRequest) {
-                    scrubbedInit.method = scrubbedInit.method || input.method;
-                    scrubbedInit.headers = scrubbedInit.headers || input.headers;
-                    scrubbedInit.mode = scrubbedInit.mode || input.mode;
-                    scrubbedInit.credentials = scrubbedInit.credentials || input.credentials;
-                    scrubbedInit.cache = scrubbedInit.cache || input.cache;
-                    scrubbedInit.redirect = scrubbedInit.redirect || input.redirect;
-                    scrubbedInit.referrer = scrubbedInit.referrer || input.referrer;
-                    scrubbedInit.integrity = scrubbedInit.integrity || input.integrity;
-                    // We can't easily clone body if it's already used, but we try url fallback
+                    ['method', 'headers', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'integrity'].forEach(function(p) {
+                      if (!(p in scrubbedInit)) scrubbedInit[p] = input[p];
+                    });
                   }
 
                   try {
                     var req = new OriginalRequest(redirectUrl || url, scrubbedInit);
-                    if (isNative) {
-                      Object.defineProperty(req, 'keepalive', { value: false, writable: false });
-                    }
+                    if (isNative) Object.defineProperty(req, 'keepalive', { value: false, writable: false });
                     return req;
                   } catch (e) {
+                    console.error('[DEBUG-NET] REQUEST ERR:', e.message);
                     return new OriginalRequest(input, init);
                   }
                 };
@@ -117,14 +113,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   var redirectUrl = getRedirection(url);
                   var scrubbedInit = scrubInit(init);
 
-                  // Extract from Request if needed
                   if (input instanceof OriginalRequest) {
-                    scrubbedInit.method = scrubbedInit.method || input.method;
-                    scrubbedInit.headers = scrubbedInit.headers || input.headers;
-                    scrubbedInit.credentials = scrubbedInit.credentials || input.credentials;
+                    ['method', 'headers', 'credentials'].forEach(function(p) {
+                      if (!(p in scrubbedInit)) scrubbedInit[p] = input[p];
+                    });
                   }
 
+                  console.log('[DEBUG-NET] FETCH:', url, redirectUrl ? '(TO: ' + redirectUrl + ')' : '');
+
                   return originalFetch(redirectUrl || input, scrubbedInit).then(function(response) {
+                    console.log('[DEBUG-NET] RESPONSE:', url, '->', response.status);
+                    
                     if (!isNative || !redirectUrl || redirectUrl === url) return response;
 
                     var originalJson = response.json;
@@ -132,9 +131,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                     response.json = function() {
                       return originalJson.call(response).then(function(data) {
-                        var jsonStr = JSON.stringify(data);
-                        var rewritten = rewriteContent(jsonStr);
-                        return rewritten !== jsonStr ? JSON.parse(rewritten) : data;
+                        try {
+                          var jsonStr = JSON.stringify(data);
+                          var rewritten = rewriteContent(jsonStr);
+                          return rewritten !== jsonStr ? JSON.parse(rewritten) : data;
+                        } catch (e) {
+                          console.error('[DEBUG-NET] JSON REWRITE FAILED:', e.message);
+                          return data;
+                        }
+                      }).catch(function(err) {
+                        console.error('[DEBUG-NET] JSON PARSE ERROR. Response was likely HTML:', err.message);
+                        throw err;
                       });
                     };
 
@@ -145,6 +152,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     };
 
                     return response;
+                  }).catch(function(err) {
+                    console.error('[DEBUG-NET] FETCH ERR:', url, err.message);
+                    throw err;
                   });
                 };
 
