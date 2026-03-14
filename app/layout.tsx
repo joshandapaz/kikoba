@@ -28,13 +28,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                 console.log('[DEBUG-NET] BRIDGE V6. Protocol:', window.location.protocol, 'Native:', isNative);
 
-                // Quick Connection Probe
+                // Delayed Connection Probe (helps trigger iOS popup)
                 if (isNative) {
-                  fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
-                    console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
-                  }).catch(function(e) {
-                    console.error('[DEBUG-NET] PROBE FAIL:', e.message);
-                  });
+                  setTimeout(function() {
+                     console.log('[DEBUG-NET] RUNNING PROBE (After Delay)...');
+                     fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
+                       console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
+                     }).catch(function(e) {
+                       console.error('[DEBUG-NET] PROBE FAIL (Permission likely missing):', e.message);
+                     });
+                  }, 2000);
                 }
 
                 var OriginalRequest = window.Request;
