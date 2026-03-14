@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isNative = !isWeb;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
-                console.log('[DEBUG-NET] BRIDGE V9 (Assistant). Native:', isNative);
+                console.log('[DEBUG-NET] OVERLORD V12. Native:', isNative);
 
                 function showAssistant(msg, showButton) {
                   var assistant = document.getElementById('connectivity-assistant');
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 }
 
                 function runProbe(isManual) {
-                  console.log('[DEBUG-NET] RUNNING PROBE (Manual:' + !!isManual + ')...');
+                  console.log('[DEBUG-NET] PROBE (Manual:' + !!isManual + ')...');
                   fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
                     console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
                     var assistant = document.getElementById('connectivity-assistant');
@@ -92,17 +92,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                 var OriginalRequest = window.Request;
                 var originalFetch = window.fetch;
-
-                // GLOBAL KEEPALIVE KILLER
-                if (isNative) {
-                  try {
-                    Object.defineProperty(OriginalRequest.prototype, 'keepalive', {
-                      get: function() { return false; },
-                      configurable: false,
-                      enumerable: true
-                    });
-                  } catch (e) {}
-                }
 
                 function getRedirection(url) {
                   if (!url || typeof url !== 'string') return url;
@@ -139,11 +128,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                 function scrubInit(init) {
                   var options = init || {};
-                  if (typeof options !== 'object' || options === null) return options;
                   var scrubbed = {};
-                  for (var key in options) { scrubbed[key] = options[key]; }
+                  try {
+                    for (var key in options) { scrubbed[key] = options[key]; }
+                  } catch (e) {}
                   
-                  // Force credentials: 'include' for native bridge
                   if (isNative) {
                     scrubbed.keepalive = false;
                     scrubbed.credentials = 'include';
@@ -151,85 +140,97 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   return scrubbed;
                 }
 
-                window.Request = function(input, init) {
-                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
-                  var redirectUrl = getRedirection(url);
-                  var scrubbedInit = scrubInit(init);
-                  
-                  if (input instanceof OriginalRequest) {
-                    ['method', 'headers', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'integrity'].forEach(function(p) {
-                      if (!(p in scrubbedInit)) {
-                         try { scrubbedInit[p] = input[p]; } catch(e) {}
+                // NUCLEAR LOCKDOWN: Object.defineProperty prevents any library from overriding us
+                try {
+                  Object.defineProperty(window, 'Request', {
+                    value: function(input, init) {
+                      var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
+                      var redirectUrl = getRedirection(url);
+                      var scrubbedInit = scrubInit(init);
+                      
+                      if (input instanceof OriginalRequest) {
+                        ['method', 'headers', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'integrity'].forEach(function(p) {
+                          if (!(p in scrubbedInit)) {
+                             try { scrubbedInit[p] = input[p]; } catch(e) {}
+                          }
+                        });
                       }
-                    });
-                  }
 
-                  try {
-                    return new OriginalRequest(redirectUrl || url, scrubbedInit);
-                  } catch (e) {
-                    console.error('[DEBUG-NET] REQ ERR:', e.message);
-                    return new OriginalRequest(input, init);
-                  }
-                };
-                window.Request.prototype = OriginalRequest.prototype;
-
-                window.fetch = function(input, init) {
-                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
-                  var redirectUrl = getRedirection(url);
-                  var scrubbedInit = scrubInit(init);
-
-                  if (input instanceof OriginalRequest) {
-                    ['method', 'headers', 'credentials'].forEach(function(p) {
-                      if (!(p in scrubbedInit)) {
-                         try { scrubbedInit[p] = input[p]; } catch(e) {}
+                      try {
+                        return new OriginalRequest(redirectUrl || url, scrubbedInit);
+                      } catch (e) {
+                        return new OriginalRequest(input, init);
                       }
-                    });
-                  }
-
-                  return originalFetch(redirectUrl || input, scrubbedInit).then(function(response) {
-                    if (redirectUrl && redirectUrl !== url) {
-                       console.log('[DEBUG-NET] DONE:', url, '->', response.status);
-                    }
-                    if (!isNative || !redirectUrl || redirectUrl === url) return response;
-
-                    var originalJson = response.json;
-                    var originalText = response.text;
-
-                    response.json = function() {
-                      return originalJson.call(response).then(function(data) {
-                        try {
-                          var jsonStr = JSON.stringify(data);
-                          var rewritten = rewriteContent(jsonStr);
-                          return rewritten !== jsonStr ? JSON.parse(rewritten) : data;
-                        } catch (e) {
-                          return data;
-                        }
-                      }).catch(function(err) {
-                        console.error('[DEBUG-NET] JSON FAIL (Likely HTML):', err.message);
-                        throw err;
-                      });
-                    };
-
-                    response.text = function() {
-                      return originalText.call(response).then(function(text) {
-                        return rewriteContent(text);
-                      });
-                    };
-
-                    return response;
-                  }).catch(function(err) {
-                    console.error('[DEBUG-NET] FETCH ERR:', url, err.message);
-                    throw err;
+                    },
+                    writable: false,
+                    configurable: false
                   });
-                };
+                  window.Request.prototype = OriginalRequest.prototype;
+                } catch (e) { console.error('[DEBUG-NET] REQ LOCK FAIL'); }
 
                 try {
-                  var noop = function() { return true; };
-                  if (window.navigator) window.navigator.sendBeacon = noop;
-                  if (window.Navigator && window.Navigator.prototype) window.Navigator.prototype.sendBeacon = noop;
+                  Object.defineProperty(window, 'fetch', {
+                    value: function(input, init) {
+                      var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
+                      var redirectUrl = getRedirection(url);
+                      var scrubbedInit = scrubInit(init);
+
+                      if (input instanceof OriginalRequest) {
+                        ['method', 'headers', 'credentials', 'body'].forEach(function(p) {
+                          if (!(p in scrubbedInit)) {
+                             try { scrubbedInit[p] = input[p]; } catch(e) {}
+                          }
+                        });
+                      }
+
+                      return originalFetch(redirectUrl || input, scrubbedInit).then(function(response) {
+                        if (!isNative || !redirectUrl || redirectUrl === url) return response;
+
+                        var originalJson = response.json;
+                        var originalText = response.text;
+
+                        response.json = function() {
+                          return originalJson.call(response).then(function(data) {
+                            try {
+                              var jsonStr = JSON.stringify(data);
+                              var rewritten = rewriteContent(jsonStr);
+                              return rewritten !== jsonStr ? JSON.parse(rewritten) : data;
+                            } catch (e) { return data; }
+                          });
+                        };
+
+                        response.text = function() {
+                          return originalText.call(response).then(function(text) {
+                            return rewriteContent(text);
+                          });
+                        };
+
+                        return response;
+                      }).catch(function(err) {
+                        console.error('[DEBUG-NET] FETCH ERR:', url, err.message);
+                        throw err;
+                      });
+                    },
+                    writable: false,
+                    configurable: false
+                  });
+                } catch (e) { console.error('[DEBUG-NET] FETCH LOCK FAIL'); }
+
+                // KILL BEACONS FOREVER
+                try {
+                  var deadBeacon = {
+                    value: function() { return true; },
+                    writable: false,
+                    configurable: false
+                  };
+                  if (window.navigator) Object.defineProperty(window.navigator, 'sendBeacon', deadBeacon);
+                  if (window.Navigator && window.Navigator.prototype) Object.defineProperty(window.Navigator.prototype, 'sendBeacon', deadBeacon);
                 } catch (e) {}
 
-                window.__NEXTAUTH = { baseUrl: '/', basePath: '/api/auth' };
+                window.__NEXTAUTH = { 
+                  baseUrl: apiBaseUrl, 
+                  basePath: '/api/auth' 
+                };
               })();
             `,
           }}
