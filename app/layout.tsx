@@ -22,39 +22,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var isNative = (
-                  window.location.protocol === 'capacitor:' || 
-                  window.location.protocol === 'app:' ||
-                  window.location.href.indexOf('capacitor://') === 0 ||
-                  window.location.href.indexOf('app://') === 0 ||
-                  !!window.Capacitor ||
-                  (window.location.hostname === 'localhost' && !window.location.port)
-                );
+                var isWeb = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+                var isNative = !isWeb;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
-                console.log('[DEBUG-NET] AUDIT. Protocol:', window.location.protocol, 'Host:', window.location.hostname, 'Native:', isNative);
+                console.log('[DEBUG-NET] BRIDGE V6. Protocol:', window.location.protocol, 'Native:', isNative);
 
                 // Quick Connection Probe
                 if (isNative) {
                   fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
-                    console.log('[DEBUG-NET] PROBE SUCCESS. Status:', r.status);
+                    console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
                   }).catch(function(e) {
-                    console.error('[DEBUG-NET] PROBE FAILED. Check Wi-Fi/Firewall:', e.message);
+                    console.error('[DEBUG-NET] PROBE FAIL:', e.message);
                   });
                 }
 
                 var OriginalRequest = window.Request;
                 var originalFetch = window.fetch;
 
+                // GLOBAL KEEPALIVE KILLER
+                if (isNative) {
+                  try {
+                    Object.defineProperty(OriginalRequest.prototype, 'keepalive', {
+                      get: function() { return false; },
+                      configurable: false,
+                      enumerable: true
+                    });
+                    console.log('[DEBUG-NET] KEEPALIVE KILLED ON PROTOTYPE');
+                  } catch (e) {
+                    console.warn('[DEBUG-NET] PROTO KILL FAIL');
+                  }
+                }
+
                 function getRedirection(url) {
                   if (!url || typeof url !== 'string') return url;
                   var isApi = url.indexOf('/api/') !== -1;
-                  var isLocal = url.indexOf('/') === 0 || 
-                                url.indexOf('capacitor://') === 0 || 
-                                url.indexOf('app://') === 0 ||
-                                url.indexOf('http://localhost') === 0;
+                  var isAbsolute = url.match(/^https?:/);
 
-                  if (isNative && isApi && (isLocal || !url.match(/^https?:/))) {
+                  if (isNative && isApi && !isAbsolute) {
                     var path = url;
                     if (url.indexOf('://') !== -1) {
                       try {
@@ -67,13 +72,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     } else if (url.indexOf('/') !== 0) {
                       path = '/' + url;
                     }
-                    var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
-                    console.log('[DEBUG-NET] REDIRECT:', url, '->', absoluteUrl);
-                    return absoluteUrl;
-                  }
-                  
-                  if (isApi && !isNative) {
-                     // console.log('[DEBUG-NET] NO REDIRECT (Not Native). URL:', url);
+                    var abs = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
+                    console.log('[DEBUG-NET] REDIRECT:', url, '->', abs);
+                    return abs;
                   }
                   return url;
                 }
@@ -91,9 +92,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (typeof options !== 'object' || options === null) return options;
                   var scrubbed = {};
                   for (var key in options) { scrubbed[key] = options[key]; }
-                  if (isNative && 'keepalive' in scrubbed) {
-                    delete scrubbed.keepalive;
-                    Object.defineProperty(scrubbed, 'keepalive', { value: false, writable: false, enumerable: true });
+                  if (isNative) {
+                    scrubbed.keepalive = false;
                   }
                   return scrubbed;
                 }
@@ -105,16 +105,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   
                   if (input instanceof OriginalRequest) {
                     ['method', 'headers', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'integrity'].forEach(function(p) {
-                      if (!(p in scrubbedInit)) scrubbedInit[p] = input[p];
+                      if (!(p in scrubbedInit)) {
+                         try { scrubbedInit[p] = input[p]; } catch(e) {}
+                      }
                     });
                   }
 
                   try {
                     var req = new OriginalRequest(redirectUrl || url, scrubbedInit);
-                    if (isNative) Object.defineProperty(req, 'keepalive', { value: false, writable: false });
                     return req;
                   } catch (e) {
-                    console.error('[DEBUG-NET] REQUEST ERR:', e.message);
+                    console.error('[DEBUG-NET] REQ ERR:', e.message);
                     return new OriginalRequest(input, init);
                   }
                 };
@@ -127,17 +128,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   if (input instanceof OriginalRequest) {
                     ['method', 'headers', 'credentials'].forEach(function(p) {
-                      if (!(p in scrubbedInit)) scrubbedInit[p] = input[p];
+                      if (!(p in scrubbedInit)) {
+                         try { scrubbedInit[p] = input[p]; } catch(e) {}
+                      }
                     });
                   }
 
-                  console.log('[DEBUG-NET] FETCH:', url, (redirectUrl && redirectUrl !== url) ? '(TO: ' + redirectUrl + ')' : '');
-
                   return originalFetch(redirectUrl || input, scrubbedInit).then(function(response) {
                     if (redirectUrl && redirectUrl !== url) {
-                       console.log('[DEBUG-NET] RESPONSE:', url, '->', response.status);
+                       console.log('[DEBUG-NET] DONE:', url, '->', response.status);
                     }
-                    
                     if (!isNative || !redirectUrl || redirectUrl === url) return response;
 
                     var originalJson = response.json;
@@ -150,11 +150,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                           var rewritten = rewriteContent(jsonStr);
                           return rewritten !== jsonStr ? JSON.parse(rewritten) : data;
                         } catch (e) {
-                          console.error('[DEBUG-NET] JSON REWRITE FAILED:', e.message);
                           return data;
                         }
                       }).catch(function(err) {
-                        console.error('[DEBUG-NET] JSON PARSE ERROR. Response was likely HTML:', err.message);
+                        console.error('[DEBUG-NET] JSON FAIL (Likely HTML):', err.message);
                         throw err;
                       });
                     };

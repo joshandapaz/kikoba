@@ -15,15 +15,11 @@ export async function apiClient(path: string, options: RequestInit = {}) {
   // HARD FALLBACK: If we detect native env here, we pre-redirect 
   // in case the layout.tsx interceptor missed it (e.g. race condition)
   if (typeof window !== 'undefined') {
-    const isNative = (
-      window.location.protocol === 'capacitor:' || 
-      window.location.protocol === 'app:' ||
-      (window as any).Capacitor
-    );
-    if (isNative) {
+    const isWeb = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+    if (!isWeb) {
       const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.101:3000";
       url = apiBase.replace(/\/$/, '') + normalizedPath;
-      // console.log('[DEBUG-NET-CLIENT] Forcing Absolute URL:', url);
+      // console.log('[DEBUG-NET-CLIENT] Bridge V6 Force Absolute:', url);
     }
   }
 
