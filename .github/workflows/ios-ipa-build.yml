@@ -40,6 +40,14 @@ jobs:
       - name: Capacitor Sync
         run: npx cap sync ios
 
+      - name: Patch Info.plist for Local Networking
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          echo "Patching $PLIST for local networking support..."
+          plutil -replace NSAppTransportSecurity -xml "<dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoads</key><true/></dict>" "$PLIST"
+          # Verify the change
+          plutil -p "$PLIST" | grep -A 5 NSAppTransportSecurity
+
       - name: Xcode Build (Unsigned)
         run: |
           cd ios/App
