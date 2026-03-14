@@ -43,12 +43,12 @@ jobs:
       - name: Xcode Build (Unsigned)
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO | xcpretty
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO | xcpretty
 
       - name: Create IPA Package
         run: |
           mkdir -p build/Payload
-          cp -r ios/App/build/Release-iphoneos/App.app build/Payload
+          cp -r ios/App/build/Build/Products/Release-iphoneos/App.app build/Payload
           cd build
           zip -m -r Kikoba-App.ipa Payload
 
