@@ -47,8 +47,8 @@ jobs:
         run: |
           PLIST="ios/App/App/Info.plist"
           echo "Patching $PLIST for local networking support..."
-          # Update App Transport Security
-          plutil -replace NSAppTransportSecurity -xml "<dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoads</key><true/></dict>" "$PLIST"
+          # Update App Transport Security with even more aggressive keys
+          plutil -replace NSAppTransportSecurity -xml "<dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoads</key><true/><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>" "$PLIST"
           # Add Local Network Usage Description (Mandatory for iOS 14+)
           plutil -replace NSLocalNetworkUsageDescription -string "Kikoba Smart needs access to your local network to connect to the development server at 192.168.0.101" "$PLIST" || \
           plutil -insert NSLocalNetworkUsageDescription -string "Kikoba Smart needs access to your local network to connect to the development server at 192.168.0.101" "$PLIST"
@@ -57,7 +57,7 @@ jobs:
           plutil -insert NSBonjourServices -xml "<array><string>_http._tcp.</string><string>_kikoba._tcp.</string></array>" "$PLIST"
           # Verify the changes
           echo "Verifying Info.plist changes:"
-          plutil -p "$PLIST" | grep -A 5 NSAppTransportSecurity
+          plutil -p "$PLIST" | grep -A 8 NSAppTransportSecurity
           plutil -p "$PLIST" | grep NSLocalNetworkUsageDescription
           plutil -p "$PLIST" | grep -A 3 NSBonjourServices
 

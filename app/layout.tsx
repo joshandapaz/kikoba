@@ -18,6 +18,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="sw" suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          #connectivity-assistant {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 99999;
+            background: #ff4444;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+          }
+          #connectivity-assistant button {
+            background: white;
+            color: #ff4444;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            cursor: pointer;
+          }
+        `}} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -26,18 +55,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isNative = !isWeb;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
-                console.log('[DEBUG-NET] BRIDGE V6. Protocol:', window.location.protocol, 'Native:', isNative);
+                console.log('[DEBUG-NET] BRIDGE V9 (Assistant). Native:', isNative);
 
-                // Delayed Connection Probe (helps trigger iOS popup)
+                function showAssistant(msg, showButton) {
+                  var assistant = document.getElementById('connectivity-assistant');
+                  if (!assistant) {
+                    assistant = document.createElement('div');
+                    assistant.id = 'connectivity-assistant';
+                    document.body.appendChild(assistant);
+                  }
+                  assistant.style.display = 'flex';
+                  assistant.innerHTML = '<span>' + msg + '</span>';
+                  if (showButton) {
+                    var btn = document.createElement('button');
+                    btn.innerText = 'Trigger Network Popup';
+                    btn.onclick = function() { runProbe(true); };
+                    assistant.appendChild(btn);
+                  }
+                }
+
+                function runProbe(isManual) {
+                  console.log('[DEBUG-NET] RUNNING PROBE (Manual:' + !!isManual + ')...');
+                  fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
+                    console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
+                    var assistant = document.getElementById('connectivity-assistant');
+                    if (assistant) assistant.style.display = 'none';
+                  }).catch(function(e) {
+                    console.error('[DEBUG-NET] PROBE FAIL:', e.message);
+                    showAssistant('⚠️ Network Blocked: Ensure "Wireless Data" is ON in iOS Settings.', true);
+                  });
+                }
+
                 if (isNative) {
-                  setTimeout(function() {
-                     console.log('[DEBUG-NET] RUNNING PROBE (After Delay)...');
-                     fetch(apiBaseUrl + '/api/auth/session').then(function(r) {
-                       console.log('[DEBUG-NET] PROBE:', r.status === 200 ? 'SUCCESS' : 'STATUS ' + r.status);
-                     }).catch(function(e) {
-                       console.error('[DEBUG-NET] PROBE FAIL (Permission likely missing):', e.message);
-                     });
-                  }, 2000);
+                  setTimeout(runProbe, 2500);
                 }
 
                 var OriginalRequest = window.Request;
@@ -51,10 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       configurable: false,
                       enumerable: true
                     });
-                    console.log('[DEBUG-NET] KEEPALIVE KILLED ON PROTOTYPE');
-                  } catch (e) {
-                    console.warn('[DEBUG-NET] PROTO KILL FAIL');
-                  }
+                  } catch (e) {}
                 }
 
                 function getRedirection(url) {
@@ -115,8 +162,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   }
 
                   try {
-                    var req = new OriginalRequest(redirectUrl || url, scrubbedInit);
-                    return req;
+                    return new OriginalRequest(redirectUrl || url, scrubbedInit);
                   } catch (e) {
                     console.error('[DEBUG-NET] REQ ERR:', e.message);
                     return new OriginalRequest(input, init);
