@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
 function CallbackContent() {
   const searchParams = useSearchParams()
@@ -87,6 +88,15 @@ function CallbackContent() {
   )
 }
 
+const DynamicCallbackContent = dynamic(() => Promise.resolve(CallbackContent), {
+  ssr: false,
+  loading: () => (
+    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Loader2 size={64} className="spinner" color="var(--primary)" />
+    </div>
+  )
+})
+
 export default function ClickPesaCallbackPage() {
   return (
     <Suspense fallback={
@@ -94,7 +104,7 @@ export default function ClickPesaCallbackPage() {
         <Loader2 size={64} className="spinner" color="var(--primary)" />
       </div>
     }>
-      <CallbackContent />
+      <DynamicCallbackContent />
     </Suspense>
   )
 }

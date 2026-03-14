@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
 function CallbackContent() {
   const searchParams = useSearchParams();
@@ -21,18 +22,12 @@ function CallbackContent() {
       return;
     }
 
-    // Since the IPN might still be processing, we check the status ourselves
-    // or just assume if we reached here with valid params, we can show a "Processing" message
-    // and redirect after a few seconds.
-    
-    // For a better UX, we could call an API to check our 'payments' table status
     const checkStatus = async () => {
       try {
-        const res = await fetch(`/api/dashboard`); // Refresh dashboard data implicitly
+        await fetch(`/api/dashboard`); 
         setStatus('success');
         setMessage('Malipo yako yamepokelewa na yanashughulikiwa.');
         
-        // Redirect to dashboard after 5 seconds
         setTimeout(() => {
           router.push('/dashboard');
         }, 5000);
@@ -93,6 +88,16 @@ function CallbackContent() {
   );
 }
 
+// We wrap the component in a client-only dynamic import to prevent useSearchParams bailout
+const DynamicCallbackContent = dynamic(() => Promise.resolve(CallbackContent), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+    </div>
+  )
+});
+
 export default function PesaPalCallbackPage() {
   return (
     <Suspense fallback={
@@ -100,7 +105,7 @@ export default function PesaPalCallbackPage() {
         <Loader2 className="w-8 h-8 animate-spin text-white/50" />
       </div>
     }>
-      <CallbackContent />
+      <DynamicCallbackContent />
     </Suspense>
   );
 }
