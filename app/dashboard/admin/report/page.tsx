@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 import { FileBarChart, PieChart, TrendingUp, PiggyBank, HandCoins } from 'lucide-react'
 
 export default function AdminReportPage() {
@@ -8,7 +9,7 @@ export default function AdminReportPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/dashboard') // Reuse dashboard API which contains all group aggregates
+    apiClient('/api/dashboard') // Reuse dashboard API which contains all group aggregates
       .then(res => res.json())
       .then(d => { setData(d); setLoading(false) })
   }, [])

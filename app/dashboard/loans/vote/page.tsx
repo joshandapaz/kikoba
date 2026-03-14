@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Vote, History, Users, Check, X, Building, HandCoins } from 'lucide-react'
 import { formatCurrency, formatRelativeTime } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 interface LoanVote {
   user: { id: string, username: string }
@@ -34,7 +35,7 @@ export default function VoteLoansPage() {
 
   const fetchLoans = async () => {
     // Fetch all pending loans in user's groups
-    const res = await fetch('/api/loans?status=PENDING')
+    const res = await apiClient('/api/loans?status=PENDING')
     const data = await res.json()
     if (res.ok) setLoans(data)
     setLoading(false)
@@ -42,9 +43,8 @@ export default function VoteLoansPage() {
 
   const handleVote = async (loanId: string, voteType: 'APPROVE' | 'REJECT') => {
     setVotingId(loanId)
-    const res = await fetch(`/api/loans/${loanId}/vote`, {
+    const res = await apiClient(`/api/loans/${loanId}/vote`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ vote: voteType })
     })
     

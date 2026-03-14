@@ -1,4 +1,4 @@
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export function generateStaticParams() { return []; }
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'

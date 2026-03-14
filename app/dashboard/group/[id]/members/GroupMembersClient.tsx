@@ -2,6 +2,7 @@
 import { useState, useEffect, use } from 'react'
 import { Shield, ShieldAlert, Trash2, Users, UserPlus, ArrowRight, ArrowLeft } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 import Link from 'next/link'
 
 export default function GroupMembersClient({ groupId }: { groupId: string }) {
@@ -17,7 +18,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   }, [groupId])
 
   const fetchMembers = async () => {
-    const res = await fetch(`/api/admin/members?groupId=${groupId}`)
+    const res = await apiClient(`/api/admin/members?groupId=${groupId}`)
     const data = await res.json()
     if (res.ok) setMembers(data)
     else setError(data.error || 'Ruhusa imekataliwa')
@@ -27,9 +28,8 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   const changeRole = async (memberId: string, newRole: string) => {
     if (!confirm(`Je, una uhakika unataka kubadilisha cheo kuwa ${newRole}?`)) return
     
-    const res = await fetch('/api/admin/members', {
+    const res = await apiClient('/api/admin/members', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberId, role: newRole, groupId })
     })
     if (res.ok) fetchMembers()
@@ -38,7 +38,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   const removeMember = async (memberId: string) => {
     if (!confirm('Je, una uhakika unataka kumtoa mwanachama huyu?')) return
     
-    const res = await fetch(`/api/admin/members?memberId=${memberId}&groupId=${groupId}`, { method: 'DELETE' })
+    const res = await apiClient(`/api/admin/members?memberId=${memberId}&groupId=${groupId}`, { method: 'DELETE' })
     if (res.ok) fetchMembers()
   }
 
@@ -49,9 +49,8 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
     setAddingMember(true)
     setAddMessage({ type: '', text: '' })
 
-    const res = await fetch('/api/admin/members', {
+    const res = await apiClient('/api/admin/members', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberCode: memberCodeInput, groupId })
     })
 

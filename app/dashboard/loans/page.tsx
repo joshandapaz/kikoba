@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getLoanStatusColor, getLoanStatusLabel, calculateLoanBalance } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 import { HandCoins, Plus, Calendar, Activity, ChevronRight, CheckCircle2 } from 'lucide-react'
 
@@ -25,7 +26,7 @@ export default function MyLoansPage() {
 
   useEffect(() => {
     const fetchLoans = () => {
-      fetch('/api/loans?mine=true')
+      apiClient('/api/loans?mine=true')
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setLoans(data)

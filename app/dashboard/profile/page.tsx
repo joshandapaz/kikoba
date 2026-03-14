@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { UserCircle, Mail, Phone, Calendar, ArrowRight, ShieldCheck, Copy, Check } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -17,7 +18,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    fetch('/api/profile')
+    apiClient('/api/profile')
       .then(res => res.json())
       .then(data => {
         setUser(data)
@@ -56,9 +57,8 @@ export default function ProfilePage() {
         .getPublicUrl(filePath)
 
       // Update profile with new avatar URL
-      const res = await fetch('/api/profile', {
+      const res = await apiClient('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatarUrl: publicUrl })
       })
 
@@ -79,9 +79,8 @@ export default function ProfilePage() {
     setUpdating(true)
     setMessage({ type: '', text: '' })
     
-    const res = await fetch('/api/profile', {
+    const res = await apiClient('/api/profile', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, phone })
     })
     

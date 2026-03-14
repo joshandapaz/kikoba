@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { PiggyBank, Plus, ArrowRight } from 'lucide-react'
+import { apiClient } from '@/lib/api-client'
 
 
 interface Saving {
@@ -27,7 +28,7 @@ export default function SavingsPage() {
   const [message, setMessage] = useState({ type: '', text: '' })
 
   useEffect(() => {
-    fetch('/api/group').then(res => res.json()).then(data => {
+    apiClient('/api/group').then(res => res.json()).then(data => {
       if (Array.isArray(data) && data.length > 0) {
         setGroups(data.map(g => ({ id: g.id, name: g.name })))
         setSelectedGroup(data[0].id)
@@ -51,7 +52,7 @@ export default function SavingsPage() {
 
   const fetchSavings = async () => {
     try {
-      const res = await fetch('/api/savings')
+      const res = await apiClient('/api/savings')
       const data = await res.json()
       if (res.ok) {
         setSavings(data.savings)
@@ -73,9 +74,8 @@ export default function SavingsPage() {
     setSubmitting(true)
     setMessage({ type: '', text: '' })
 
-    const res = await fetch('/api/savings', {
+    const res = await apiClient('/api/savings', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         groupId: selectedGroup,
         amount: Number(amount),

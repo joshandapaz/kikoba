@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Activity as ActivityIcon } from 'lucide-react'
 import { formatCurrency, formatRelativeTime, formatDate } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 interface Activity {
   id: string
@@ -16,7 +17,7 @@ export default function ActivityLogPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/activity')
+    apiClient('/api/activity')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setActivities(data)

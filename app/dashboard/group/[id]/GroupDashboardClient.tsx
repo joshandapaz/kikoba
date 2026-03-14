@@ -4,6 +4,7 @@ import { Users, TrendingUp, Landmark, Shield, ArrowLeft, Building2, HandCoins, W
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 export default function GroupDashboardClient({ groupId }: { groupId: string }) {
   const router = useRouter()
@@ -23,7 +24,7 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
   }, [groupId])
 
   const fetchGroupData = async () => {
-    const res = await fetch(`/api/group/${groupId}`)
+    const res = await apiClient(`/api/group/${groupId}`)
     if (res.ok) setData(await res.json())
     setLoading(false)
   }
@@ -32,9 +33,8 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
     if (!amount || Number(amount) <= 0) return
     setIsTransacting(true)
     try {
-      const res = await fetch('/api/groups/contribute', {
+      const res = await apiClient('/api/groups/contribute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           amount: Number(amount),
           groupId
@@ -60,9 +60,8 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
     if (!amount || Number(amount) <= 0 || !reason) return
     setIsTransacting(true)
     try {
-      const res = await fetch('/api/groups/withdraw', {
+      const res = await apiClient('/api/groups/withdraw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Number(amount), reason, groupId })
       })
       const result = await res.json()
@@ -86,9 +85,8 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
     if (!amount || Number(amount) <= 0 || !reason || !duration) return
     setIsTransacting(true)
     try {
-      const res = await fetch('/api/loans', {
+      const res = await apiClient('/api/loans', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Number(amount), reason, duration: Number(duration), groupId })
       })
       const result = await res.json()
@@ -110,9 +108,8 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
 
   const handleApproval = async (requestId: string, action: 'APPROVE' | 'REJECT') => {
     try {
-      const res = await fetch('/api/groups/approve-withdrawal', {
+      const res = await apiClient('/api/groups/approve-withdrawal', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId, action })
       })
       const result = await res.json()
@@ -125,9 +122,8 @@ export default function GroupDashboardClient({ groupId }: { groupId: string }) {
 
   const handleLoanApproval = async (loanId: string, action: 'APPROVE' | 'REJECT') => {
     try {
-      const res = await fetch('/api/loans/approve', {
+      const res = await apiClient('/api/loans/approve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ loanId, action })
       })
       const result = await res.json()

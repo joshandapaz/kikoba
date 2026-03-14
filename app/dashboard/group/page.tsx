@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Users, Copy, Check, Hash, Building, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 interface Group {
   id: string
@@ -33,7 +34,7 @@ export default function GroupPage() {
   }, [])
 
   const fetchGroups = async () => {
-    const res = await fetch('/api/group')
+    const res = await apiClient('/api/group')
     if (res.ok) setGroups(await res.json())
     setLoading(false)
   }
@@ -42,9 +43,8 @@ export default function GroupPage() {
     e.preventDefault()
     setFormState({ loading: true, error: '', success: '' })
     
-    const res = await fetch('/api/group', {
+    const res = await apiClient('/api/group', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(createForm)
     })
     

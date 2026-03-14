@@ -32,6 +32,7 @@ export async function apiClient(path: string, options: RequestInit = {}) {
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     return response;

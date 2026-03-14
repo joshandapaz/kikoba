@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, calculateLoanBalance } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 import { HandCoins, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function RepayLoanClient({ id }: { id: string }) {
@@ -14,7 +15,7 @@ export default function RepayLoanClient({ id }: { id: string }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch('/api/loans?mine=true')
+    apiClient('/api/loans?mine=true')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -36,9 +37,8 @@ export default function RepayLoanClient({ id }: { id: string }) {
     setSubmitting(true)
     setError('')
 
-    const res = await fetch(`/api/loans/${id}/repay`, {
+    const res = await apiClient(`/api/loans/${id}/repay`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: Number(amount), note })
     })
 

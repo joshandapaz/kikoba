@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { HandCoins, Calculator, ArrowRight, AlertCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 function LoanRequestForm() {
   const router = useRouter()
@@ -23,7 +24,7 @@ function LoanRequestForm() {
   const INTEREST_RATE = 10
 
   useEffect(() => {
-    fetch('/api/group').then(res => res.json()).then(data => {
+    apiClient('/api/group').then(res => res.json()).then(data => {
       if (Array.isArray(data) && data.length > 0) {
         setGroups(data.map(g => ({ id: g.id, name: g.name })))
         // Only set default if not already set by preSelectedGroupId
@@ -44,9 +45,8 @@ function LoanRequestForm() {
     setLoading(true)
     setError('')
 
-    const res = await fetch('/api/loans', {
+    const res = await apiClient('/api/loans', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         groupId,
         amount: Number(amount),

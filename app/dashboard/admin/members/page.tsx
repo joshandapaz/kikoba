@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Shield, ShieldAlert, Trash2, Users, UserPlus, ArrowRight } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<any[]>([])
@@ -16,7 +17,7 @@ export default function AdminMembersPage() {
   }, [])
 
   const fetchMembers = async () => {
-    const res = await fetch('/api/admin/members')
+    const res = await apiClient('/api/admin/members')
     const data = await res.json()
     if (res.ok) setMembers(data)
     else setError(data.error || 'Ruhusa imekataliwa')
@@ -26,9 +27,8 @@ export default function AdminMembersPage() {
   const changeRole = async (memberId: string, newRole: string) => {
     if (!confirm(`Je, una uhakika unataka kubadilisha cheo kuwa ${newRole}?`)) return
     
-    const res = await fetch('/api/admin/members', {
+    const res = await apiClient('/api/admin/members', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberId, role: newRole })
     })
     if (res.ok) fetchMembers()
@@ -37,7 +37,7 @@ export default function AdminMembersPage() {
   const removeMember = async (memberId: string) => {
     if (!confirm('Je, una uhakika unataka kumtoa mwanachama huyu?')) return
     
-    const res = await fetch(`/api/admin/members?memberId=${memberId}`, { method: 'DELETE' })
+    const res = await apiClient(`/api/admin/members?memberId=${memberId}`, { method: 'DELETE' })
     if (res.ok) fetchMembers()
   }
 
@@ -48,9 +48,8 @@ export default function AdminMembersPage() {
     setAddingMember(true)
     setAddMessage({ type: '', text: '' })
 
-    const res = await fetch('/api/admin/members', {
+    const res = await apiClient('/api/admin/members', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberCode: memberCodeInput })
     })
 
