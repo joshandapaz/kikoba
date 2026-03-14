@@ -128,9 +128,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (window.Navigator && window.Navigator.prototype) window.Navigator.prototype.sendBeacon = noop;
                 } catch (e) {}
 
-                if (apiBaseUrl) {
-                  window.__NEXTAUTH = { baseUrl: apiBaseUrl, basePath: '/api/auth' };
-                }
+                // CRITICAL: Do NOT set an absolute baseUrl here. 
+                // Let next-auth THINK it's local so it doesn't trigger window.location changes.
+                // Our fetch/Request proxy will handle the actual network redirection.
+                window.__NEXTAUTH = { baseUrl: '/', basePath: '/api/auth' };
               })();
             `,
           }}
