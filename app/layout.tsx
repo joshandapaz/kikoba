@@ -22,32 +22,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var protocol = window.location.protocol;
-                var isNative = protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
+                var isNative = window.location.protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.1.10:3000";
 
                 console.log('[DEBUG-AUTH] Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
 
-                // Nuclear interceptor
+                var OriginalRequest = window.Request;
                 var originalFetch = window.fetch;
-                var customFetch = function(input, init) {
-                  var url;
-                  var options = init || {};
-                  var isRequest = typeof input === 'object' && input !== null && !(input instanceof URL) && 'url' in input;
 
-                  if (typeof input === 'string') {
-                    url = input;
-                  } else if (input instanceof URL) {
-                    url = input.toString();
-                  } else if (isRequest) {
-                    url = input.url;
-                  }
-                  
-                  // Match /api/auth or api/auth
-                  var isAuth = url && url.indexOf('api/auth/') !== -1;
-                  var isLocal = url && (url.indexOf('/') === 0 || 
+                function getRedirection(url) {
+                  if (!url) return url;
+                  var isAuth = url.indexOf('api/auth/') !== -1;
+                  var isLocal = url.indexOf('/') === 0 || 
                                 url.indexOf('capacitor://') === 0 || 
-                                url.indexOf('http://localhost') === 0);
+                                url.indexOf('http://localhost') === 0;
 
                   if (isAuth && (isLocal || !url.match(/^https?:/)) && apiBaseUrl) {
                     var path = url;
@@ -62,49 +50,60 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     } else if (url.indexOf('/') !== 0) {
                       path = '/' + url;
                     }
-                    
                     var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
                     console.log('[DEBUG-AUTH] REDIRECT:', url, '->', absoluteUrl);
-                    
-                    if (isRequest) {
-                      try {
-                        input = new Request(absoluteUrl, input);
-                      } catch (e) {
-                        input = absoluteUrl; // Fallback
-                      }
-                    } else {
-                      input = absoluteUrl;
-                    }
+                    return absoluteUrl;
+                  }
+                  return url;
+                }
+
+                // Override Request constructor
+                window.Request = function(input, init) {
+                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
+                  var options = init || {};
+                  
+                  // Redirect if needed
+                  var newUrl = getRedirection(url);
+                  
+                  // Strip keepalive
+                  if (isNative && options.keepalive) {
+                    console.log('[DEBUG-AUTH] Stripping keepalive from new Request');
+                    options.keepalive = false;
                   }
 
-                  // Strip keepalive in native environment to prevent "Beacons only over HTTP(S)" error
-                  // We MUST do this for both init options AND the Request object
-                  if (isNative) {
-                    var hasKeepAlive = options.keepalive || (isRequest && input.keepalive);
-                    if (hasKeepAlive) {
-                      console.log('[DEBUG-AUTH] Stripping keepalive from', url);
-                      options.keepalive = false;
-                      if (isRequest) {
-                        try {
-                          // Recreating the request without keepalive
-                          input = new Request(input, { keepalive: false });
-                        } catch (e) {
-                          // If it fails, use the URL string instead
-                          input = typeof input === 'string' ? input : input.url;
-                        }
-                      }
-                    }
+                  try {
+                    return new OriginalRequest(newUrl || input, options);
+                  } catch (e) {
+                    return new OriginalRequest(input, options);
                   }
-
-                  return originalFetch(input, options);
                 };
 
-                // Define it non-configurably if possible to prevent other scripts from overriding
-                try {
-                  window.fetch = customFetch;
-                } catch (e) {
-                  console.error('[DEBUG-AUTH] Failed to override fetch', e);
-                }
+                // Override fetch
+                window.fetch = function(input, init) {
+                  var options = init || {};
+                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
+                  
+                  var newUrl = getRedirection(url);
+                  
+                  if (isNative && options.keepalive) {
+                    console.log('[DEBUG-AUTH] Stripping keepalive from fetch');
+                    options.keepalive = false;
+                  }
+
+                  // If input is a Request object, we already handled it in the constructor potentially,
+                  // but for safety we handle it here too if it was created before our override.
+                  if (typeof input === 'object' && input !== null && !(input instanceof URL) && input.url) {
+                     if (isNative && input.keepalive) {
+                        try {
+                          input = new Request(input, { keepalive: false });
+                        } catch (e) {
+                          input = input.url;
+                        }
+                     }
+                  }
+
+                  return originalFetch(newUrl || input, options);
+                };
 
                 // sendBeacon fallback
                 try {
@@ -112,12 +111,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     console.log('[DEBUG-BEACON] Intercepted:', url);
                     return true;
                   };
-                  if (window.navigator) {
-                    window.navigator.sendBeacon = beaconHandler;
-                  }
-                  if (window.Navigator && window.Navigator.prototype) {
-                    window.Navigator.prototype.sendBeacon = beaconHandler;
-                  }
+                  if (window.navigator) window.navigator.sendBeacon = beaconHandler;
+                  if (window.Navigator && window.Navigator.prototype) window.Navigator.prototype.sendBeacon = beaconHandler;
                 } catch (e) {}
 
                 if (apiBaseUrl) {
