@@ -2,10 +2,14 @@
 import { SessionProvider } from 'next-auth/react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const isWeb = typeof window !== 'undefined' && 
-                (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+  // Detect native environment (Capacitor)
+  const isNative = typeof window !== 'undefined' && 
+                   (window.location.protocol === 'capacitor:' || 
+                    window.location.href.indexOf('capacitor://') === 0);
+  const isWeb = !isNative;
   
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+  const FALLBACK_API = "http://192.168.1.10:3000";
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_APP_URL || FALLBACK_API).replace(/\/$/, '');
   const basePath = isWeb ? undefined : `${apiBaseUrl}/api/auth`;
 
   return (

@@ -23,34 +23,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               (function() {
                 var protocol = window.location.protocol;
-                var isNative = protocol === 'capacitor:';
-                var apiBaseUrl = "${API_URL}";
+                var isNative = protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
+                var apiBaseUrl = "${API_URL}" || "http://192.168.1.10:3000";
 
                 console.log('[DEBUG-AUTH] Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
 
                 // Nuclear interceptor
                 var originalFetch = window.fetch;
-                window.fetch = function(input, init) {
+                var customFetch = function(input, init) {
                   var url;
                   var options = init || {};
+                  var isRequest = typeof input === 'object' && input !== null && !(input instanceof URL) && 'url' in input;
 
                   if (typeof input === 'string') {
                     url = input;
                   } else if (input instanceof URL) {
                     url = input.toString();
-                  } else {
-                    // It's a Request object
+                  } else if (isRequest) {
                     url = input.url;
-                    // For Request objects, we need to extract options to modify them
-                    // Note: This is an approximation since Request properties are read-only
-                    // but fetch will use the merged options from init.
                   }
                   
                   // Match /api/auth or api/auth
-                  var isAuth = url.indexOf('api/auth/') !== -1;
-                  var isLocal = url.indexOf('/') === 0 || 
+                  var isAuth = url && url.indexOf('api/auth/') !== -1;
+                  var isLocal = url && (url.indexOf('/') === 0 || 
                                 url.indexOf('capacitor://') === 0 || 
-                                url.indexOf('http://localhost') === 0;
+                                url.indexOf('http://localhost') === 0);
 
                   if (isAuth && (isLocal || !url.match(/^https?:/)) && apiBaseUrl) {
                     var path = url;
@@ -69,50 +66,59 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
                     console.log('[DEBUG-AUTH] REDIRECT:', url, '->', absoluteUrl);
                     
-                    // If input was a string or URL, we just replace it
-                    if (typeof input === 'string' || input instanceof URL) {
-                      input = absoluteUrl;
-                    } else {
-                      // If input was a Request, we need to recreate it because url is read-only
+                    if (isRequest) {
                       try {
                         input = new Request(absoluteUrl, input);
                       } catch (e) {
-                        console.error('[DEBUG-AUTH] Re-request failed', e);
-                        // Fallback to string if Request constructor fails
-                        input = absoluteUrl;
+                        input = absoluteUrl; // Fallback
                       }
+                    } else {
+                      input = absoluteUrl;
                     }
                   }
 
                   // Strip keepalive in native environment to prevent "Beacons only over HTTP(S)" error
-                  if (isNative && options.keepalive) {
-                    console.log('[DEBUG-AUTH] Stripping keepalive from request');
-                    delete options.keepalive;
+                  // We MUST do this for both init options AND the Request object
+                  if (isNative) {
+                    var hasKeepAlive = options.keepalive || (isRequest && input.keepalive);
+                    if (hasKeepAlive) {
+                      console.log('[DEBUG-AUTH] Stripping keepalive from', url);
+                      options.keepalive = false;
+                      if (isRequest) {
+                        try {
+                          // Recreating the request without keepalive
+                          input = new Request(input, { keepalive: false });
+                        } catch (e) {
+                          // If it fails, use the URL string instead
+                          input = typeof input === 'string' ? input : input.url;
+                        }
+                      }
+                    }
                   }
 
                   return originalFetch(input, options);
                 };
 
-                // sendBeacon fallback - replace on prototype if possible or directly on instance
+                // Define it non-configurably if possible to prevent other scripts from overriding
+                try {
+                  window.fetch = customFetch;
+                } catch (e) {
+                  console.error('[DEBUG-AUTH] Failed to override fetch', e);
+                }
+
+                // sendBeacon fallback
                 try {
                   var beaconHandler = function(url, data) {
                     console.log('[DEBUG-BEACON] Intercepted:', url);
-                    if (typeof url === 'string' && !url.match(/^https?:/)) {
-                      console.warn('[DEBUG-BEACON] Blocking non-http beacon to prevent crash');
-                      return true; // Pretend it was sent
-                    }
-                    return true; 
+                    return true;
                   };
-
-                  if (window.Navigator && window.Navigator.prototype) {
-                    window.Navigator.prototype.sendBeacon = beaconHandler;
-                  }
                   if (window.navigator) {
                     window.navigator.sendBeacon = beaconHandler;
                   }
-                } catch (e) {
-                  console.error('[DEBUG-BEACON] Failed to polyfill sendBeacon', e);
-                }
+                  if (window.Navigator && window.Navigator.prototype) {
+                    window.Navigator.prototype.sendBeacon = beaconHandler;
+                  }
+                } catch (e) {}
 
                 if (apiBaseUrl) {
                   window.__NEXTAUTH = { baseUrl: apiBaseUrl, basePath: '/api/auth' };

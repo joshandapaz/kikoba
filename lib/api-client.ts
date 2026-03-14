@@ -10,12 +10,17 @@ export async function apiClient(path: string, options: RequestInit = {}) {
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // In native environments, we need absolute URLs
-  // We detect native by checking if we are in a non-web protocol or if Capacitor is present
-  const isWeb = typeof window !== 'undefined' && 
+  // Detect native environment (Capacitor)
+  const isNative = typeof window !== 'undefined' && 
+                   (window.location.protocol === 'capacitor:' || 
+                    window.location.href.indexOf('capacitor://') === 0);
+  
+  const isWeb = !isNative && typeof window !== 'undefined' && 
                 (window.location.protocol === 'http:' || window.location.protocol === 'https:');
   
-  const baseUrl = isWeb ? '' : API_URL;
+  // Hardcoded fallback for production-build native apps if env var is missing
+  const FALLBACK_API = "http://192.168.1.10:3000";
+  const baseUrl = isWeb ? '' : (API_URL || FALLBACK_API);
   
   if (!isWeb && !API_URL) {
     console.warn('API Client: Running in non-web environment but NEXT_PUBLIC_API_URL is not set.');
