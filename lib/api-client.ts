@@ -10,9 +10,22 @@ export async function apiClient(path: string, options: RequestInit = {}) {
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // We ALWAYS use relative paths now. 
-  // Our Transparent Proxy in layout.tsx handles the redirection to absolute backend IP.
-  const url = normalizedPath;
+  let url = normalizedPath;
+
+  // HARD FALLBACK: If we detect native env here, we pre-redirect 
+  // in case the layout.tsx interceptor missed it (e.g. race condition)
+  if (typeof window !== 'undefined') {
+    const isNative = (
+      window.location.protocol === 'capacitor:' || 
+      window.location.protocol === 'app:' ||
+      (window as any).Capacitor
+    );
+    if (isNative) {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.101:3000";
+      url = apiBase.replace(/\/$/, '') + normalizedPath;
+      // console.log('[DEBUG-NET-CLIENT] Forcing Absolute URL:', url);
+    }
+  }
 
   const headers = {
     'Content-Type': 'application/json',

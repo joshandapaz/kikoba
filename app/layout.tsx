@@ -22,10 +22,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var isNative = window.location.protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
+                var isNative = (
+                  window.location.protocol === 'capacitor:' || 
+                  window.location.protocol === 'app:' ||
+                  window.location.href.indexOf('capacitor://') === 0 ||
+                  window.location.href.indexOf('app://') === 0 ||
+                  !!window.Capacitor ||
+                  (window.location.hostname === 'localhost' && !window.location.port)
+                );
                 var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
-                console.log('[DEBUG-NET] STARTUP. Native:', isNative, 'Base:', apiBaseUrl);
+                console.log('[DEBUG-NET] AUDIT. Protocol:', window.location.protocol, 'Host:', window.location.hostname, 'Native:', isNative);
 
                 // Quick Connection Probe
                 if (isNative) {
@@ -44,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   var isApi = url.indexOf('/api/') !== -1;
                   var isLocal = url.indexOf('/') === 0 || 
                                 url.indexOf('capacitor://') === 0 || 
+                                url.indexOf('app://') === 0 ||
                                 url.indexOf('http://localhost') === 0;
 
                   if (isNative && isApi && (isLocal || !url.match(/^https?:/))) {
@@ -62,6 +70,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
                     console.log('[DEBUG-NET] REDIRECT:', url, '->', absoluteUrl);
                     return absoluteUrl;
+                  }
+                  
+                  if (isApi && !isNative) {
+                     // console.log('[DEBUG-NET] NO REDIRECT (Not Native). URL:', url);
                   }
                   return url;
                 }
@@ -119,10 +131,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     });
                   }
 
-                  console.log('[DEBUG-NET] FETCH:', url, redirectUrl ? '(TO: ' + redirectUrl + ')' : '');
+                  console.log('[DEBUG-NET] FETCH:', url, (redirectUrl && redirectUrl !== url) ? '(TO: ' + redirectUrl + ')' : '');
 
                   return originalFetch(redirectUrl || input, scrubbedInit).then(function(response) {
-                    console.log('[DEBUG-NET] RESPONSE:', url, '->', response.status);
+                    if (redirectUrl && redirectUrl !== url) {
+                       console.log('[DEBUG-NET] RESPONSE:', url, '->', response.status);
+                    }
                     
                     if (!isNative || !redirectUrl || redirectUrl === url) return response;
 
