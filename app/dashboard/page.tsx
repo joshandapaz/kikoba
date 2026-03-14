@@ -8,10 +8,12 @@ import {
   Activity, Wallet, BarChart3, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2
 } from 'lucide-react'
 import Link from 'next/link'
+import { apiClient } from '@/lib/api-client'
 
 interface DashboardData {
   userId: string
   noGroup: boolean
+  error?: string
   isAdmin: boolean
   group: { id: string; name: string; joinCode: string }
   userStats: { walletBalance: number; totalSavings: number; activeLoans: number; loanBalance: number; pendingRequests: number; registeredPhone?: string }
@@ -53,9 +55,8 @@ export default function DashboardPage() {
     setIsTransacting(true)
     try {
       if (transactionType === 'DEPOSIT') {
-        const res = await fetch('/api/payments/clickpesa/initiate', {
+        const res = await apiClient('/api/payments/clickpesa/initiate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             amount: Number(amount),
             walletType,
@@ -70,9 +71,8 @@ export default function DashboardPage() {
           alert(result.error || 'Imeshindwa kuanzisha malipo ya ClickPesa')
         }
       } else {
-        const res = await fetch('/api/payments/clickpesa/payout', {
+        const res = await apiClient('/api/payments/clickpesa/payout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: Number(amount) })
         })
         const result = await res.json()
@@ -97,9 +97,8 @@ export default function DashboardPage() {
     if (!amount || Number(amount) <= 0 || !withdrawalReason) return
     setIsTransacting(true)
     try {
-      const res = await fetch('/api/groups/withdraw', {
+      const res = await apiClient('/api/groups/withdraw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           amount: Number(amount), 
           reason: withdrawalReason,
@@ -125,9 +124,8 @@ export default function DashboardPage() {
 
   const handleVote = async (withdrawalId: string, vote: 'YES' | 'NO') => {
     try {
-      const res = await fetch('/api/groups/withdraw/vote', {
+      const res = await apiClient('/api/groups/withdraw/vote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ withdrawalId, vote })
       })
       const result = await res.json()
@@ -140,7 +138,7 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const r = await fetch('/api/dashboard')
+      const r = await apiClient('/api/dashboard')
       const d = await r.json()
       setData(d)
     } finally {
@@ -167,6 +165,13 @@ export default function DashboardPage() {
     <div style={{ padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}>
       <div className="spinner" style={{ width: 40, height: 40 }} />
       <p style={{ color: 'var(--text-secondary)' }}>Inapakia...</p>
+    </div>
+  )
+
+  if (data?.error) return (
+    <div style={{ padding: 32, textAlign: 'center' }}>
+      <p style={{ color: '#FF4D4D', marginBottom: 16 }}>{data.error}</p>
+      <button onClick={() => fetchData()} className="btn-secondary">Jaribu Tena</button>
     </div>
   )
 
@@ -213,10 +218,10 @@ export default function DashboardPage() {
   if (!data) return null
 
   const adminCards = [
-    { label: 'Fedha za Kikundi', value: formatCurrency(data.groupStats.totalFunds), icon: Wallet, link: '/dashboard/admin/report' },
-    { label: 'Jumla ya Akiba', value: formatCurrency(data.groupStats.totalSavings), icon: PiggyBank, link: '/dashboard/admin/report' },
-    { label: 'Mikopo Iliyotolewa', value: formatCurrency(data.groupStats.totalLoansIssued), icon: BarChart3, link: '/dashboard/admin/report' },
-    { label: 'Wanachama', value: data.groupStats.membersCount, icon: Users, link: '/dashboard/admin/members' },
+    { label: 'Fedha za Kikundi', value: formatCurrency(data.groupStats?.totalFunds || 0), icon: Wallet, link: '/dashboard/admin/report' },
+    { label: 'Jumla ya Akiba', value: formatCurrency(data.groupStats?.totalSavings || 0), icon: PiggyBank, link: '/dashboard/admin/report' },
+    { label: 'Mikopo Iliyotolewa', value: formatCurrency(data.groupStats?.totalLoansIssued || 0), icon: BarChart3, link: '/dashboard/admin/report' },
+    { label: 'Wanachama', value: data.groupStats?.membersCount || 0, icon: Users, link: '/dashboard/admin/members' },
   ]
 
   return (
