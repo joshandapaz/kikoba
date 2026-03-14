@@ -41,7 +41,14 @@ export default function ErrorDetector() {
       }, ...prev].slice(0, 100))
       
       setShowNotification(true)
-      originalError.apply(console, args)
+      if (originalError) {
+        try {
+          originalError.apply(console, args)
+        } catch (e) {
+          // Fallback if apply fails
+          originalLog.call(console, 'Original error was:', ...args)
+        }
+      }
     }
 
     // Intercept unhandled rejections

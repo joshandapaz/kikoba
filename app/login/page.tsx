@@ -122,8 +122,8 @@ export default function LoginPage() {
           borderRadius: 16
         }}>
           <p style={{ fontSize: 12, color: '#FFF', marginBottom: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1 }}>🔑 Demo Login:</p>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Admin: admin@kikoba.com / password123</p>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Member: john@kikoba.com / password123</p>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Email or Phone: +255683267434</p>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Nywila (Password): password123</p>
         </div>
       </div>
     </div>

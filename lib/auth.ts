@@ -14,13 +14,18 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.password) return null
         
+        // Support eithe plain phone or email in the 'phone' field
+        const loginId = credentials.phone;
         const { data: user } = await supabaseAdmin
           .from('users')
           .select('*')
-          .eq('phone', credentials.phone)
+          .or(`phone.eq.${loginId},email.eq.${loginId}`)
           .single()
-
-        if (!user) return null
+  
+        if (!user) {
+          console.error(`[AUTH] User not found for: ${loginId}`);
+          return null
+        }
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) return null
         return {
