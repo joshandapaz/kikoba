@@ -13,7 +13,13 @@ if (typeof window !== 'undefined') {
   if (!isWeb) {
     console.log('[Capacitor-Auth] Synchronous polyfill initializing...');
     console.log('[Capacitor-Auth] Protocol:', protocol);
-    console.log('[Capacitor-Auth] Base URL:', apiBaseUrl);
+    console.log('[Capacitor-Auth] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    console.log('[Capacitor-Auth] NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
+    console.log('[Capacitor-Auth] Effective Base URL:', apiBaseUrl);
+
+    if (!apiBaseUrl) {
+      console.error('[Capacitor-Auth] CRITICAL: No API Base URL found! Relative fetches will fail on mobile.');
+    }
 
     // 1. Polyfill fetch globally
     const originalFetch = window.fetch;
@@ -21,11 +27,15 @@ if (typeof window !== 'undefined') {
       let url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
       
       // Resolve relative auth URLs to absolute ones
-      // Handles both /api/auth and api/auth
-      if ((url.startsWith('/api/auth') || url.startsWith('api/auth')) && apiBaseUrl) {
-        const path = url.startsWith('/') ? url : `/${url}`;
-        url = `${apiBaseUrl}${path}`;
-        console.log(`[Capacitor-Auth] Intercepted fetch: ${path} -> ${url}`);
+      if ((url.startsWith('/api/auth') || url.startsWith('api/auth'))) {
+        if (apiBaseUrl) {
+          const path = url.startsWith('/') ? url : `/${url}`;
+          const absoluteUrl = `${apiBaseUrl.replace(/\/$/, '')}${path}`;
+          console.log(`[Capacitor-Auth] Intercepting fetch: ${url} -> ${absoluteUrl}`);
+          url = absoluteUrl;
+        } else {
+          console.warn(`[Capacitor-Auth] Attempted auth fetch to ${url} but apiBaseUrl is missing!`);
+        }
       }
 
       const newInit = { ...init };
