@@ -7,14 +7,16 @@ const allowedOrigins = ['capacitor://localhost', 'http://localhost:3000']
 export default withAuth(
   function middleware(req: NextRequest) {
     const origin = req.headers.get('origin')
+    const isCapacitor = origin && origin.startsWith('capacitor://')
+    const isAllowed = isCapacitor || (origin && allowedOrigins.includes(origin))
     
     // Handle preflight
     if (req.method === 'OPTIONS') {
-      if (origin && allowedOrigins.includes(origin)) {
+      if (isAllowed) {
         return new NextResponse(null, {
           status: 204,
           headers: {
-            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Origin': origin!,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
             'Access-Control-Allow-Credentials': 'true',
@@ -27,8 +29,8 @@ export default withAuth(
     const response = NextResponse.next()
 
     // Add CORS headers to all responses
-    if (origin && allowedOrigins.includes(origin)) {
-      response.headers.set('Access-Control-Allow-Origin', origin)
+    if (isAllowed) {
+      response.headers.set('Access-Control-Allow-Origin', origin!)
       response.headers.set('Access-Control-Allow-Credentials', 'true')
     }
 

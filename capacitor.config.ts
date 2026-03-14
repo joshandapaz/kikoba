@@ -5,7 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Kikoba',
   webDir: 'out',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    cleartext: true,
+    allowNavigation: ['192.168.1.10:3000']
   }
 };
 
