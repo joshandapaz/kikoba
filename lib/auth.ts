@@ -62,4 +62,15 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax', // Use lax for better cross-site support on local IP
+        path: '/',
+        secure: false, // Force false even in 'production' build for local IP testing
+      },
+    },
+  },
 }
