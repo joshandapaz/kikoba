@@ -142,8 +142,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (typeof options !== 'object' || options === null) return options;
                   var scrubbed = {};
                   for (var key in options) { scrubbed[key] = options[key]; }
+                  
+                  // Force credentials: 'include' for native bridge
                   if (isNative) {
                     scrubbed.keepalive = false;
+                    scrubbed.credentials = 'include';
                   }
                   return scrubbed;
                 }
