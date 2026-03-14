@@ -7,7 +7,7 @@ import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.1.10:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.101:3000";
 
 export const metadata: Metadata = {
   title: 'Kikoba Smart - Mfumo wa Akiba na Mikopo',
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               (function() {
                 var isNative = window.location.protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
-                var apiBaseUrl = "${API_URL}" || "http://192.168.1.10:3000";
+                var apiBaseUrl = "${API_URL}" || "http://192.168.0.101:3000";
 
                 console.log('[DEBUG-AUTH] Nucleus Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
 
