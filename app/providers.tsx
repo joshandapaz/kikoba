@@ -5,7 +5,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const isWeb = typeof window !== 'undefined' && 
                 (window.location.protocol === 'http:' || window.location.protocol === 'https:');
   
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_APP_URL || '';
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
   const basePath = isWeb ? undefined : `${apiBaseUrl}/api/auth`;
 
   return (

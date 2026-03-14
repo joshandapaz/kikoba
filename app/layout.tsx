@@ -31,16 +31,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 // Nuclear interceptor
                 var originalFetch = window.fetch;
                 window.fetch = function(input, init) {
-                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
-                  
-                  // LOG EVERYTHING on mobile for tracing
-                  if (isNative) {
-                    console.log('[DEBUG-FETCH] Request:', url);
-                  }
+                  var url;
+                  var options = init || {};
 
+                  if (typeof input === 'string') {
+                    url = input;
+                  } else if (input instanceof URL) {
+                    url = input.toString();
+                  } else {
+                    // It's a Request object
+                    url = input.url;
+                    // For Request objects, we need to extract options to modify them
+                    // Note: This is an approximation since Request properties are read-only
+                    // but fetch will use the merged options from init.
+                  }
+                  
                   // Match /api/auth or api/auth
                   var isAuth = url.indexOf('api/auth/') !== -1;
-                  var isLocal = url.indexOf('/') === 0 || url.indexOf('capacitor://') === 0 || url.indexOf('http://localhost') === 0;
+                  var isLocal = url.indexOf('/') === 0 || 
+                                url.indexOf('capacitor://') === 0 || 
+                                url.indexOf('http://localhost') === 0;
 
                   if (isAuth && (isLocal || !url.match(/^https?:/)) && apiBaseUrl) {
                     var path = url;
@@ -58,28 +68,50 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     
                     var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
                     console.log('[DEBUG-AUTH] REDIRECT:', url, '->', absoluteUrl);
-                    url = absoluteUrl;
+                    
+                    // If input was a string or URL, we just replace it
+                    if (typeof input === 'string' || input instanceof URL) {
+                      input = absoluteUrl;
+                    } else {
+                      // If input was a Request, we need to recreate it because url is read-only
+                      try {
+                        input = new Request(absoluteUrl, input);
+                      } catch (e) {
+                        console.error('[DEBUG-AUTH] Re-request failed', e);
+                        // Fallback to string if Request constructor fails
+                        input = absoluteUrl;
+                      }
+                    }
                   }
 
-                  var newInit = init || {};
-                  if (newInit.keepalive && isNative) {
-                    console.log('[DEBUG-AUTH] Stripping keepalive');
-                    delete newInit.keepalive;
+                  // Strip keepalive in native environment to prevent "Beacons only over HTTP(S)" error
+                  if (isNative && options.keepalive) {
+                    console.log('[DEBUG-AUTH] Stripping keepalive from request');
+                    delete options.keepalive;
                   }
 
-                  return originalFetch(url, newInit);
+                  return originalFetch(input, options);
                 };
 
-                // sendBeacon fallback
-                if (window.navigator) {
-                  var originalSendBeacon = window.navigator.sendBeacon;
-                  window.navigator.sendBeacon = function(url, data) {
-                    console.log('[DEBUG-BEACON] Attempt:', url);
-                    if (typeof url === 'string' && (url.indexOf('http') === 0 || url.indexOf('https') === 0)) {
-                      return originalSendBeacon ? originalSendBeacon.apply(this, [url, data]) : true;
+                // sendBeacon fallback - replace on prototype if possible or directly on instance
+                try {
+                  var beaconHandler = function(url, data) {
+                    console.log('[DEBUG-BEACON] Intercepted:', url);
+                    if (typeof url === 'string' && !url.match(/^https?:/)) {
+                      console.warn('[DEBUG-BEACON] Blocking non-http beacon to prevent crash');
+                      return true; // Pretend it was sent
                     }
-                    return true;
+                    return true; 
                   };
+
+                  if (window.Navigator && window.Navigator.prototype) {
+                    window.Navigator.prototype.sendBeacon = beaconHandler;
+                  }
+                  if (window.navigator) {
+                    window.navigator.sendBeacon = beaconHandler;
+                  }
+                } catch (e) {
+                  console.error('[DEBUG-BEACON] Failed to polyfill sendBeacon', e);
                 }
 
                 if (apiBaseUrl) {
