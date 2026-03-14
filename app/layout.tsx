@@ -23,74 +23,67 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               (function() {
                 var protocol = window.location.protocol;
-                var isWeb = protocol === 'http:' || protocol === 'https:';
+                var isNative = protocol === 'capacitor:';
                 var apiBaseUrl = "${API_URL}";
 
-                if (!isWeb) {
-                  console.log('[FINAL-NUCLEAR-FIX] Initializing...');
+                console.log('[DEBUG-AUTH] Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
+
+                // Nuclear interceptor
+                var originalFetch = window.fetch;
+                window.fetch = function(input, init) {
+                  var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
                   
-                  var originalFetch = window.fetch;
-                  window.fetch = function(input, init) {
-                    var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
+                  // LOG EVERYTHING on mobile for tracing
+                  if (isNative) {
+                    console.log('[DEBUG-FETCH] Request:', url);
+                  }
+
+                  // Match /api/auth or api/auth
+                  var isAuth = url.indexOf('api/auth/') !== -1;
+                  var isLocal = url.indexOf('/') === 0 || url.indexOf('capacitor://') === 0 || url.indexOf('http://localhost') === 0;
+
+                  if (isAuth && (isLocal || !url.match(/^https?:/)) && apiBaseUrl) {
+                    var path = url;
+                    if (url.indexOf('://') !== -1) {
+                      try {
+                        var urlObj = new URL(url);
+                        path = urlObj.pathname + urlObj.search + urlObj.hash;
+                      } catch (e) {
+                        var parts = url.split('://');
+                        path = parts.length > 1 ? parts[1].substring(parts[1].indexOf('/')) : url;
+                      }
+                    } else if (url.indexOf('/') !== 0) {
+                      path = '/' + url;
+                    }
                     
-                    // Match /api/auth anywhere in the URL if it's hitting localhost/relative
-                    if (url.indexOf('/api/auth/') !== -1 || url.indexOf('api/auth/') !== -1) {
-                      var isLocal = url.indexOf('/') === 0 || url.indexOf('capacitor://') === 0 || url.indexOf('http://localhost') === 0;
-                      
-                      if (isLocal) {
-                        var path = url;
-                        if (url.indexOf('://') !== -1) {
-                          try {
-                            var urlObj = new URL(url);
-                            path = urlObj.pathname + urlObj.search + urlObj.hash;
-                          } catch (e) {
-                            var parts = url.split('://');
-                            if (parts.length > 1) {
-                              var afterProtocol = parts[1];
-                              var slashIdx = afterProtocol.indexOf('/');
-                              path = (slashIdx !== -1) ? afterProtocol.substring(slashIdx) : '/';
-                            }
-                          }
-                        }
-                        
-                        if (path.indexOf('/') !== 0) path = '/' + path;
-                        
-                        if (apiBaseUrl) {
-                          var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + path;
-                          console.log('[FINAL-NUCLEAR-FIX] INTERCEPTED:', url, '->', absoluteUrl);
-                          url = absoluteUrl;
-                        } else {
-                          console.error('[FINAL-NUCLEAR-FIX] CRITICAL ERROR: apiBaseUrl is missing for path:', path);
-                        }
-                      }
-                    }
+                    var absoluteUrl = apiBaseUrl.replace(/\\/$/, '') + (path.indexOf('/') === 0 ? path : '/' + path);
+                    console.log('[DEBUG-AUTH] REDIRECT:', url, '->', absoluteUrl);
+                    url = absoluteUrl;
+                  }
 
-                    var newInit = init || {};
-                    if (newInit.keepalive && protocol === 'capacitor:') {
-                      delete newInit.keepalive;
-                      console.log('[FINAL-NUCLEAR-FIX] Stripped keepalive');
-                    }
+                  var newInit = init || {};
+                  if (newInit.keepalive && isNative) {
+                    console.log('[DEBUG-AUTH] Stripping keepalive');
+                    delete newInit.keepalive;
+                  }
 
-                    return originalFetch(url, newInit);
+                  return originalFetch(url, newInit);
+                };
+
+                // sendBeacon fallback
+                if (window.navigator) {
+                  var originalSendBeacon = window.navigator.sendBeacon;
+                  window.navigator.sendBeacon = function(url, data) {
+                    console.log('[DEBUG-BEACON] Attempt:', url);
+                    if (typeof url === 'string' && (url.indexOf('http') === 0 || url.indexOf('https') === 0)) {
+                      return originalSendBeacon ? originalSendBeacon.apply(this, [url, data]) : true;
+                    }
+                    return true;
                   };
+                }
 
-                  if (apiBaseUrl) {
-                    window.__NEXTAUTH = {
-                      baseUrl: apiBaseUrl,
-                      basePath: '/api/auth'
-                    };
-                  }
-
-                  if (window.navigator) {
-                    var originalSendBeacon = window.navigator.sendBeacon;
-                    window.navigator.sendBeacon = function(url, data) {
-                      if (typeof url === 'string' && (url.indexOf('http') === 0 || url.indexOf('https') === 0)) {
-                        return originalSendBeacon ? originalSendBeacon.apply(this, [url, data]) : true;
-                      }
-                      console.log('[FINAL-NUCLEAR-FIX] Suppressed beacon');
-                      return true;
-                    };
-                  }
+                if (apiBaseUrl) {
+                  window.__NEXTAUTH = { baseUrl: apiBaseUrl, basePath: '/api/auth' };
                 }
               })();
             `,
