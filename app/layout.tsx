@@ -25,19 +25,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isNative = window.location.protocol === 'capacitor:' || window.location.href.indexOf('capacitor://') === 0;
                 var apiBaseUrl = "${API_URL}" || "http://192.168.1.10:3000";
 
-                console.log('[DEBUG-AUTH] Super Proxy Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
+                console.log('[DEBUG-AUTH] Transparent Proxy Bootstrap. Native:', isNative, 'Base:', apiBaseUrl);
 
                 var OriginalRequest = window.Request;
                 var originalFetch = window.fetch;
 
                 function getRedirection(url) {
                   if (!url || typeof url !== 'string') return url;
-                  var isAuth = url.indexOf('api/auth/') !== -1;
+                  // Redirect ANY /api/ call in native environment
+                  var isApi = url.indexOf('/api/') !== -1;
                   var isLocal = url.indexOf('/') === 0 || 
                                 url.indexOf('capacitor://') === 0 || 
                                 url.indexOf('http://localhost') === 0;
 
-                  if (isAuth && (isLocal || !url.match(/^https?:/)) && apiBaseUrl) {
+                  if (isNative && isApi && (isLocal || !url.match(/^https?:/))) {
                     var path = url;
                     if (url.indexOf('://') !== -1) {
                       try {
@@ -57,16 +58,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   return url;
                 }
 
+                function rewriteContent(content) {
+                  if (typeof content !== 'string') return content;
+                  if (content.indexOf(apiBaseUrl) === -1) return content;
+                  
+                  console.log('[DEBUG-AUTH] REWRITING CONTENT (Found absolute IP)');
+                  // Replace absolute backend URL with relative path /
+                  var escapedBase = apiBaseUrl.replace(/[.*+?^$\\{()|[\\]\\\\]/g, '\\\\$&');
+                  var re = new RegExp(escapedBase, 'g');
+                  return content.replace(re, '');
+                }
+
                 // Super Proxy for options/init objects
                 function createOptionsProxy(options) {
                   if (!options || typeof options !== 'object') return options;
                   
                   return new Proxy(options, {
                     get: function(target, prop) {
-                      if (prop === 'keepalive' && isNative) {
-                        console.log('[DEBUG-AUTH] Proxy blocked keepalive access');
-                        return false;
-                      }
+                      if (prop === 'keepalive' && isNative) return false;
                       return target[prop];
                     },
                     has: function(target, prop) {
@@ -84,7 +93,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   
                   try {
                     var req = new OriginalRequest(newUrl || input, proxiedInit);
-                    // Also define keepalive as false on the instance if it's native
                     if (isNative) {
                       Object.defineProperty(req, 'keepalive', { value: false, writable: false });
                     }
@@ -95,30 +103,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 };
                 window.Request.prototype = OriginalRequest.prototype;
 
-                // Override fetch
+                // Override fetch with Response Rewriting
                 window.fetch = function(input, init) {
                   var url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : (input.url || ''));
                   var newUrl = getRedirection(url);
                   var proxiedInit = createOptionsProxy(init);
 
-                  // If input is already a Request object, we might need to recreate it
-                  if (typeof input === 'object' && input !== null && !(input instanceof URL) && input.url) {
-                    if (isNative && input.keepalive) {
-                      try {
-                        input = new Request(input, { keepalive: false });
-                      } catch (e) {
-                        input = input.url;
-                      }
-                    } else if (newUrl !== url) {
-                      try {
-                        input = new Request(newUrl, input);
-                      } catch (e) {
-                        input = newUrl;
-                      }
-                    }
-                  }
+                  return originalFetch(newUrl || input, proxiedInit).then(function(response) {
+                    if (!isNative || !newUrl || newUrl === url) return response;
 
-                  return originalFetch(newUrl || input, proxiedInit);
+                    // Intercept and rewrite response body
+                    var originalJson = response.json;
+                    var originalText = response.text;
+
+                    response.json = function() {
+                      return originalJson.call(response).then(function(data) {
+                        var jsonStr = JSON.stringify(data);
+                        var rewritten = rewriteContent(jsonStr);
+                        if (rewritten !== jsonStr) {
+                          console.log('[DEBUG-AUTH] REWRITTEN JSON BODY');
+                          return JSON.parse(rewritten);
+                        }
+                        return data;
+                      });
+                    };
+
+                    response.text = function() {
+                      return originalText.call(response).then(function(text) {
+                        return rewriteContent(text);
+                      });
+                    };
+
+                    return response;
+                  });
                 };
 
                 // Definitively kill sendBeacon
@@ -128,9 +145,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   if (window.Navigator && window.Navigator.prototype) window.Navigator.prototype.sendBeacon = noop;
                 } catch (e) {}
 
-                // CRITICAL: Do NOT set an absolute baseUrl here. 
-                // Let next-auth THINK it's local so it doesn't trigger window.location changes.
-                // Our fetch/Request proxy will handle the actual network redirection.
+                // Block ALL external navigation attempts
+                if (isNative) {
+                   window.addEventListener('beforeunload', function(e) {
+                      // If we are navigating away from capacitor://, try to stop it
+                      // Note: This is limited in some browsers but can help
+                      console.log('[DEBUG-NAV] Navigation attempt detected');
+                   });
+                }
+
                 window.__NEXTAUTH = { baseUrl: '/', basePath: '/api/auth' };
               })();
             `,

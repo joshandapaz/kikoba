@@ -10,23 +10,9 @@ export async function apiClient(path: string, options: RequestInit = {}) {
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Detect native environment (Capacitor)
-  const isNative = typeof window !== 'undefined' && 
-                   (window.location.protocol === 'capacitor:' || 
-                    window.location.href.indexOf('capacitor://') === 0);
-  
-  const isWeb = !isNative && typeof window !== 'undefined' && 
-                (window.location.protocol === 'http:' || window.location.protocol === 'https:');
-  
-  // Hardcoded fallback for production-build native apps if env var is missing
-  const FALLBACK_API = "http://192.168.1.10:3000";
-  const baseUrl = isWeb ? '' : (API_URL || FALLBACK_API);
-  
-  if (!isWeb && !API_URL) {
-    console.warn('API Client: Running in non-web environment but NEXT_PUBLIC_API_URL is not set.');
-  }
-
-  const url = `${baseUrl}${normalizedPath}`;
+  // We ALWAYS use relative paths now. 
+  // Our Transparent Proxy in layout.tsx handles the redirection to absolute backend IP.
+  const url = normalizedPath;
 
   const headers = {
     'Content-Type': 'application/json',
