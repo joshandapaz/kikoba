@@ -26,16 +26,32 @@ if (typeof window !== 'undefined') {
     const authPolyfillFetch = function(input: RequestInfo | URL, init?: RequestInit) {
       let url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
       
-      // Resolve relative auth URLs to absolute ones
-      if ((url.startsWith('/api/auth') || url.startsWith('api/auth'))) {
-        if (apiBaseUrl) {
-          const path = url.startsWith('/') ? url : `/${url}`;
+      // Resolve relative or qualified auth URLs to absolute ones
+      // Matches: "/api/auth/*", "api/auth/*", or "capacitor://localhost/api/auth/*"
+      const isAuthPath = url.includes('/api/auth/') || url.includes('api/auth/');
+      const isLocal = url.startsWith('/') || url.startsWith('capacitor://') || url.startsWith('http://localhost');
+
+      if (isAuthPath && isLocal && apiBaseUrl) {
+          let path = url;
+          if (url.includes('://')) {
+              try {
+                  const urlObj = new URL(url);
+                  path = urlObj.pathname + urlObj.search + urlObj.hash;
+              } catch (e) {
+                  const parts = url.split('://');
+                  if (parts.length > 1) {
+                      const afterProtocol = parts[1];
+                      path = '/' + afterProtocol.split('/').slice(1).join('/');
+                  }
+              }
+          }
+          
+          if (!path.startsWith('/')) path = '/' + path;
+          
+          // Final absolute URL
           const absoluteUrl = `${apiBaseUrl.replace(/\/$/, '')}${path}`;
-          console.log(`[Capacitor-Auth] Intercepting fetch: ${url} -> ${absoluteUrl}`);
+          console.log(`[Capacitor-Auth] INTERCEPTED: ${url} -> ${absoluteUrl}`);
           url = absoluteUrl;
-        } else {
-          console.warn(`[Capacitor-Auth] Attempted auth fetch to ${url} but apiBaseUrl is missing!`);
-        }
       }
 
       const newInit = { ...init };
