@@ -8,7 +8,7 @@ function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false
   if (origin.startsWith('capacitor://')) return true
   if (allowedOrigins.includes(origin)) return true
-  if (origin.endsWith('.vercel.app')) return true
+  if (origin.endsWith('.netlify.app')) return true
   return false
 }
 

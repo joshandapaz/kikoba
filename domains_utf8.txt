@@ -1,0 +1,26 @@
+﻿node.exe : Fetching 
+Domains under joshandap
+az-8747s-projects
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Fetching Doma   
+ in...-8747s-projec    
+ts:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+> 0 Domains found 
+under joshandapaz-8747s
+-projects [419ms]

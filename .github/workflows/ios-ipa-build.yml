@@ -33,8 +33,8 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://anti-joshandapaz-8747s-projects.vercel.app' }}
-          NEXTAUTH_URL: https://anti-joshandapaz-8747s-projects.vercel.app
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://YOUR_NETLIFY_SITE_NAME.netlify.app' }}
+          NEXTAUTH_URL: https://YOUR_NETLIFY_SITE_NAME.netlify.app
           NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 

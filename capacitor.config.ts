@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Kikoba',
   webDir: 'out',
   server: {
-    url: 'https://anti-joshandapaz-8747s-projects.vercel.app',
+    url: 'https://YOUR_NETLIFY_SITE_NAME.netlify.app',
     cleartext: false,
   },
   plugins: {
