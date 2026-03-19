@@ -17,7 +17,7 @@ export default function AdminMembersPage() {
   }, [])
 
   const fetchMembers = async () => {
-    const res = await apiClient('/api/admin/members')
+    const res = await apiClient('/api/admin/manage-members')
     const data = await res.json()
     if (res.ok) setMembers(data)
     else setError(data.error || 'Ruhusa imekataliwa')
@@ -27,7 +27,7 @@ export default function AdminMembersPage() {
   const changeRole = async (memberId: string, newRole: string) => {
     if (!confirm(`Je, una uhakika unataka kubadilisha cheo kuwa ${newRole}?`)) return
     
-    const res = await apiClient('/api/admin/members', {
+    const res = await apiClient('/api/admin/manage-members', {
       method: 'PUT',
       body: JSON.stringify({ memberId, role: newRole })
     })
@@ -37,7 +37,7 @@ export default function AdminMembersPage() {
   const removeMember = async (memberId: string) => {
     if (!confirm('Je, una uhakika unataka kumtoa mwanachama huyu?')) return
     
-    const res = await apiClient(`/api/admin/members?memberId=${memberId}`, { method: 'DELETE' })
+    const res = await apiClient(`/api/admin/manage-members?memberId=${memberId}`, { method: 'DELETE' })
     if (res.ok) fetchMembers()
   }
 
@@ -48,7 +48,7 @@ export default function AdminMembersPage() {
     setAddingMember(true)
     setAddMessage({ type: '', text: '' })
 
-    const res = await apiClient('/api/admin/members', {
+    const res = await apiClient('/api/admin/manage-members', {
       method: 'POST',
       body: JSON.stringify({ memberCode: memberCodeInput })
     })

@@ -18,7 +18,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   }, [groupId])
 
   const fetchMembers = async () => {
-    const res = await apiClient(`/api/admin/members?groupId=${groupId}`)
+    const res = await apiClient(`/api/admin/manage-members?groupId=${groupId}`)
     const data = await res.json()
     if (res.ok) setMembers(data)
     else setError(data.error || 'Ruhusa imekataliwa')
@@ -28,7 +28,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   const changeRole = async (memberId: string, newRole: string) => {
     if (!confirm(`Je, una uhakika unataka kubadilisha cheo kuwa ${newRole}?`)) return
     
-    const res = await apiClient('/api/admin/members', {
+    const res = await apiClient('/api/admin/manage-members', {
       method: 'PUT',
       body: JSON.stringify({ memberId, role: newRole, groupId })
     })
@@ -38,7 +38,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
   const removeMember = async (memberId: string) => {
     if (!confirm('Je, una uhakika unataka kumtoa mwanachama huyu?')) return
     
-    const res = await apiClient(`/api/admin/members?memberId=${memberId}&groupId=${groupId}`, { method: 'DELETE' })
+    const res = await apiClient(`/api/admin/manage-members?memberId=${memberId}&groupId=${groupId}`, { method: 'DELETE' })
     if (res.ok) fetchMembers()
   }
 
@@ -49,7 +49,7 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
     setAddingMember(true)
     setAddMessage({ type: '', text: '' })
 
-    const res = await apiClient('/api/admin/members', {
+    const res = await apiClient('/api/admin/manage-members', {
       method: 'POST',
       body: JSON.stringify({ memberCode: memberCodeInput, groupId })
     })

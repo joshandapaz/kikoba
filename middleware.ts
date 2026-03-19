@@ -4,11 +4,18 @@ import { withAuth } from 'next-auth/middleware'
 
 const allowedOrigins = ['capacitor://localhost', 'http://localhost:3000']
 
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false
+  if (origin.startsWith('capacitor://')) return true
+  if (allowedOrigins.includes(origin)) return true
+  if (origin.endsWith('.vercel.app')) return true
+  return false
+}
+
 export default withAuth(
   function middleware(req: NextRequest) {
     const origin = req.headers.get('origin')
-    const isCapacitor = origin && origin.startsWith('capacitor://')
-    const isAllowed = isCapacitor || (origin && allowedOrigins.includes(origin))
+    const isAllowed = isAllowedOrigin(origin)
     
     // Handle preflight
     if (req.method === 'OPTIONS') {

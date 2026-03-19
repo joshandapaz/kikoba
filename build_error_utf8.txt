@@ -1,0 +1,181 @@
+﻿node.exe : WARNING! 
+Build not running on 
+Vercel. System 
+environment variables 
+will not be available.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (WARNING! Buil   
+ d ...t be availabl    
+e.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+WARNING: You should 
+not upload the `.next` 
+directory.
+Installing dependencies...
+npm warn EBADENGINE 
+Unsupported engine {
+npm warn EBADENGINE   
+package: '@prisma/studi
+o-core@0.21.1',
+npm warn EBADENGINE   
+required: { node: 
+'^20.19 || ^22.12 || 
+^24.0', pnpm: '8' },
+npm warn EBADENGINE   
+current: { node: 
+'v25.2.1', npm: 
+'11.6.2' }
+npm warn EBADENGINE }
+
+up to date in 1s
+
+173 packages are looking for funding
+  run `npm fund` for details
+Detected Next.js version: 16.1.6
+Running "npm run build"
+
+> anti@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+ΓÜá The "middleware" 
+file convention is 
+deprecated. Please use 
+"proxy" instead. Learn 
+more: https://nextjs.or
+g/docs/messages/middlew
+are-to-proxy
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.0s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/21) ...
+  Generating static pages using 7 workers (5/21) 
+  Generating static pages using 7 workers (10/21) 
+  Generating static pages using 7 workers (15/21) 
+Γ£ô Generating static pages using 7 workers (21/21) in 803.1ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/activity
+Γö£ ╞Æ /api/admin/members
+Γö£ ΓùÅ /api/auth/[...nextauth]
+Γö£ ╞Æ /api/dashboard
+Γö£ ╞Æ /api/group
+Γö£ ΓùÅ /api/group/[id]
+Γö£ ╞Æ /api/groups/approve-withdrawal
+Γö£ ╞Æ /api/groups/contribute
+Γö£ ╞Æ /api/groups/withdraw
+Γö£ ╞Æ /api/groups/withdraw/vote
+Γö£ ╞Æ /api/loans
+Γö£ ΓùÅ /api/loans/[id]/repay
+Γö£ ΓùÅ /api/loans/[id]/vote
+Γö£ ╞Æ /api/loans/approve
+Γö£ ╞Æ /api/otp/send
+Γö£ ╞Æ /api/payments/clickpesa/initiate
+Γö£ ╞Æ /api/payments/clickpesa/payout
+Γö£ ╞Æ /api/payments/clickpesa/webhook
+Γö£ ╞Æ /api/payments/status
+Γö£ ╞Æ /api/profile
+Γö£ ╞Æ /api/register
+Γö£ ╞Æ /api/savings
+Γö£ ╞Æ /api/wallet
+Γö£ Γùï /dashboard
+Γö£ Γùï /dashboard/admin/members
+Γö£ Γùï /dashboard/admin/report
+Γö£ Γùï /dashboard/group
+Γö£ ΓùÅ /dashboard/group/[id]
+Γöé Γöö /dashboard/group/1
+Γö£ ΓùÅ /dashboard/group/[id]/members
+Γöé Γöö /dashboard/group/1/members
+Γö£ Γùï /dashboard/group/activity
+Γö£ Γùï /dashboard/loans
+Γö£ ΓùÅ /dashboard/loans/[id]/repay
+Γöé Γöö /dashboard/loans/1/repay
+Γö£ Γùï /dashboard/loans/request
+Γö£ Γùï /dashboard/loans/vote
+Γö£ Γùï /dashboard/payment-callback
+Γö£ Γùï /dashboard/payment/clickpesa/callback
+Γö£ Γùï /dashboard/profile
+Γö£ Γùï /dashboard/savings
+Γö£ Γùï /login
+Γöö Γùï /register
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
+╞Æ  (Dynamic)  server-rendered on demand
+
+Tracing initial Next.js server files due to missing build trace: 11.036s
+Traced Next.js server files in: 11.877s
+Tracing entries due to missing build traces:
+[
+  "C:/Users/HP/Desktop/anti/.next/server/app/_global-error/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/_not-found/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/admin/members/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/admin/report/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/group/[id]/members/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/group/[id]/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/group/activity/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/group/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/loans/[id]/repay/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/loans/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/loans/request/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/loans/vote/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/payment-callback/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/payment/clickpesa/callback/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/profile/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/dashboard/savings/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/login/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/register/page.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/activity/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/admin/members/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/auth/[...nextauth]/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/dashboard/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/group/[id]/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/group/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/groups/approve-withdrawal/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/groups/contribute/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/groups/withdraw/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/groups/withdraw/vote/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/loans/[id]/repay/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/loans/[id]/vote/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/loans/approve/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/loans/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/otp/send/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/payments/clickpesa/initiate/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/payments/clickpesa/payout/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/payments/clickpesa/webhook/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/payments/status/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/profile/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/register/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/savings/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/api/wallet/route.js",
+  "C:/Users/HP/Desktop/anti/.next/server/app/favicon.ico/route.js"
+]: 54.958ms
+Created all serverless functions in: 137.13ms
+Error: Unable to find 
+lambda for route: /dash
+board/admin/members

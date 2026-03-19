@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Force false even in 'production' build for local IP testing
+        secure: process.env.NODE_ENV === 'production',
       },
     },
   },
