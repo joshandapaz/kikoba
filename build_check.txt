@@ -1,0 +1,77 @@
+﻿
+> anti@0.1.0 build
+> next build
+
+   Γû▓ Next.js 15.5.13
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 5.2s
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/21) ...
+   Generating static pages (5/21) 
+   Generating static pages (10/21) 
+   Generating static pages (15/21) 
+ Γ£ô Generating static pages (21/21)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                   Size  First Load JS
+Γöî Γùï /                                        196 B         102 kB
+Γö£ Γùï /_not-found                              999 B         103 kB
+Γö£ ╞Æ /api/activity                            196 B         102 kB
+Γö£ ╞Æ /api/admin/manage-members                196 B         102 kB
+Γö£ ΓùÅ /api/auth/[...nextauth]                  196 B         102 kB
+Γö£ ╞Æ /api/dashboard                           196 B         102 kB
+Γö£ ╞Æ /api/group                               196 B         102 kB
+Γö£ ΓùÅ /api/group/[id]                          196 B         102 kB
+Γö£ ╞Æ /api/groups/approve-withdrawal           196 B         102 kB
+Γö£ ╞Æ /api/groups/contribute                   196 B         102 kB
+Γö£ ╞Æ /api/groups/withdraw                     196 B         102 kB
+Γö£ ╞Æ /api/groups/withdraw/vote                196 B         102 kB
+Γö£ ╞Æ /api/loans                               196 B         102 kB
+Γö£ ΓùÅ /api/loans/[id]/repay                    196 B         102 kB
+Γö£ ΓùÅ /api/loans/[id]/vote                     196 B         102 kB
+Γö£ ╞Æ /api/loans/approve                       196 B         102 kB
+Γö£ ╞Æ /api/otp/send                            196 B         102 kB
+Γö£ ╞Æ /api/payments/clickpesa/initiate         196 B         102 kB
+Γö£ ╞Æ /api/payments/clickpesa/payout           196 B         102 kB
+Γö£ ╞Æ /api/payments/clickpesa/webhook          196 B         102 kB
+Γö£ ╞Æ /api/payments/status                     196 B         102 kB
+Γö£ ╞Æ /api/profile                             196 B         102 kB
+Γö£ ╞Æ /api/register                            196 B         102 kB
+Γö£ ╞Æ /api/savings                             196 B         102 kB
+Γö£ ╞Æ /api/wallet                              196 B         102 kB
+Γö£ Γùï /dashboard                              6.2 kB         163 kB
+Γö£ Γùï /dashboard/admin/report                3.12 kB         105 kB
+Γö£ Γùï /dashboard/group                        3.1 kB         109 kB
+Γö£ ΓùÅ /dashboard/group/[id]                  5.25 kB         111 kB
+Γö£   Γöö /dashboard/group/1
+Γö£ ΓùÅ /dashboard/group/[id]/members          3.01 kB         109 kB
+Γö£   Γöö /dashboard/group/1/members
+Γö£ Γùï /dashboard/group/activity              2.56 kB         105 kB
+Γö£ Γùï /dashboard/loans                       3.04 kB         160 kB
+Γö£ ΓùÅ /dashboard/loans/[id]/repay            3.26 kB         106 kB
+Γö£   Γöö /dashboard/loans/1/repay
+Γö£ Γùï /dashboard/loans/request               3.96 kB         106 kB
+Γö£ Γùï /dashboard/loans/vote                  3.64 kB         115 kB
+Γö£ Γùï /dashboard/payment-callback            2.41 kB         109 kB
+Γö£ Γùï /dashboard/payment/clickpesa/callback  2.41 kB         109 kB
+Γö£ Γùï /dashboard/profile                     4.74 kB         107 kB
+Γö£ Γùï /dashboard/savings                     3.81 kB         157 kB
+Γö£ Γùï /login                                 2.08 kB         117 kB
+Γöö Γùï /register                              2.83 kB         109 kB
++ First Load JS shared by all               102 kB
+  Γö£ chunks/1255-1d98a9a4b8a18d10.js          46 kB
+  Γö£ chunks/4bd1b696-f785427dddbba9fb.js    54.2 kB
+  Γöö other shared chunks (total)            2.05 kB
+
+
+╞Æ Middleware                               61.7 kB
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses generateStaticParams)
+╞Æ  (Dynamic)  server-rendered on demand
+
