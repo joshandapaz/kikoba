@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Kikoba',
   webDir: 'out',
   server: {
-    url: 'http://192.168.0.101:3000',
-    cleartext: true,
+    url: 'https://anti-joshandapaz-8747s-projects.vercel.app',
+    cleartext: false,
   },
   plugins: {
     CapacitorCookies: {
