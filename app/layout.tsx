@@ -96,9 +96,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 function getRedirection(url) {
                   if (!url || typeof url !== 'string') return url;
                   var isApi = url.indexOf('/api/') !== -1;
-                  var isAbsolute = url.match(/^https?:/);
+                  var isAbsolute = url.match(/^https?:\/\//);
+                  var isCapacitorUrl = url.indexOf('capacitor://') === 0;
 
-                  if (isNative && isApi && !isAbsolute) {
+                  // Redirect if: native + api call + (not already absolute HTTP OR is a capacitor:// URL)
+                  if (isNative && isApi && (!isAbsolute || isCapacitorUrl)) {
                     var path = url;
                     if (url.indexOf('://') !== -1) {
                       try {
