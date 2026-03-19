@@ -67,7 +67,7 @@ export const authOptions: NextAuthOptions = {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'none', // Use 'none' for cross-origin support from capacitor://localhost
+        sameSite: 'lax',
         path: '/',
         secure: false, // Force false even in 'production' build for local IP testing
       },

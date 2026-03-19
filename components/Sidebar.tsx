@@ -109,7 +109,7 @@ export default function Sidebar() {
           </div>
         </div>
         <button
-          onClick={async () => { await signOut({ redirect: false }); window.location.href = '/login'; }}
+          onClick={() => signOut({ callbackUrl: '/login' })}
           className="btn-secondary"
           style={{ width: '100%', padding: '10px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}
         >

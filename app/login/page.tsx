@@ -26,7 +26,7 @@ export default function LoginPage() {
       setError('Namba ya simu au nywila si sahihi. Jaribu tena.')
       console.error('Login Failed:', res.error)
     } else {
-      window.location.href = '/dashboard';
+      router.push('/dashboard')
     }
   }
 
