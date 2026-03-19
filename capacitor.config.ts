@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Kikoba',
   webDir: 'out',
   server: {
-    url: 'https://rad-banoffee-8bff48.netlify.app',
+    url: 'https://9b9c-41-220-134-137.ngrok-free.app',
     cleartext: false,
   },
   plugins: {

@@ -33,8 +33,8 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://rad-banoffee-8bff48.netlify.app' }}
-          NEXTAUTH_URL: https://rad-banoffee-8bff48.netlify.app
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://9b9c-41-220-134-137.ngrok-free.app' }}
+          NEXTAUTH_URL: https://9b9c-41-220-134-137.ngrok-free.app
           NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 

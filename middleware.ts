@@ -9,6 +9,7 @@ function isAllowedOrigin(origin: string | null): boolean {
   if (origin.startsWith('capacitor://')) return true
   if (allowedOrigins.includes(origin)) return true
   if (origin.endsWith('.netlify.app')) return true
+  if (origin.endsWith('.ngrok-free.app')) return true
   return false
 }
 
