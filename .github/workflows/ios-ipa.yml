@@ -41,6 +41,13 @@ jobs:
       - name: Add Capacitor iOS
         run: npx cap add ios
 
+      - name: Patch iOS Deployment Target (Required for AdMob)
+        run: |
+          echo "Patching Podfile..."
+          sed -i '' "s/platform :ios, .*/platform :ios, '13.0'/g" ios/App/Podfile
+          echo "Patching project.pbxproj..."
+          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 13.0/g" ios/App/App.xcodeproj/project.pbxproj
+
       - name: Capacitor Sync
         run: npx cap sync ios
 
