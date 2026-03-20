@@ -1,0 +1,81 @@
+name: Build iOS IPA V2
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_ios:
+    name: Build iOS IPA (Capacitor 6)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Web Assets (Static Export)
+        run: npm run static
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://9b9c-41-220-134-137.ngrok-free.app' }}
+          NEXTAUTH_URL: https://9b9c-41-220-134-137.ngrok-free.app
+          NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Add Capacitor iOS
+        run: npx cap add ios
+
+      - name: Capacitor Sync
+        run: npx cap sync ios
+
+      - name: Patch Info.plist (Networking & Permissions)
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          echo "Patching $PLIST..."
+          plutil -replace NSAppTransportSecurity -xml "<dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoads</key><true/><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>" "$PLIST"
+          plutil -replace NSLocalNetworkUsageDescription -string "Kikoba Smart needs local network access to connect to the server." "$PLIST" || \
+          plutil -insert NSLocalNetworkUsageDescription -string "Kikoba Smart needs local network access to connect to the server." "$PLIST"
+          plutil -replace NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST" || \
+          plutil -insert NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST"
+
+      - name: Capacitor Build iOS (Unsigned)
+        run: |
+          npx cap build ios --scheme App --configuration Release --no-open
+          # The build assets are located in ios/App/build/Release-iphoneos/App.app 
+          # but cap build might put them in a different derived data path.
+          # We will package the result from the default derived data location.
+          
+      - name: Create IPA Package (Official Method)
+        run: |
+          mkdir -p build/Payload
+          # Search for the .app file in the derived data path
+          APP_PATH=$(find ios/App/build -name "App.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            # Fallback to common location
+            APP_PATH="ios/App/build/Build/Products/Release-iphoneos/App.app"
+          fi
+          echo "Found App at: $APP_PATH"
+          cp -r "$APP_PATH" build/Payload
+          cd build
+          zip -m -r Kikoba-App-V2.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: Kikoba-App-V2-IPA
+          path: build/Kikoba-App-V2.ipa
+          if-no-files-found: error
+          retention-days: 5
