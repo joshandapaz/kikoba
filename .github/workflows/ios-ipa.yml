@@ -88,7 +88,7 @@ jobs:
 
       - name: Capacitor Build iOS (Unsigned)
         run: |
-          npx cap build ios --scheme App --configuration Release --no-open
+          npx cap build ios --scheme App --configuration Release
           # The build assets are located in ios/App/build/Release-iphoneos/App.app 
           # but cap build might put them in a different derived data path.
           # We will package the result from the default derived data location.
