@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+import { initGoogleServices } from '@/lib/google-services'
+import { useEffect } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,6 +13,14 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <RootLayoutClient>{children}</RootLayoutClient>
+}
+
+function RootLayoutClient({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    initGoogleServices()
+  }, [])
+
   return (
     <html lang="sw" suppressHydrationWarning>
       <head>

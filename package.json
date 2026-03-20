@@ -11,6 +11,8 @@
     "mobile:sync": "npx cap sync ios"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
+    "@capacitor-firebase/app": "^8.1.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
     "@libsql/client": "^0.17.0",

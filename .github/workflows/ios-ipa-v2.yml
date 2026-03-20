@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Project Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -53,6 +53,9 @@ jobs:
           plutil -insert NSLocalNetworkUsageDescription -string "Kikoba Smart needs local network access to connect to the server." "$PLIST"
           plutil -replace NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST" || \
           plutil -insert NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST"
+          # Add AdMob App ID (Placeholder - User should update in GitHub Secrets if possible)
+          plutil -replace GADApplicationIdentifier -string "ca-app-pub-3940256099942544~1458002511" "$PLIST" || \
+          plutil -insert GADApplicationIdentifier -string "ca-app-pub-3940256099942544~1458002511" "$PLIST"
 
       - name: Capacitor Build iOS (Unsigned)
         run: |
