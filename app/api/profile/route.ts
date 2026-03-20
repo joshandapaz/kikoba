@@ -10,22 +10,24 @@ export async function GET() {
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Try selecting all fields including avatar_url
-    let { data: user, error } = await supabaseAdmin
+    const { data: userData, error } = await supabaseAdmin
       .from('users')
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
       .eq('id', session.user.id)
       .single()
 
+    let user = userData
+
     // If avatar_url column doesn't exist (error code 42703), fallback to selecting without it
     if (error && error.code === '42703') {
-      const { data: userData, error: userError } = await supabaseAdmin
+      const { data: fallbackData, error: userError } = await supabaseAdmin
         .from('users')
         .select('id, memberCode, username, email, phone, dateJoined')
         .eq('id', session.user.id)
         .single()
       
       if (userError) throw userError
-      user = userData
+      user = fallbackData
     } else if (error) {
       throw error
     }
@@ -49,12 +51,14 @@ export async function PUT(req: NextRequest) {
     if (phone !== undefined) updateData.phone = phone
     if (avatarUrl) updateData.avatar_url = avatarUrl
 
-    let { data: user, error } = await supabaseAdmin
+    const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
       .update(updateData)
       .eq('id', session.user.id)
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
       .single()
+
+    let user = updatedUser
 
     // Fallback if avatar_url column is missing
     if (error && error.code === '42703') {

@@ -29,10 +29,6 @@ export default function VoteLoansPage() {
   const [loading, setLoading] = useState(true)
   const [votingId, setVotingId] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchLoans()
-  }, [])
-
   const fetchLoans = async () => {
     // Fetch all pending loans in user's groups
     const res = await apiClient('/api/loans?status=PENDING')
@@ -40,6 +36,10 @@ export default function VoteLoansPage() {
     if (res.ok) setLoans(data)
     setLoading(false)
   }
+
+  useEffect(() => {
+    fetchLoans()
+  }, [])
 
   const handleVote = async (loanId: string, voteType: 'APPROVE' | 'REJECT') => {
     setVotingId(loanId)
@@ -82,6 +82,7 @@ export default function VoteLoansPage() {
               // Calculate vote stats
               const totalVotes = loan.votes.length
               const approvals = loan.votes.filter(v => v.vote === 'APPROVE').length
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const rejections = loan.votes.filter(v => v.vote === 'REJECT').length
               const approvalPercent = totalVotes > 0 ? Math.round((approvals / totalVotes) * 100) : 0
               
@@ -115,7 +116,7 @@ export default function VoteLoansPage() {
 
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '16px', marginBottom: '24px', fontSize: '15px', color: '#FFF', flex: 1, border: '1px solid var(--border)', lineHeight: 1.6 }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 800, display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: 1 }}>Sababu ya Mkopo:</span>
-                    "{loan.reason}"
+                    &quot;{loan.reason}&quot;
                   </div>
 
                   {/* Vote Progress */}

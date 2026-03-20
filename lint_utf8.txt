@@ -1,0 +1,1098 @@
+﻿node.exe : `next lint` 
+is deprecated and will 
+be removed in Next.js 
+16.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (`next lint` i   
+ s ... in Next.js 1    
+6.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+For new projects, use 
+create-next-app to 
+choose your preferred 
+linter.
+For existing projects, 
+migrate to the ESLint 
+CLI:
+npx 
+@next/codemod@canary ne
+xt-lint-to-eslint-cli .
+
+
+./app/api/activity/rout
+e.ts
+29:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/admin/manage-
+members/route.ts
+36:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+70:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+107:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+171:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/dashboard/rou
+te.ts
+25:39  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+45:70  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+54:54  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+55:61  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+57:61  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+77:73  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+79:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+80:30  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+81:54  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+116:55  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+131:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/group/route.t
+s
+9:60  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+20:73  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+50:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+58:60  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+143:50  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+156:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/group/[id]/ro
+ute.ts
+53:61  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+87:26  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+118:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/groups/approv
+e-withdrawal/route.ts
+98:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/groups/contri
+bute/route.ts
+81:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/groups/withdr
+aw/route.ts
+55:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/groups/withdr
+aw/vote/route.ts
+90:25  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+99:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/loans/approve
+/route.ts
+107:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/loans/route.t
+s
+35:51  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+51:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+129:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/loans/[id]/re
+pay/route.ts
+31:31  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+39:74  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+74:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/loans/[id]/vo
+te/route.ts
+31:31  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+41:55  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+61:43  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+62:44  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+84:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/otp/send/rout
+e.ts
+56:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/payments/clic
+kpesa/initiate/route.ts
+73:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/payments/clic
+kpesa/payout/route.ts
+94:23  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+110:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/payments/clic
+kpesa/webhook/route.ts
+15:34  Warning: 
+'transaction_id' is 
+assigned a value but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+15:50  Warning: 
+'amount' is assigned a 
+value but never used.  
+@typescript-eslint/no-u
+nused-vars
+142:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/payments/stat
+us/route.ts
+26:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/profile/route
+.ts
+13:23  Error: 'error' 
+is never reassigned. 
+Use 'const' instead.  
+prefer-const
+34:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+47:23  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+52:23  Error: 'error' 
+is never reassigned. 
+Use 'const' instead.  
+prefer-const
+78:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/register/rout
+e.ts
+71:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/savings/route
+.ts
+29:59  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+31:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+82:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/api/wallet/route.
+ts
+13:29  Warning: 'note' 
+is assigned a value 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+77:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/dashboard/admin/r
+eport/page.tsx
+5:10  Warning: 
+'FileBarChart' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+8:36  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/dashboard/group/p
+age.tsx
+3:23  Warning: 'Copy' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+3:29  Warning: 'Check' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+3:36  Warning: 'Hash' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+5:10  Warning: 
+'formatDate' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+14:12  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+22:10  Warning: 
+'copiedCode' is 
+assigned a value but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+26:10  Warning: 
+'showJoin' is assigned 
+a value but never 
+used.  @typescript-esli
+nt/no-unused-vars
+26:20  Warning: 
+'setShowJoin' is 
+assigned a value but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+33:5  Error: Error: 
+Cannot access variable 
+before it is declared
+
+`fetchGroups` is 
+accessed before it is 
+declared, which 
+prevents the earlier 
+access from updating 
+when this value 
+changes over time.
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\group\p
+age.tsx:33:5
+  31 |
+  32 |   useEffect(() 
+=> {
+> 33 |     
+fetchGroups()
+     |     ^^^^^^^^^^^ 
+`fetchGroups` accessed 
+before it is declared
+  34 |   }, [])
+  35 |
+  36 |   const 
+fetchGroups = async () 
+=> {
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\group\p
+age.tsx:36:3
+  34 |   }, [])
+  35 |
+> 36 |   const 
+fetchGroups = async () 
+=> {
+     |   ^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
+> 37 |     const res = 
+await 
+apiClient('/api/group')
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+> 38 |     if (res.ok) 
+setGroups(await 
+res.json())
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+> 39 |     
+setLoading(false)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+> 40 |   }
+     | ^^^^ 
+`fetchGroups` is 
+declared here
+  41 |
+  42 |   const 
+handleCreate = async 
+(e: React.FormEvent) 
+=> {
+  43 |     
+e.preventDefault()  rea
+ct-hooks/immutability
+61:9  Warning: 
+'copyCode' is assigned 
+a value but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./app/dashboard/group/[
+id]/GroupDashboardClien
+t.tsx
+2:31  Warning: 'use' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+3:29  Warning: 
+'Landmark' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+3:100  Warning: 
+'Check' is defined but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+10:9  Warning: 
+'router' is assigned a 
+value but never used.  
+@typescript-eslint/no-u
+nused-vars
+11:36  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+24:6  Warning: React 
+Hook useEffect has a 
+missing dependency: 
+'fetchGroupData'. 
+Either include it or 
+remove the dependency 
+array.  react-hooks/exh
+austive-deps
+219:50  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+243:45  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+294:45  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+301:31  Warning: Using 
+`<img>` could result 
+in slower LCP and 
+higher bandwidth. 
+Consider using `<Image 
+/>` from `next/image` 
+or a custom image 
+loader to 
+automatically optimize 
+images. This may incur 
+additional usage or 
+cost from your 
+provider. See: https://
+nextjs.org/docs/message
+s/no-img-element  @next
+/next/no-img-element
+331:47  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/dashboard/group/[
+id]/members/GroupMember
+sClient.tsx
+2:31  Warning: 'use' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+3:10  Warning: 
+'Shield' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+4:10  Warning: 
+'formatDate' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+9:42  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+17:5  Error: Error: 
+Cannot access variable 
+before it is declared
+
+`fetchMembers` is 
+accessed before it is 
+declared, which 
+prevents the earlier 
+access from updating 
+when this value 
+changes over time.
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\group\[
+id]\members\GroupMember
+sClient.tsx:17:5
+  15 |
+  16 |   useEffect(() 
+=> {
+> 17 |     
+fetchMembers()
+     |     
+^^^^^^^^^^^^ 
+`fetchMembers` 
+accessed before it is 
+declared
+  18 |   }, [groupId])
+  19 |
+  20 |   const 
+fetchMembers = async 
+() => {
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\group\[
+id]\members\GroupMember
+sClient.tsx:20:3
+  18 |   }, [groupId])
+  19 |
+> 20 |   const 
+fetchMembers = async 
+() => {
+     |   ^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
+> 21 |     const res = 
+await apiClient(`/api/a
+dmin/manage-members?gro
+upId=${groupId}`)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+> 22 |     const data 
+= await res.json()
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+> 23 |     if (res.ok) 
+setMembers(data)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+> 24 |     else 
+setError(data.error || 
+'Ruhusa imekataliwa')
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+> 25 |     
+setLoading(false)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+> 26 |   }
+     | ^^^^ 
+`fetchMembers` is 
+declared here
+  27 |
+  28 |   const 
+changeRole = async 
+(memberId: string, 
+newRole: string) => {
+  29 |     if 
+(!confirm(`Je, una 
+uhakika unataka 
+kubadilisha cheo kuwa 
+${newRole}?`)) return  
+react-hooks/immutabilit
+y
+18:6  Warning: React 
+Hook useEffect has a 
+missing dependency: 
+'fetchMembers'. Either 
+include it or remove 
+the dependency array.  
+react-hooks/exhaustive-
+deps
+158:33  Warning: Using 
+`<img>` could result 
+in slower LCP and 
+higher bandwidth. 
+Consider using `<Image 
+/>` from `next/image` 
+or a custom image 
+loader to 
+automatically optimize 
+images. This may incur 
+additional usage or 
+cost from your 
+provider. See: https://
+nextjs.org/docs/message
+s/no-img-element  @next
+/next/no-img-element
+
+./app/dashboard/loans/p
+age.tsx
+5:38  Warning: 
+'getLoanStatusColor' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./app/dashboard/loans/v
+ote/page.tsx
+4:16  Warning: 
+'History' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+4:52  Warning: 
+'HandCoins' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+33:5  Error: Error: 
+Cannot access variable 
+before it is declared
+
+`fetchLoans` is 
+accessed before it is 
+declared, which 
+prevents the earlier 
+access from updating 
+when this value 
+changes over time.
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\loans\v
+ote\page.tsx:33:5
+  31 |
+  32 |   useEffect(() 
+=> {
+> 33 |     fetchLoans()
+     |     ^^^^^^^^^^ 
+`fetchLoans` accessed 
+before it is declared
+  34 |   }, [])
+  35 |
+  36 |   const 
+fetchLoans = async () 
+=> {
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\loans\v
+ote\page.tsx:36:3
+  34 |   }, [])
+  35 |
+> 36 |   const 
+fetchLoans = async () 
+=> {
+     |   ^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
+> 37 |     // Fetch 
+all pending loans in 
+user's groups
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+> 38 |     const res = 
+await apiClient('/api/l
+oans?status=PENDING')
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+> 39 |     const data 
+= await res.json()
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+> 40 |     if (res.ok) 
+setLoans(data)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+> 41 |     
+setLoading(false)
+     | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+> 42 |   }
+     | ^^^^ 
+`fetchLoans` is 
+declared here
+  43 |
+  44 |   const 
+handleVote = async 
+(loanId: string, 
+voteType: 'APPROVE' | 
+'REJECT') => {
+  45 |     
+setVotingId(loanId)  re
+act-hooks/immutability
+85:21  Warning: 
+'rejections' is 
+assigned a value but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+118:21  Error: `"` can 
+be escaped with 
+`&quot;`, `&ldquo;`, 
+`&#34;`, `&rdquo;`.  re
+act/no-unescaped-entiti
+es
+118:35  Error: `"` can 
+be escaped with 
+`&quot;`, `&ldquo;`, 
+`&#34;`, `&rdquo;`.  re
+act/no-unescaped-entiti
+es
+
+./app/dashboard/loans/[
+id]/repay/RepayLoanClie
+nt.tsx
+6:10  Warning: 
+'HandCoins' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+10:36  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./app/dashboard/page.ts
+x
+53:37  Warning: 
+'provider' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+125:9  Warning: 
+'handleVote' is 
+assigned a value but 
+never used.  @typescrip
+t-eslint/no-unused-vars
+
+./app/dashboard/payment
+/clickpesa/callback/pag
+e.tsx
+3:10  Warning: 
+'useRouter' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+
+./app/dashboard/payment
+-callback/page.tsx
+20:7  Error: Error: 
+Calling setState 
+synchronously within 
+an effect can trigger 
+cascading renders
+
+Effects are intended 
+to synchronize state 
+between React and 
+external systems such 
+as manually updating 
+the DOM, state 
+management libraries, 
+or other platform 
+APIs. In general, the 
+body of an effect 
+should do one or both 
+of the following:
+* Update external 
+systems with the 
+latest state from 
+React.
+* Subscribe for 
+updates from some 
+external system, 
+calling setState in a 
+callback function when 
+external state changes.
+
+Calling setState 
+synchronously within 
+an effect body causes 
+cascading renders that 
+can hurt performance, 
+and is not 
+recommended. (https://r
+eact.dev/learn/you-migh
+t-not-need-an-effect).
+
+C:\Users\HP\Desktop\ant
+i\app\dashboard\payment
+-callback\page.tsx:20:7
+  18 |   useEffect(() 
+=> {
+  19 |     if 
+(!trackingId || 
+!merchantRef) {
+> 20 |       
+setStatus('failed');
+     |       ^^^^^^^^^ 
+Avoid calling 
+setState() directly 
+within an effect
+  21 |       
+setMessage('Taarifa za 
+malipo 
+hazijapatikana.');
+  22 |       return;
+  23 |     }  react-hoo
+ks/set-state-in-effect
+34:16  Warning: 'err' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./app/dashboard/profile
+/page.tsx
+8:36  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+69:19  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+134:19  Warning: Using 
+`<img>` could result 
+in slower LCP and 
+higher bandwidth. 
+Consider using `<Image 
+/>` from `next/image` 
+or a custom image 
+loader to 
+automatically optimize 
+images. This may incur 
+additional usage or 
+cost from your 
+provider. See: https://
+nextjs.org/docs/message
+s/no-img-element  @next
+/next/no-img-element
+
+./app/login/page.tsx
+64:41  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./components/ErrorDetec
+tor.tsx
+3:38  Warning: 'Info' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+12:16  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+47:18  Warning: 'e' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./components/Sidebar.ts
+x
+8:17  Warning: 
+'Shield' is defined 
+but never used.  @types
+cript-eslint/no-unused-
+vars
+8:25  Warning: 
+'FileBarChart' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+42:7  Warning: 
+'adminNav' is assigned 
+a value but never 
+used.  @typescript-esli
+nt/no-unused-vars
+42:17  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+97:15  Warning: Using 
+`<img>` could result 
+in slower LCP and 
+higher bandwidth. 
+Consider using `<Image 
+/>` from `next/image` 
+or a custom image 
+loader to 
+automatically optimize 
+images. This may incur 
+additional usage or 
+cost from your 
+provider. See: https://
+nextjs.org/docs/message
+s/no-img-element  @next
+/next/no-img-element
+
+./lib/api-client.ts
+7:7  Warning: 
+'API_URL' is assigned 
+a value but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./lib/auth.ts
+48:32  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+56:26  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./lib/google-services.t
+s
+3:10  Warning: 
+'FirebaseApp' is 
+defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+./lib/supabase.ts
+18:13  Error: 
+Unexpected any. 
+Specify a different 
+type.  @typescript-esli
+nt/no-explicit-any
+
+./lib/utils.ts
+1:27  Warning: 'clsx' 
+is defined but never 
+used.  @typescript-esli
+nt/no-unused-vars
+
+info  - Need to 
+disable some ESLint 
+rules? Learn more 
+here: https://nextjs.or
+g/docs/app/api-referenc
+e/config/eslint#disabli
+ng-rules

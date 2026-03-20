@@ -6,16 +6,13 @@ import { apiClient } from '@/lib/api-client'
 import Link from 'next/link'
 
 export default function GroupMembersClient({ groupId }: { groupId: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [members, setMembers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [memberCodeInput, setMemberCodeInput] = useState('')
   const [addingMember, setAddingMember] = useState(false)
   const [addMessage, setAddMessage] = useState({ type: '', text: '' })
-
-  useEffect(() => {
-    fetchMembers()
-  }, [groupId])
 
   const fetchMembers = async () => {
     const res = await apiClient(`/api/admin/manage-members?groupId=${groupId}`)
@@ -24,6 +21,10 @@ export default function GroupMembersClient({ groupId }: { groupId: string }) {
     else setError(data.error || 'Ruhusa imekataliwa')
     setLoading(false)
   }
+
+  useEffect(() => {
+    fetchMembers()
+  }, [groupId])
 
   const changeRole = async (memberId: string, newRole: string) => {
     if (!confirm(`Je, una uhakika unataka kubadilisha cheo kuwa ${newRole}?`)) return

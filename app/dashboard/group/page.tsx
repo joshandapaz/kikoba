@@ -29,15 +29,15 @@ export default function GroupPage() {
   const [createForm, setCreateForm] = useState({ name: '', description: '', memberCodes: '' })
   const [formState, setFormState] = useState({ loading: false, error: '', success: '' })
 
-  useEffect(() => {
-    fetchGroups()
-  }, [])
-
   const fetchGroups = async () => {
     const res = await apiClient('/api/group')
     if (res.ok) setGroups(await res.json())
     setLoading(false)
   }
+
+  useEffect(() => {
+    fetchGroups()
+  }, [])
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()

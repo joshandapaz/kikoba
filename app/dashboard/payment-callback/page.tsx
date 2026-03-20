@@ -16,13 +16,13 @@ function CallbackContent() {
   const merchantRef = searchParams.get('OrderMerchantReference');
 
   useEffect(() => {
-    if (!trackingId || !merchantRef) {
-      setStatus('failed');
-      setMessage('Taarifa za malipo hazijapatikana.');
-      return;
-    }
-
     const checkStatus = async () => {
+      if (!trackingId || !merchantRef) {
+        setStatus('failed');
+        setMessage('Taarifa za malipo hazijapatikana.');
+        return;
+      }
+
       try {
         await fetch(`/api/dashboard`); 
         setStatus('success');
