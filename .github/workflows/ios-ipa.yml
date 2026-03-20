@@ -43,16 +43,30 @@ jobs:
 
       - name: Patch iOS Deployment Target (Required for AdMob)
         run: |
-          echo "Setting deployment target to 14.0 everywhere..."
-          sed -i '' "s/platform :ios, .*/platform :ios, '14.0'/g" ios/App/Podfile
-          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 14.0/g" ios/App/App.xcodeproj/project.pbxproj
-          if grep -q "post_install" ios/App/Podfile; then
-            echo "post_install found, injecting target override..."
-            ruby -i -pe "if \$_ =~ /post_install do \|installer\|/; \$_ += \"  installer.pods_project.targets.each { |t| t.build_configurations.each { |c| c.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0' } }\n\"; end" ios/App/Podfile
+          echo "Forcing iOS 15.3 everywhere..."
+          # Update Xcode project target
+          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.3/g" ios/App/App.xcodeproj/project.pbxproj
+          
+          # Use Ruby to robustly patch the Podfile
+          ruby -e "
+          content = File.read('ios/App/Podfile')
+          content.gsub!(/platform :ios, .*/, \"platform :ios, '15.3'\")
+          hook = %Q{
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+              target.build_configurations.each do |config|
+                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.3'
+              end
+            end
+          end
+          }
+          if content.include?('post_install')
+            content.gsub!(/post_install do \\|installer\\|.*?end/m, hook)
           else
-            echo "post_install not found, appending..."
-            printf "post_install do |installer|\n  installer.pods_project.targets.each do |target|\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'\n    end\n  end\nend\n" >> ios/App/Podfile
-          fi
+            content += \"\\n\" + hook
+          end
+          File.write('ios/App/Podfile', content)
+          "
           echo "Final Podfile check:"
           cat ios/App/Podfile
 
