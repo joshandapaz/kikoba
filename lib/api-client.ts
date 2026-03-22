@@ -17,7 +17,7 @@ export async function apiClient(path: string, options: RequestInit = {}) {
   if (typeof window !== 'undefined') {
     const isWeb = window.location.protocol === 'http:' || window.location.protocol === 'https:';
     if (!isWeb) {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.101:5172";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://kikoba.vercel.app";
       url = apiBase.replace(/\/$/, '') + normalizedPath;
       // console.log('[DEBUG-NET-CLIENT] Bridge V6 Force Absolute:', url);
     }
