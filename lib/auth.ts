@@ -1,3 +1,4 @@
+try { require('dotenv').config(); } catch (e) {}
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
@@ -12,22 +13,40 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.phone || !credentials?.password) return null
+        const fs = require('fs');
+        const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[${new Date().toISOString()}] ${msg}\n`);
         
-        // Support eithe plain phone or email in the 'phone' field
+        log(`Authorize attempt for: ${credentials?.phone}`);
+        if (!credentials?.phone || !credentials?.password) {
+          log('Missing credentials');
+          return null
+        }
+        
+        if (!supabaseAdmin) {
+          log('ERROR: supabaseAdmin is NULL!');
+          return null
+        }
+
         const loginId = credentials.phone;
-        const { data: user } = await supabaseAdmin
+        const { data: user, error } = await supabaseAdmin
           .from('users')
           .select('*')
           .or(`phone.eq.${loginId},email.eq.${loginId}`)
           .single()
   
-        if (!user) {
-          console.error(`[AUTH] User not found for: ${loginId}`);
+        if (error || !user) {
+          log(`User not found or error: ${error?.message || 'User not found'}`);
           return null
         }
+        
+        log(`User found: ${user.phone}, comparing passwords...`);
         const isValid = await bcrypt.compare(credentials.password, user.password)
-        if (!isValid) return null
+        log(`Password match: ${isValid}`);
+
+        if (!isValid) {
+          return null
+        }
+        
         return {
           id: user.id,
           email: user.email,
@@ -38,10 +57,13 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-
   session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
+      const fs = require('fs');
+      const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[JWT CALLBACK] ${new Date().toISOString()} ${msg}\n`);
+      
+      log(`JWT Callback: user present: ${!!user}, token.id: ${token?.id || 'none'}`);
       if (user) {
         token.id = user.id
         token.image = user.image
@@ -50,10 +72,14 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
+      const fs = require('fs');
+      const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[SESSION CALLBACK] ${new Date().toISOString()} ${msg}\n`);
+      
+      log(`Session Callback: token.id: ${token?.id || 'none'}`);
       if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.image = token.image as string
-        (session.user as any).phone = token.phone as string
+        session.user.id = (token as any).id
+        session.user.image = (token as any).image
+        (session.user as any).phone = (token as any).phone
       }
       return session
     },
@@ -61,15 +87,15 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: 'kikoba-smart-super-secret-key-2024',
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `kikoba-auth-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
       },
     },
   },

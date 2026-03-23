@@ -1,8 +1,20 @@
+try { require('dotenv').config(); } catch (e) {}
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { withAuth } from 'next-auth/middleware'
+import fs from 'fs'
 
-const allowedOrigins = ['capacitor://localhost', 'http://localhost:5172']
+const logMiddleware = (msg: string) => {
+  try {
+    fs.appendFileSync('c:\\Users\\HP\\Desktop\anti\\auth-debug.log', `[MIDDLEWARE] ${new Date().toISOString()} ${msg}\n`)
+  } catch (e) {}
+}
+
+const allowedOrigins = [
+  'capacitor://localhost', 
+  'http://localhost:5172',
+  'http://192.168.0.101:5172'
+]
 
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false
@@ -47,6 +59,7 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname
+        logMiddleware(`Checking path: ${path}, token present: ${!!token}`)
         // Only enforce auth for non-API routes that match the pattern
         if (path.startsWith('/api/')) return true
         return !!token
@@ -55,6 +68,7 @@ export default withAuth(
     pages: {
       signIn: '/login',
     },
+    secret: 'kikoba-smart-super-secret-key-2024',
   }
 )
 
