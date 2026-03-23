@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kikoba</string>
+    <string name="title_activity_main">Kikoba</string>
+    <string name="package_name">com.kikoba.app</string>
+    <string name="custom_url_scheme">com.kikoba.app</string>
+</resources>

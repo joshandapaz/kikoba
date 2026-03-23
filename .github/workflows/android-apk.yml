@@ -1,0 +1,65 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Project Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Clean API Routes for Static Export
+        run: rm -rf app/api
+
+      - name: Build Web Assets (Static Export)
+        run: npm run static
+        env:
+          NEXT_PUBLIC_EXPORT: "true"
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://192.168.0.101:5172' }}
+          NEXTAUTH_URL: "http://192.168.0.101:5172"
+          NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
+
+      - name: Add Capacitor Android
+        run: npx cap add android || echo "Android already added"
+
+      - name: Capacitor Sync
+        run: npx cap sync android
+
+      - name: Build APK (Unsigned)
+        run: |
+          cd android
+          ./gradlew assembleDebug
+          echo "APK created at android/app/build/outputs/apk/debug/app-debug.apk"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: Kikoba-App-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 5
