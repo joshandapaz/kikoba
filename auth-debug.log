@@ -1,0 +1,159 @@
+[2026-03-23T12:48:01.884Z] Authorize attempt for: +255683267434
+[2026-03-23T12:48:03.315Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:48:03.728Z] Password match: true
+[2026-03-23T12:48:47.291Z] Authorize attempt for: +255683267434
+[2026-03-23T12:48:47.856Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:48:48.364Z] Password match: true
+[2026-03-23T12:49:46.518Z] Authorize attempt for: +255683267434
+[2026-03-23T12:49:47.453Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:49:47.847Z] Password match: true
+[2026-03-23T12:50:14.781Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T12:50:18.190Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T12:50:36.941Z] Authorize attempt for: +255683267434
+[2026-03-23T12:50:37.660Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:50:38.123Z] Password match: true
+[2026-03-23T12:53:35.722Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T12:53:36.828Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T12:54:17.288Z] Authorize attempt for: +255683267434
+[2026-03-23T12:54:18.610Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:54:18.885Z] Password match: true
+[2026-03-23T12:54:38.113Z] Authorize attempt for: +255683267434
+[2026-03-23T12:54:39.179Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:54:39.474Z] Password match: true
+[2026-03-23T12:55:39.975Z] Authorize attempt for: +255683267434
+[2026-03-23T12:55:40.852Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:55:41.277Z] Password match: true
+[2026-03-23T12:57:31.074Z] Authorize attempt for: +255683267434
+[2026-03-23T12:57:32.671Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:57:33.475Z] Password match: false
+[2026-03-23T12:58:10.160Z] Authorize attempt for: +255683267434
+[2026-03-23T12:58:14.311Z] User found: +255683267434, comparing passwords...
+[2026-03-23T12:58:15.063Z] Password match: true
+[2026-03-23T12:59:09.702Z] Authorize attempt for: 0683267434
+[2026-03-23T12:59:11.665Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:00:14.093Z] Authorize attempt for: +255683267434
+[2026-03-23T13:00:18.968Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:00:19.318Z] Password match: true
+[2026-03-23T13:03:49.724Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T13:03:50.943Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:04:16.480Z] Authorize attempt for: +255683267434
+[2026-03-23T13:04:17.211Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:04:17.509Z] Password match: true
+[2026-03-23T13:04:50.718Z] Authorize attempt for: +255683267434
+[2026-03-23T13:04:53.457Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:04:53.770Z] Password match: true
+[2026-03-23T13:05:28.490Z] Authorize attempt for: +255683267434
+[2026-03-23T13:05:29.035Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:05:29.325Z] Password match: true
+[2026-03-23T13:05:43.234Z] Authorize attempt for: +255683267434
+[2026-03-23T13:05:44.279Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:05:44.564Z] Password match: true
+[2026-03-23T13:06:35.439Z] Authorize attempt for: +255683267434
+[2026-03-23T13:06:37.070Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:06:37.343Z] Password match: true
+[2026-03-23T13:07:56.626Z] Authorize attempt for: +255683267434
+[2026-03-23T13:07:57.750Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:07:58.057Z] Password match: true
+[2026-03-23T13:08:11.507Z] Authorize attempt for: +255683267434
+[2026-03-23T13:08:12.265Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:08:12.609Z] Password match: true
+[2026-03-23T13:08:34.032Z] Authorize attempt for: +255683267434
+[2026-03-23T13:08:37.766Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:08:38.045Z] Password match: true
+[2026-03-23T13:09:14.659Z] Authorize attempt for: +255683267434
+[2026-03-23T13:09:20.761Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:09:21.061Z] Password match: false
+[2026-03-23T13:13:29.831Z] Authorize attempt for: +255683267434
+[2026-03-23T13:13:31.444Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:13:31.751Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:13:31.753Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:13:32.437Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:13:32.440Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:17:15.877Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T13:17:17.478Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:18:37.439Z] Authorize attempt for: +255683267434
+[2026-03-23T13:18:38.843Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:18:39.146Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:18:39.150Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:18:39.420Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:18:39.423Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:18:54.756Z] Authorize attempt for: +255683267434
+[2026-03-23T13:18:56.015Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:18:56.300Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:18:56.302Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:18:56.657Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:18:56.658Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:20:17.119Z] Authorize attempt for: +255683267434
+[2026-03-23T13:20:18.304Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:20:18.584Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:20:18.585Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:20:18.804Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:20:18.805Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:20:47.242Z] Authorize attempt for: 255683267434
+[2026-03-23T13:20:47.663Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:21:53.700Z] Authorize attempt for: +255683267434
+[2026-03-23T13:21:54.771Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:21:55.026Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:21:55.027Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:21:55.374Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:21:55.376Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:22:56.120Z] Authorize attempt for: +255683267434
+[2026-03-23T13:22:58.501Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:22:58.760Z] Password match: false
+[2026-03-23T13:23:54.097Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T13:23:55.595Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:25:25.534Z] Authorize attempt for: +255683267434
+[2026-03-23T13:25:27.203Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:25:27.502Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:25:27.504Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:25:27.777Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:25:27.779Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:26:38.106Z] Authorize attempt for: +255683267434+255683267434
+[2026-03-23T13:26:38.965Z] User not found or error: Cannot coerce the result to a single JSON object
+[2026-03-23T13:27:10.805Z] Authorize attempt for: +255683267434
+[2026-03-23T13:27:11.560Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:27:11.864Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:27:11.868Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:27:12.122Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:27:12.124Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:28:02.245Z] Authorize attempt for: +255683267434
+[2026-03-23T13:28:03.169Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:28:03.440Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:28:03.445Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:28:03.675Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:28:03.679Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:28:46.531Z] Authorize attempt for: +255683267434
+[2026-03-23T13:28:55.497Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:28:55.806Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:28:55.810Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:28:56.214Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:28:56.215Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:30:53.327Z] Authorize attempt for: +255683267434
+[2026-03-23T13:30:53.973Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:30:54.299Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:30:54.301Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:30:54.602Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:30:54.604Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:31:25.363Z] Authorize attempt for: +255683267434
+[2026-03-23T13:31:26.206Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:31:26.506Z] Password match: true
+[JWT CALLBACK] 2026-03-23T13:31:26.510Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T13:31:26.755Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T13:31:26.757Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T13:34:01.409Z] Authorize attempt for: +255683267434
+[2026-03-23T13:34:02.708Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:34:02.978Z] Password match: false
+[2026-03-23T13:35:13.686Z] Authorize attempt for: +255683267434
+[2026-03-23T13:35:14.478Z] User found: +255683267434, comparing passwords...
+[2026-03-23T13:35:14.731Z] Password match: false
+[2026-03-23T16:43:12.513Z] Authorize attempt for: +255683267434
+[2026-03-23T16:43:15.666Z] User found: +255683267434, comparing passwords...
+[2026-03-23T16:43:16.123Z] Password match: true
+[JWT CALLBACK] 2026-03-23T16:43:16.129Z JWT Callback: user present: true, token.id: none
+[JWT CALLBACK] 2026-03-23T16:43:16.656Z JWT Callback: user present: false, token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[SESSION CALLBACK] 2026-03-23T16:43:16.658Z Session Callback: token.id: 572bec7d-a27d-4f2f-ae15-e37b26d83f23
+[2026-03-23T16:45:22.627Z] Authorize attempt for: +255683267434
+[2026-03-23T16:45:26.007Z] User found: +255683267434, comparing passwords...
+[2026-03-23T16:45:26.575Z] Password match: false
+[2026-03-23T16:56:30.085Z] Authorize attempt for: joshan.dapaz@gmail.com
+[2026-03-23T16:56:32.018Z] User not found or error: Cannot coerce the result to a single JSON object

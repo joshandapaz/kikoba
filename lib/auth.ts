@@ -13,39 +13,19 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const fs = require('fs');
-        const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[${new Date().toISOString()}] ${msg}\n`);
+        if (!credentials?.phone || !credentials?.password) return null
         
-        log(`Authorize attempt for: ${credentials?.phone}`);
-        if (!credentials?.phone || !credentials?.password) {
-          log('Missing credentials');
-          return null
-        }
-        
-        if (!supabaseAdmin) {
-          log('ERROR: supabaseAdmin is NULL!');
-          return null
-        }
-
         const loginId = credentials.phone;
-        const { data: user, error } = await supabaseAdmin
+        const { data: user } = await supabaseAdmin
           .from('users')
           .select('*')
           .or(`phone.eq.${loginId},email.eq.${loginId}`)
           .single()
   
-        if (error || !user) {
-          log(`User not found or error: ${error?.message || 'User not found'}`);
-          return null
-        }
+        if (!user) return null
         
-        log(`User found: ${user.phone}, comparing passwords...`);
         const isValid = await bcrypt.compare(credentials.password, user.password)
-        log(`Password match: ${isValid}`);
-
-        if (!isValid) {
-          return null
-        }
+        if (!isValid) return null
         
         return {
           id: user.id,
@@ -60,10 +40,6 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
-      const fs = require('fs');
-      const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[JWT CALLBACK] ${new Date().toISOString()} ${msg}\n`);
-      
-      log(`JWT Callback: user present: ${!!user}, token.id: ${token?.id || 'none'}`);
       if (user) {
         token.id = user.id
         token.image = user.image
@@ -72,10 +48,6 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      const fs = require('fs');
-      const log = (msg: string) => fs.appendFileSync('c:\\Users\\HP\\Desktop\\anti\\auth-debug.log', `[SESSION CALLBACK] ${new Date().toISOString()} ${msg}\n`);
-      
-      log(`Session Callback: token.id: ${token?.id || 'none'}`);
       if (token && session.user) {
         session.user.id = (token as any).id
         session.user.image = (token as any).image

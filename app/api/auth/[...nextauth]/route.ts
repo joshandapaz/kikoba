@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic'
-process.env.NEXTAUTH_URL = 'http://localhost:5172';
+process.env.NEXTAUTH_URL = 'http://192.168.0.101:5172';
 process.env.NEXTAUTH_SECRET = 'kikoba-smart-super-secret-key-2024';
 
 import NextAuth from 'next-auth'
