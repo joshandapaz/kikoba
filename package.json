@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p 5172",
     "lint": "eslint",
-    "static": "set NEXT_PUBLIC_EXPORT=true && next build",
+    "static": "next build",
     "mobile:sync": "npx cap sync ios"
   },
   "dependencies": {
