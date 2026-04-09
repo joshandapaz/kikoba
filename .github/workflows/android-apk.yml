@@ -55,6 +55,7 @@ jobs:
       - name: Build APK (Unsigned)
         run: |
           cd android
+          chmod +x gradlew
           ./gradlew assembleDebug
           echo "APK created at android/app/build/outputs/apk/debug/app-debug.apk"
 
