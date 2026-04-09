@@ -1,3 +1,0 @@
-﻿C:\Users\HP\Desktop\anti\app\dashboard\group\[id]\page.tsx
-C:\Users\HP\Desktop\anti\app\dashboard\group\[id]\members\page.tsx
-C:\Users\HP\Desktop\anti\app\dashboard\loans\[id]\repay\page.tsx

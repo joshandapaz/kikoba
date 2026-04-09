@@ -25,9 +25,6 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Clean API Routes for Static Export
-        run: rm -rf app/api
-
       - name: Build Web Assets (Static Export)
         run: npm run static
         env:
@@ -39,54 +36,13 @@ jobs:
           NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
-
-      - name: Add Capacitor iOS
-        run: npx cap add ios || echo "Initial sync failed as expected, patching now..."
-
-      - name: Patch iOS Deployment Target (Required for AdMob)
-        run: |
-          echo "Forcing iOS 15.3 everywhere..."
-          # Update Xcode project target
-          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.3/g" ios/App/App.xcodeproj/project.pbxproj
-          
-          # Use Ruby to robustly patch the Podfile
-          ruby -e "
-          content = File.read('ios/App/Podfile')
-          content.gsub!(/platform :ios, .*/, \"platform :ios, '15.3'\")
-          hook = %Q{
-          post_install do |installer|
-            installer.pods_project.targets.each do |target|
-              target.build_configurations.each do |config|
-                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.3'
-              end
-            end
-          end
-          }
-          if content.include?('post_install')
-            content.gsub!(/post_install do \\|installer\\|.*?end/m, hook)
-          else
-            content += \"\\n\" + hook
-          end
-          File.write('ios/App/Podfile', content)
-          "
-          echo "Final Podfile check:"
-          cat ios/App/Podfile
-
       - name: Capacitor Sync
         run: npx cap sync ios
 
-      - name: Patch Info.plist (Networking & Permissions)
+      - name: Patch Xcode Project Target
         run: |
-          PLIST="ios/App/App/Info.plist"
-          echo "Patching $PLIST..."
-          plutil -replace NSAppTransportSecurity -xml "<dict><key>NSAllowsLocalNetworking</key><true/><key>NSAllowsArbitraryLoads</key><true/><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>" "$PLIST"
-          plutil -replace NSLocalNetworkUsageDescription -string "Kikoba Smart needs local network access to connect to the server." "$PLIST" || \
-          plutil -insert NSLocalNetworkUsageDescription -string "Kikoba Smart needs local network access to connect to the server." "$PLIST"
-          plutil -replace NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST" || \
-          plutil -insert NSBonjourServices -xml "<array><string>_http._tcp.</string></array>" "$PLIST"
-          # Add AdMob App ID (Placeholder - User should update in GitHub Secrets if possible)
-          plutil -replace GADApplicationIdentifier -string "ca-app-pub-3940256099942544~1458002511" "$PLIST" || \
-          plutil -insert GADApplicationIdentifier -string "ca-app-pub-3940256099942544~1458002511" "$PLIST"
+          echo "Forcing iOS 15.3 in Xcode project..."
+          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.3/g" ios/App/App.xcodeproj/project.pbxproj
 
       - name: Xcode Build (Unsigned Archive)
         run: |
@@ -105,7 +61,6 @@ jobs:
       - name: Create IPA Package (Unsigned)
         run: |
           mkdir -p build/Payload
-          # Copy the .app from the newly created archive
           cp -r ios/App/App.xcarchive/Products/Applications/App.app build/Payload/
           cd build
           zip -m -r Kikoba-App.ipa Payload
@@ -117,4 +72,4 @@ jobs:
           name: Kikoba-App-IPA
           path: build/Kikoba-App.ipa
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 7
