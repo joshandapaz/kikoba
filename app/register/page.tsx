@@ -39,7 +39,9 @@ export default function RegisterPage() {
 
       router.push('/login?registered=1')
     } catch (err: any) {
-      setError(err.message || 'Hitilafu imetokea')
+      const errMsg = err?.message || String(err)
+      setError(errMsg)
+      console.error('Registration Exception:', err)
     } finally {
       setLoading(false)
     }
