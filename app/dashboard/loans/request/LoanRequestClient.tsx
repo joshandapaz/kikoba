@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { HandCoins, Calculator, ArrowRight, AlertCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { apiClient } from '@/lib/api-client'
+import { groupService } from '@/lib/services/groupService'
+import { loanService } from '@/lib/services/loanService'
 
 function LoanRequestForm() {
   const router = useRouter()
@@ -24,15 +25,17 @@ function LoanRequestForm() {
   const INTEREST_RATE = 10
 
   useEffect(() => {
-    apiClient('/api/group').then(res => res.json()).then(data => {
-      if (Array.isArray(data) && data.length > 0) {
-        setGroups(data.map(g => ({ id: g.id, name: g.name })))
-        // Only set default if not already set by preSelectedGroupId
-        if (!preSelectedGroupId) {
-          setGroupId(data[0].id)
+    groupService.getUserGroups()
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setGroups(data.map(g => ({ id: g.id, name: g.name })))
+          // Only set default if not already set by preSelectedGroupId
+          if (!preSelectedGroupId) {
+            setGroupId(data[0].id)
+          }
         }
-      }
-    })
+      })
+      .catch(console.error)
   }, [preSelectedGroupId])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,23 +48,13 @@ function LoanRequestForm() {
     setLoading(true)
     setError('')
 
-    const res = await apiClient('/api/loans', {
-      method: 'POST',
-      body: JSON.stringify({
-        groupId,
-        amount: Number(amount),
-        reason,
-        duration: Number(duration)
-      })
-    })
-
-    const data = await res.json()
-    setLoading(false)
-
-    if (!res.ok) {
-      setError(data.error)
-    } else {
+    try {
+      await loanService.applyForLoan(groupId, Number(amount), reason, Number(duration))
       router.push('/dashboard/loans?requested=1')
+    } catch (err: any) {
+      setError(err.message || 'Hitilafu imetokea')
+    } finally {
+      setLoading(false)
     }
   }
 

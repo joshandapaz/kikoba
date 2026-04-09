@@ -7,42 +7,21 @@ import { supabase } from './supabase'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+/**
+ * @deprecated The app has moved to a STANDALONE architecture.
+ * Do not use apiClient for internal app logic.
+ * Use the services in @/lib/services/ instead (e.g., dashboardService, groupService).
+ */
 export async function apiClient(path: string, options: RequestInit = {}) {
-  // Ensure path starts with /
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const errorMsg = `[DEPRECATED] Attempted to call API: ${path}. The app is now STANDALONE. Use lib/services instead.`;
+  console.error(errorMsg);
   
-  let url = normalizedPath;
-
-  // HARD FALLBACK: If we detect native env here, we pre-redirect 
-  // in case the layout.tsx interceptor missed it (e.g. race condition)
-  if (typeof window !== 'undefined') {
-    const isWeb = window.location.protocol === 'http:' || window.location.protocol === 'https:';
-    if (!isWeb) {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://kikoba.vercel.app";
-      url = apiBase.replace(/\/$/, '') + normalizedPath;
-      // console.log('[DEBUG-NET-CLIENT] Bridge V6 Force Absolute:', url);
-    }
-  }
-
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
-
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include',
-    });
-
-    return response;
-  } catch (error) {
-    console.error(`API Client Error (${url}):`, error);
-    throw error;
-  }
+  // Return a failed response to avoid breaking everything if a component still calls it
+  return new Response(JSON.stringify({ 
+    error: "Architecture Migration: Internal API is no longer used.",
+    deprecated: true 
+  }), { 
+    status: 410, // Gone
+    headers: { 'Content-Type': 'application/json' }
+  });
 }

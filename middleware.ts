@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { withAuth } from 'next-auth/middleware'
-
-const logMiddleware = (msg: string) => {
-  // Console logging is allowed, but fs is not.
-  console.log(`[MIDDLEWARE] ${new Date().toISOString()} ${msg}`)
-}
 
 const allowedOrigins = [
   'capacitor://localhost', 
@@ -25,7 +19,6 @@ export default async function middleware(req: NextRequest) {
   const origin = req.headers.get('origin')
   const isAllowed = isAllowedOrigin(origin)
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     if (isAllowed) {
       return new NextResponse(null, {
@@ -42,8 +35,6 @@ export default async function middleware(req: NextRequest) {
   }
 
   const response = NextResponse.next()
-
-  // Add CORS headers to all responses
   if (isAllowed) {
     response.headers.set('Access-Control-Allow-Origin', origin!)
     response.headers.set('Access-Control-Allow-Credentials', 'true')
@@ -53,13 +44,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/api/:path*',
-    '/dashboard/:path*',
-    '/loans/:path*',
-    '/savings/:path*',
-    '/group/:path*',
-    '/profile/:path*',
-    '/admin/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

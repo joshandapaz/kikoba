@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Users, Copy, Check, Hash, Building, Shield, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
-import { apiClient } from '@/lib/api-client'
+import { groupService } from '@/lib/services/groupService'
 
 interface Group {
   id: string
@@ -30,9 +30,14 @@ export default function GroupPage() {
   const [formState, setFormState] = useState({ loading: false, error: '', success: '' })
 
   const fetchGroups = async () => {
-    const res = await apiClient('/api/group')
-    if (res.ok) setGroups(await res.json())
-    setLoading(false)
+    try {
+      const data = await groupService.getUserGroups()
+      setGroups(data as any[])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -43,18 +48,14 @@ export default function GroupPage() {
     e.preventDefault()
     setFormState({ loading: true, error: '', success: '' })
     
-    const res = await apiClient('/api/group', {
-      method: 'POST',
-      body: JSON.stringify(createForm)
-    })
-    
-    const data = await res.json()
-    if (!res.ok) {
-      setFormState({ loading: false, error: data.error, success: '' })
-    } else {
+    try {
+      await groupService.createGroup(createForm.name, createForm.description || '', createForm.memberCodes)
+      
       setFormState({ loading: false, error: '', success: 'Kikundi kimeundwa kikamilifu!' })
       fetchGroups()
       setTimeout(() => { setShowCreate(false); setCreateForm({ name: '', description: '', memberCodes: '' }) }, 1500)
+    } catch (err: any) {
+      setFormState({ loading: false, error: err.message || 'Hitilafu imetokea', success: '' })
     }
   }
 

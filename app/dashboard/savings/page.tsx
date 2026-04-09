@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { PiggyBank, Plus, ArrowRight } from 'lucide-react'
-import { apiClient } from '@/lib/api-client'
+import { groupService } from '@/lib/services/groupService'
+import { savingsService } from '@/lib/services/savingsService'
 
 
 interface Saving {
@@ -28,12 +29,12 @@ export default function SavingsPage() {
   const [message, setMessage] = useState({ type: '', text: '' })
 
   useEffect(() => {
-    apiClient('/api/group').then(res => res.json()).then(data => {
+    groupService.getUserGroups().then(data => {
       if (Array.isArray(data) && data.length > 0) {
         setGroups(data.map(g => ({ id: g.id, name: g.name })))
         setSelectedGroup(data[0].id)
       }
-    })
+    }).catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -52,12 +53,11 @@ export default function SavingsPage() {
 
   const fetchSavings = async () => {
     try {
-      const res = await apiClient('/api/savings')
-      const data = await res.json()
-      if (res.ok) {
-        setSavings(data.savings)
-        setTotal(data.total)
-      }
+      const data = await savingsService.getSavings()
+      setSavings(data.savings as any[])
+      setTotal(data.total)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -74,26 +74,18 @@ export default function SavingsPage() {
     setSubmitting(true)
     setMessage({ type: '', text: '' })
 
-    const res = await apiClient('/api/savings', {
-      method: 'POST',
-      body: JSON.stringify({
-        groupId: selectedGroup,
-        amount: Number(amount),
-        note
-      })
-    })
-
-    const data = await res.json()
-    setSubmitting(false)
-
-    if (!res.ok) {
-      setMessage({ type: 'error', text: data.error })
-    } else {
+    try {
+      await savingsService.contribute(selectedGroup, Number(amount), note)
+      
       setMessage({ type: 'success', text: 'Akiba imewekwa kikamilifu!' })
       setAmount('')
       setNote('')
       fetchSavings()
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Kuna tatizo limetokea' })
+    } finally {
+      setSubmitting(false)
     }
   }
 

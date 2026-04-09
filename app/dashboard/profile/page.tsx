@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react'
 import { UserCircle, Mail, Phone, Calendar, ArrowRight, ShieldCheck, Copy, Check } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import { apiClient } from '@/lib/api-client'
+import { supabase } from '@/lib/supabase'
+import { profileService } from '@/lib/services/profileService'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -18,13 +19,16 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    apiClient('/api/profile')
-      .then(res => res.json())
+    profileService.getProfile()
       .then(data => {
         setUser(data)
         setUsername(data?.username || '')
         setPhone(data?.phone || '')
         setAvatarUrl(data?.avatar_url || null)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
         setLoading(false)
       })
   }, [])
@@ -41,9 +45,6 @@ export default function ProfilePage() {
       const fileName = `${user?.id || 'guest'}-${Math.random()}.${fileExt}`
       const filePath = `avatars/${fileName}`
 
-      // Import supabase client dynamically to ensure it's client-side
-      const { supabase } = await import('@/lib/supabase')
-
       // Upload image to 'profiles' bucket
       const { error: uploadError } = await supabase.storage
         .from('profiles')
@@ -56,15 +57,11 @@ export default function ProfilePage() {
         .from('profiles')
         .getPublicUrl(filePath)
 
-      // Update profile with new avatar URL
-      const res = await apiClient('/api/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ avatarUrl: publicUrl })
-      })
-
-      if (!res.ok) throw new Error('Failed to update profile')
+      // Update profile with new avatar URL using service
+      const updated = await profileService.updateProfile({ avatarUrl: publicUrl })
 
       setAvatarUrl(publicUrl)
+      setUser(updated)
       setMessage({ type: 'success', text: 'Picha ya wasifu imesasishwa!' })
     } catch (err: any) {
       console.error(err)
@@ -79,19 +76,17 @@ export default function ProfilePage() {
     setUpdating(true)
     setMessage({ type: '', text: '' })
     
-    const res = await apiClient('/api/profile', {
-      method: 'PUT',
-      body: JSON.stringify({ username, phone })
-    })
-    
-    setUpdating(false)
-    if (res.ok) {
+    try {
+      const updated = await profileService.updateProfile({ username, phone })
+      
       setMessage({ type: 'success', text: 'Taarifa zako zimesasishwa kikamilifu' })
-      const data = await res.json()
-      setUser(data)
+      setUser(updated)
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
-    } else {
+    } catch (err) {
+      console.error(err)
       setMessage({ type: 'error', text: 'Imeshindwa kusasisha. Jaribu tena.' })
+    } finally {
+      setUpdating(false)
     }
   }
 

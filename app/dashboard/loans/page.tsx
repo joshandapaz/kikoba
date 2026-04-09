@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getLoanStatusColor, getLoanStatusLabel, calculateLoanBalance } from '@/lib/utils'
-import { apiClient } from '@/lib/api-client'
-
+import { loanService } from '@/lib/services/loanService'
 import { HandCoins, Plus, Calendar, Activity, ChevronRight, CheckCircle2 } from 'lucide-react'
 
 // Define interfaces based on Prisma schema
@@ -24,16 +23,19 @@ export default function MyLoansPage() {
   const [loans, setLoans] = useState<Loan[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchLoans = () => {
-      apiClient('/api/loans?mine=true')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) setLoans(data)
-          setLoading(false)
-        })
-    }
+  const fetchLoans = () => {
+    loanService.getLoans({ mine: true })
+      .then(data => {
+        setLoans(data as any[])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setLoading(false)
+      })
+  }
 
+  useEffect(() => {
     fetchLoans()
 
     // Real-time subscriptions

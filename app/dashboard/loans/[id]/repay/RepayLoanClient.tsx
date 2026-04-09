@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, calculateLoanBalance } from '@/lib/utils'
-import { apiClient } from '@/lib/api-client'
+import { loanService } from '@/lib/services/loanService'
 import { HandCoins, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function RepayLoanClient({ id }: { id: string }) {
@@ -15,13 +15,13 @@ export default function RepayLoanClient({ id }: { id: string }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    apiClient('/api/loans?mine=true')
-      .then(res => res.json())
+    loanService.getLoanById(id)
       .then(data => {
-        if (Array.isArray(data)) {
-          const currentLoan = data.find(l => l.id === id)
-          if (currentLoan) setLoan(currentLoan)
-        }
+        setLoan(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
         setLoading(false)
       })
   }, [id])
@@ -37,17 +37,12 @@ export default function RepayLoanClient({ id }: { id: string }) {
     setSubmitting(true)
     setError('')
 
-    const res = await apiClient(`/api/loans/${id}/repay`, {
-      method: 'POST',
-      body: JSON.stringify({ amount: Number(amount), note })
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      setError(data.error)
-      setSubmitting(false)
-    } else {
+    try {
+      await loanService.repayLoan(id, Number(amount), note)
       router.push('/dashboard/loans')
+    } catch (err: any) {
+      setError(err.message || 'Hitilafu imetokea')
+      setSubmitting(false)
     }
   }
 
