@@ -1,13 +1,10 @@
-try { require('dotenv').config(); } catch (e) {}
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { withAuth } from 'next-auth/middleware'
-import fs from 'fs'
 
 const logMiddleware = (msg: string) => {
-  try {
-    fs.appendFileSync('c:\\Users\\HP\\Desktop\anti\\auth-debug.log', `[MIDDLEWARE] ${new Date().toISOString()} ${msg}\n`)
-  } catch (e) {}
+  // Console logging is allowed, but fs is not.
+  console.log(`[MIDDLEWARE] ${new Date().toISOString()} ${msg}`)
 }
 
 const allowedOrigins = [
