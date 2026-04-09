@@ -12,7 +12,6 @@ const config: CapacitorConfig = {
       enabled: true,
     },
   },
-  },
 };
 
 
