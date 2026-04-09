@@ -33,18 +33,13 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Clean API Routes for Static Export
-        run: rm -rf app/api
-
       - name: Build Web Assets (Static Export)
         run: npm run static
         env:
           NEXT_PUBLIC_EXPORT: "true"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://192.168.0.101:5172' }}
-          NEXTAUTH_URL: "http://192.168.0.101:5172"
-          NEXTAUTH_SECRET: "kikoba-smart-super-secret-key-2024"
+          # The app is now standalone
 
       - name: Add Capacitor Android
         run: npx cap add android || echo "Android already added"
