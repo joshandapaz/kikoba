@@ -1,19 +1,18 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions) as any
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authUser = await getSupabaseUser(req) as any
+    if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Fetch groups where user is a member
     const { data: memberships } = await supabaseAdmin
       .from('group_members')
       .select('role, group:groups(*)')
-      .eq('userId', session.user.id)
+      .eq('userId', authUser.id)
 
     if (!memberships) return NextResponse.json([])
 
@@ -55,31 +54,31 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions) as any
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authUser = await getSupabaseUser(req) as any
+    if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { name, description, memberCodes } = await req.json()
     if (!name) return NextResponse.json({ error: 'Jina la kikundi linahitajika' }, { status: 400 })
 
     // 1. Check Personal Wallet Balance
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: dbUser, error: userError } = await supabaseAdmin
       .from('users')
       .select('wallet_balance')
-      .eq('id', session.user.id)
+      .eq('id', authUser.id)
       .single()
 
-    if (userError || !user) throw userError || new Error('User not found')
+    if (userError || !dbUser) throw userError || new Error('User not found')
 
     const FEE = 10000
-    if (user.wallet_balance < FEE) {
+    if (dbUser.wallet_balance < FEE) {
       return NextResponse.json({ error: `Salio halitoshi. Unahitaji TZS ${FEE.toLocaleString()} kuunda kikundi.` }, { status: 400 })
     }
 
     // 2. Deduct fee from wallet
     const { error: deductError } = await supabaseAdmin
       .from('users')
-      .update({ wallet_balance: user.wallet_balance - FEE })
-      .eq('id', session.user.id)
+      .update({ wallet_balance: dbUser.wallet_balance - FEE })
+      .eq('id', authUser.id)
 
     if (deductError) throw deductError
 
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('transactions')
       .insert({
-        userId: session.user.id,
+        userId: authUser.id,
         amount: FEE,
         type: 'WITHDRAWAL',
         description: 'Gharama ya kuunda kikundi kipya',
@@ -104,7 +103,7 @@ export async function POST(req: NextRequest) {
         name,
         description,
         joinCode,
-        createdBy: session.user.id
+        createdBy: authUser.id
       })
       .select()
       .single()
@@ -115,7 +114,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('group_members')
       .insert({
-        userId: session.user.id,
+        userId: authUser.id,
         groupId: group.id,
         role: 'ADMIN'
       })
@@ -124,7 +123,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('activities')
       .insert({
-        userId: session.user.id,
+        userId: authUser.id,
         groupId: group.id,
         action: `Ameunda kikundi: ${name}`
       })
@@ -158,4 +157,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Hitilafu ya ndani' }, { status: 500 })
   }
 }
-

@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 export function generateStaticParams() { return []; }
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(
@@ -10,8 +10,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { id: loanId } = await params
     const { amount, note } = await req.json()
@@ -30,7 +30,7 @@ export async function POST(
     if (loanError || !loan) return NextResponse.json({ error: 'Mkopo haupatikani' }, { status: 404 })
     const loanTyped = loan as any
     
-    if (loanTyped.userId !== session.user.id) return NextResponse.json({ error: 'Hii si mkopo wako' }, { status: 403 })
+    if (loanTyped.userId !== user.id) return NextResponse.json({ error: 'Hii si mkopo wako' }, { status: 403 })
     if (loanTyped.status !== 'APPROVED') {
       return NextResponse.json({ error: 'Mkopo huu haujaidhinishwa bado' }, { status: 400 })
     }
@@ -56,14 +56,14 @@ export async function POST(
     if (newTotal >= totalWithInterest) {
       await supabaseAdmin.from('loans').update({ status: 'PAID' }).eq('id', loanId)
       await supabaseAdmin.from('activities').insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId: loanTyped.groupId,
         action: 'Mkopo umelipwa kikamilifu',
         amount: loanTyped.amount
       })
     } else {
       await supabaseAdmin.from('activities').insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId: loanTyped.groupId,
         action: 'Amelipa sehemu ya mkopo',
         amount: amount

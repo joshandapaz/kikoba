@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const groupId = searchParams.get('groupId')
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     let query = supabaseAdmin
       .from('savings')
       .select('*, group:groups(name)')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .order('date', { ascending: false })
 
     if (groupId) {
@@ -36,8 +36,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { groupId, amount, note } = await req.json()
     if (!groupId || !amount || amount <= 0) {
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const { data: member } = await supabaseAdmin
       .from('group_members')
       .select('id')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .single()
 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const { data: saving, error: saveError } = await supabaseAdmin
       .from('savings')
       .insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId,
         amount,
         note
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('activities')
       .insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId,
         action: 'Amechangia akiba',
         amount,

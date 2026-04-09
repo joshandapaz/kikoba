@@ -21,53 +21,36 @@ function isAllowedOrigin(origin: string | null): boolean {
   return false
 }
 
-export default withAuth(
-  function middleware(req: NextRequest) {
-    const origin = req.headers.get('origin')
-    const isAllowed = isAllowedOrigin(origin)
-    
-    // Handle preflight
-    if (req.method === 'OPTIONS') {
-      if (isAllowed) {
-        return new NextResponse(null, {
-          status: 204,
-          headers: {
-            'Access-Control-Allow-Origin': origin!,
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-            'Access-Control-Allow-Credentials': 'true',
-            'Access-Control-Max-Age': '86400',
-          },
-        })
-      }
-    }
-
-    const response = NextResponse.next()
-
-    // Add CORS headers to all responses
+export default async function middleware(req: NextRequest) {
+  const origin = req.headers.get('origin')
+  const isAllowed = isAllowedOrigin(origin)
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
     if (isAllowed) {
-      response.headers.set('Access-Control-Allow-Origin', origin!)
-      response.headers.set('Access-Control-Allow-Credentials', 'true')
+      return new NextResponse(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': origin!,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Max-Age': '86400',
+        },
+      })
     }
-
-    return response
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname
-        logMiddleware(`Checking path: ${path}, token present: ${!!token}`)
-        // Only enforce auth for non-API routes that match the pattern
-        if (path.startsWith('/api/')) return true
-        return !!token
-      },
-    },
-    pages: {
-      signIn: '/login',
-    },
-    secret: 'kikoba-smart-super-secret-key-2024',
   }
-)
+
+  const response = NextResponse.next()
+
+  // Add CORS headers to all responses
+  if (isAllowed) {
+    response.headers.set('Access-Control-Allow-Origin', origin!)
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+  }
+
+  return response
+}
 
 export const config = {
   matcher: [

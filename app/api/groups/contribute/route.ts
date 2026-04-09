@@ -1,21 +1,20 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseUser } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authUser = await getSupabaseUser(req)
+    if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { amount, groupId } = await req.json()
-    const userId = session.user.id
+    const userId = authUser.id
 
     if (!amount || amount <= 0) return NextResponse.json({ error: 'Kiasi hakitakiwi kuwa sifuri' }, { status: 400 })
 
     // 1. Get user and group details
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: dbUser, error: userError } = await supabaseAdmin
       .from('users')
       .select('wallet_balance, username')
       .eq('id', userId)
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
     if (userError || groupError) throw new Error('Hitilafu ya kupata taarifa')
 
     // 2. Check if user has sufficient balance
-    if ((user.wallet_balance || 0) < amount) {
+    if ((dbUser.wallet_balance || 0) < amount) {
       return NextResponse.json({ error: 'Salio la Mfuko Binafsi halitoshi. Tafadhali ongeza pesa kwanza.' }, { status: 400 })
     }
 
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
     // a. Deduct from user
     const { error: userUpdateErr } = await supabaseAdmin
       .from('users')
-      .update({ wallet_balance: (user.wallet_balance || 0) - amount })
+      .update({ wallet_balance: (dbUser.wallet_balance || 0) - amount })
       .eq('id', userId)
 
     if (userUpdateErr) throw userUpdateErr

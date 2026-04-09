@@ -1,14 +1,14 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 // Admin: Get all members of a specific group
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const groupId = searchParams.get('groupId')
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
       .select('role')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
 // Admin: Change member role
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { memberId, role, groupId } = await req.json()
     if (!groupId) return NextResponse.json({ error: 'groupId inahitajika' }, { status: 400 })
@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest) {
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
       .select('role')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
@@ -76,8 +76,8 @@ export async function PUT(req: NextRequest) {
 // Admin: Remove member
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const memberId = searchParams.get('memberId')
@@ -88,7 +88,7 @@ export async function DELETE(req: NextRequest) {
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
       .select('role')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()
@@ -113,8 +113,8 @@ export async function DELETE(req: NextRequest) {
 // Admin: Add new member via memberCode
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { memberCode, groupId } = await req.json()
     if (!memberCode || !groupId) {
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     const { data: adminMembership } = await supabaseAdmin
       .from('group_members')
       .select('role')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .eq('role', 'ADMIN')
       .maybeSingle()

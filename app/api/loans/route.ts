@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { searchParams } = new URL(req.url)
     const groupId = searchParams.get('groupId')
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       .order('createdAt', { ascending: false })
 
     if (mine === 'true') {
-      query = query.eq('userId', session.user.id)
+      query = query.eq('userId', user.id)
     }
 
     if (groupId) {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       const { data: userGroups } = await supabaseAdmin
         .from('group_members')
         .select('groupId')
-        .eq('userId', session.user.id)
+        .eq('userId', user.id)
       
       const groupIds = (userGroups || []).map((g: any) => g.groupId)
       if (groupIds.length > 0) {
@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { groupId, amount, reason, duration } = await req.json()
     if (!groupId || !amount || !reason || !duration) {
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const { data: member } = await supabaseAdmin
       .from('group_members')
       .select('id')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .single()
 
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     const { data: activeLoan } = await supabaseAdmin
       .from('loans')
       .select('id')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .in('status', ['PENDING', 'APPROVED'])
       .limit(1)
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
     const { data: loan, error: loanError } = await supabaseAdmin
       .from('loans')
       .insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId,
         amount,
         reason,
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('activities')
       .insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId,
         action: 'Ameomba mkopo',
         amount

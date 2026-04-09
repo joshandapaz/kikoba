@@ -1,7 +1,8 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { signOut, useSession } from 'next-auth/react'
+import { usePathname, useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/hooks/use-auth'
 import {
   LayoutDashboard, PiggyBank, HandCoins, Users,
   Activity, UserCircle, LogOut, Wallet,
@@ -39,11 +40,15 @@ const memberNav = [
   }
 ]
 
-const adminNav: any[] = [] // Empty for now, management is contextual
-
 export default function Sidebar() {
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const router = useRouter()
+  const { session } = useAuth()
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <aside className="sidebar">
@@ -86,7 +91,6 @@ export default function Sidebar() {
             })}
           </div>
         ))}
-
       </nav>
 
       {/* User footer */}
@@ -109,7 +113,7 @@ export default function Sidebar() {
           </div>
         </div>
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={handleSignOut}
           className="btn-secondary"
           style={{ width: '100%', padding: '10px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}
         >
@@ -117,7 +121,6 @@ export default function Sidebar() {
           Toka
         </button>
       </div>
-
     </aside>
   )
 }

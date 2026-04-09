@@ -1,34 +1,32 @@
 export const dynamic = 'force-dynamic'
-
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseUser } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authUser = await getSupabaseUser(req)
+    if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { amount, action, note } = await req.json()
-    const userId = session.user.id
+    const userId = authUser.id
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: 'Kiasi batili' }, { status: 400 })
     }
 
     // 1. Get current balance
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: dbUser, error: userError } = await supabaseAdmin
       .from('users')
       .select('wallet_balance, username')
       .eq('id', userId)
       .single()
 
-    if (userError || !user) {
+    if (userError || !dbUser) {
       return NextResponse.json({ error: 'Mtumiaji hajapatikana' }, { status: 404 })
     }
 
-    let newBalance = user.wallet_balance || 0
+    let newBalance = dbUser.wallet_balance || 0
 
     if (action === 'DEPOSIT') {
       newBalance += amount

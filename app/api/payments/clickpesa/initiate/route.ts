@@ -1,20 +1,20 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { ClickPesa } from '@/lib/clickpesa'
 import { supabaseAdmin } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const user = await getSupabaseUser(req)
+    if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { amount, phone, walletType = 'PERSONAL', groupId } = await req.json()
-    const userId = session.user.id
+    const userId = user.id
     // Encode context into externalId to avoid dependency on 'metadata' column
     const encodedExternalId = `CP-${uuidv4().substring(0, 8)}__${walletType}__${groupId || 'none'}`
     

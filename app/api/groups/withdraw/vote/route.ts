@@ -1,18 +1,18 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 import { ClickPesa } from '@/lib/clickpesa'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { withdrawalId, vote } = await req.json()
-    const userId = session.user.id
+    const userId = user.id
 
     // 1. Get withdrawal details and group id
     const { data: withdrawal, error: withdrawError } = await supabaseAdmin

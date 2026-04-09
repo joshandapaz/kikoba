@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Wallet, Phone, Lock, ArrowRight } from 'lucide-react'
@@ -16,15 +16,18 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const res = await signIn('credentials', {
-      phone,
-      password,
-      redirect: false,
+    
+    // Switch to Native Supabase Auth
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      phone: phone,
+      password: password,
     })
+
     setLoading(false)
-    if (res?.error) {
-      setError('Namba ya simu au nywila si sahihi. Jaribu tena.')
-      console.error('Login Failed:', res.error)
+
+    if (authError) {
+      setError('Simu au nywila si sahihi. Jaribu tena.')
+      console.error('Login Failed:', authError.message)
     } else {
       router.push('/dashboard')
     }

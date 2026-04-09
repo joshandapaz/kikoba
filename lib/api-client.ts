@@ -1,3 +1,4 @@
+import { supabase } from './supabase'
 /**
  * API Client utility to handle differences between web and native environments.
  * In web, it uses relative paths (e.g., /api/login).
@@ -23,8 +24,12 @@ export async function apiClient(path: string, options: RequestInit = {}) {
     }
   }
 
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
   const headers = {
     'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...options.headers,
   };
 

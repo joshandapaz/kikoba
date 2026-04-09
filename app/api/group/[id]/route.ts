@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 export function generateStaticParams() { return []; }
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
@@ -10,8 +10,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { id: groupId } = await params
 
@@ -19,7 +19,7 @@ export async function GET(
     const { data: membership } = await supabaseAdmin
       .from('group_members')
       .select('role')
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .eq('groupId', groupId)
       .maybeSingle()
 

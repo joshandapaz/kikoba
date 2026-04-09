@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 export function generateStaticParams() { return []; }
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(
@@ -10,8 +10,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user = await getSupabaseUser(req)
+    if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { id: loanId } = await params
     const { vote } = await req.json()
@@ -33,12 +33,12 @@ export async function POST(
     if (loanTyped.status !== 'PENDING') {
       return NextResponse.json({ error: 'Mkopo huu hauwezi kupigwa kura' }, { status: 400 })
     }
-    if (loanTyped.userId === session.user.id) {
+    if (loanTyped.userId === user.id) {
       return NextResponse.json({ error: 'Huwezi kupiga kura kwenye mkopo wako mwenyewe' }, { status: 400 })
     }
 
     // Check membership
-    const isMember = loanTyped.group.members.some((m: any) => m.userId === session.user.id)
+    const isMember = loanTyped.group.members.some((m: any) => m.userId === user.id)
     if (!isMember) return NextResponse.json({ error: 'Wewe si mwanachama' }, { status: 403 })
 
     // Check duplicate vote
@@ -46,14 +46,14 @@ export async function POST(
       .from('loan_votes')
       .select('id')
       .eq('loanId', loanId)
-      .eq('userId', session.user.id)
+      .eq('userId', user.id)
       .maybeSingle()
 
     if (existing) return NextResponse.json({ error: 'Umeshapiga kura kwenye mkopo huu' }, { status: 400 })
 
     await supabaseAdmin
       .from('loan_votes')
-      .insert({ loanId, userId: session.user.id, vote })
+      .insert({ loanId, userId: user.id, vote })
 
     // Auto-decide if enough votes
     const totalMembers = loanTyped.group.members.length
@@ -65,7 +65,7 @@ export async function POST(
     if (approvals >= threshold) {
       await supabaseAdmin.from('loans').update({ status: 'APPROVED' }).eq('id', loanId)
       await supabaseAdmin.from('activities').insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId: loanTyped.groupId,
         action: 'Mkopo umeidhinishwa',
         amount: loanTyped.amount
@@ -73,7 +73,7 @@ export async function POST(
     } else if (rejections > totalMembers - threshold) {
       await supabaseAdmin.from('loans').update({ status: 'REJECTED' }).eq('id', loanId)
       await supabaseAdmin.from('activities').insert({
-        userId: session.user.id,
+        userId: user.id,
         groupId: loanTyped.groupId,
         action: 'Mkopo umekataliwa',
         amount: loanTyped.amount

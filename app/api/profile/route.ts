@@ -1,19 +1,18 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user_auth = await getSupabaseUser(req)
+    if (!user_auth?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Try selecting all fields including avatar_url
     const { data: userData, error } = await supabaseAdmin
       .from('users')
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
-      .eq('id', session.user.id)
+      .eq('id', user_auth.id)
       .single()
 
     let user = userData
@@ -23,7 +22,7 @@ export async function GET() {
       const { data: fallbackData, error: userError } = await supabaseAdmin
         .from('users')
         .select('id, memberCode, username, email, phone, dateJoined')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single()
       
       if (userError) throw userError
@@ -41,8 +40,8 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const user_auth = await getSupabaseUser(req)
+    if (!user_auth?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { username, phone, avatarUrl } = await req.json()
     
@@ -54,7 +53,7 @@ export async function PUT(req: NextRequest) {
     const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
       .update(updateData)
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .select('id, memberCode, username, email, phone, dateJoined, avatar_url')
       .single()
 
@@ -68,7 +67,7 @@ export async function PUT(req: NextRequest) {
       const { data: fallbackUser, error: fallbackError } = await supabaseAdmin
         .from('users')
         .update(fallbackData)
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .select('id, memberCode, username, email, phone, dateJoined')
         .single()
       

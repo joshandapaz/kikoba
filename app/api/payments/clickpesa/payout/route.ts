@@ -1,20 +1,20 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseUser } from '@/lib/auth-server'
+
 import { ClickPesa } from '@/lib/clickpesa'
 import { supabaseAdmin } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const authUser = await getSupabaseUser(req)
+    if (!authUser?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { amount } = await req.json()
-    const userId = session.user.id
+    const userId = authUser.id
     const externalId = `WDL-${uuidv4().substring(0, 8)}`
 
     if (!amount || amount <= 0) {
@@ -22,21 +22,21 @@ export async function POST(req: Request) {
     }
 
     // 1. Fetch user's registered phone number and current balance
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('phone, wallet_balance')
       .eq('id', userId)
       .single()
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: 'Mtumiaji hajapatikana' }, { status: 404 })
     }
 
-    if (!user.phone) {
+    if (!userData.phone) {
       return NextResponse.json({ error: 'Hujasajili namba ya simu kwenye akaunti yako' }, { status: 400 })
     }
 
-    if (user.wallet_balance < amount) {
+    if (userData.wallet_balance < amount) {
       return NextResponse.json({ error: 'Salio lako halitoshi kutoa kiasi hiki' }, { status: 400 })
     }
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     // In a production app, you might only subtract after success or hold it in "escrow"
     const { error: balanceError } = await supabaseAdmin
       .from('users')
-      .update({ wallet_balance: user.wallet_balance - amount })
+      .update({ wallet_balance: userData.wallet_balance - amount })
       .eq('id', userId)
 
     if (balanceError) {
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     try {
       await ClickPesa.initiatePayout({
         amount,
-        phone: user.phone,
+        phone: userData.phone,
         externalId: encodedExternalId,
       })
 
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       // If CP initiation fails, refund the user
       await supabaseAdmin
         .from('users')
-        .update({ wallet_balance: user.wallet_balance })
+        .update({ wallet_balance: userData.wallet_balance })
         .eq('id', userId)
 
       await supabaseAdmin
