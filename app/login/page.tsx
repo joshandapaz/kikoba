@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Wallet, Phone, Lock, ArrowRight } from 'lucide-react'
+import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,16 +17,16 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     
-    // Switch to Native Supabase Auth
+    // Switch to Native Supabase Auth (Email)
     const { data, error: authError } = await supabase.auth.signInWithPassword({
-      phone: phone,
+      email: email,
       password: password,
     })
 
     setLoading(false)
 
     if (authError) {
-      setError('Simu au nywila si sahihi. Jaribu tena.')
+      setError('Barua pepe au nywila si sahihi. Jaribu tena.')
       console.error('Login Failed:', authError.message)
     } else {
       router.push('/dashboard')
@@ -63,27 +63,21 @@ export default function LoginPage() {
         {error && (
           <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span>{error}</span>
-            <button 
-              onClick={() => (window as any).toggleErrorDetector?.()}
-              style={{ fontSize: 11, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#FFF', padding: '4px 8px', borderRadius: 4, cursor: 'pointer', width: 'fit-content' }}
-            >
-              Fungua Kithibitishaji Hitilafu (Error Detector)
-            </button>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Namba ya Simu</label>
+            <label className="form-label">Barua Pepe (Email)</label>
             <div style={{ position: 'relative' }}>
-              <Phone size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+              <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
               <input
                 className="input-field"
                 style={{ paddingLeft: 40 }}
-                type="text"
-                placeholder="+255700000000"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
+                type="email"
+                placeholder="mfano@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -125,7 +119,7 @@ export default function LoginPage() {
           borderRadius: 16
         }}>
           <p style={{ fontSize: 12, color: '#FFF', marginBottom: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1 }}>🔑 Demo Login:</p>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Email or Phone: +255683267434</p>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Email: test@kikoba.com</p>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Nywila (Password): password123</p>
         </div>
       </div>

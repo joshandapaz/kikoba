@@ -21,12 +21,14 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
+      // Register with Email
       const { data, error: authError } = await supabase.auth.signUp({
-        phone: form.phone,
+        email: form.email,
         password: form.password,
         options: {
           data: {
             username: form.username,
+            phone: form.phone,
             full_name: form.username,
           }
         }
@@ -71,20 +73,7 @@ export default function RegisterPage() {
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group" style={{ marginTop: 18 }}>
-            <label className="form-label">Nambari ya Simu</label>
-            <div style={{ position: 'relative' }}>
-              <Phone size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
-              <input className="input-field" style={{ paddingLeft: 40 }}
-                placeholder="+255700000000"
-                value={form.phone}
-                onChange={e => handle('phone', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Jina la Mtumiaji</label>
               <div style={{ position: 'relative' }}>
@@ -99,16 +88,29 @@ export default function RegisterPage() {
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Barua Pepe</label>
+              <label className="form-label">Namba ya Simu</label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+                <Phone size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
                 <input className="input-field" style={{ paddingLeft: 40 }}
-                  type="email" placeholder="mfano@email.com"
-                  value={form.email}
-                  onChange={e => handle('email', e.target.value)}
+                  placeholder="+255700000000"
+                  value={form.phone}
+                  onChange={e => handle('phone', e.target.value)}
                   required
                 />
               </div>
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: 18 }}>
+            <label className="form-label">Barua Pepe (Email)</label>
+            <div style={{ position: 'relative' }}>
+              <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748B' }} />
+              <input className="input-field" style={{ paddingLeft: 40 }}
+                type="email" placeholder="mfano@email.com"
+                value={form.email}
+                onChange={e => handle('email', e.target.value)}
+                required
+              />
             </div>
           </div>
 
