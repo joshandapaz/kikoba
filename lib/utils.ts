@@ -4,13 +4,14 @@ export function cn(...inputs: ClassValue[]) {
   return inputs.filter(Boolean).join(' ')
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: any): string {
+  const value = typeof amount === 'number' ? amount : (parseFloat(String(amount)) || 0)
   return new Intl.NumberFormat('sw-TZ', {
     style: 'currency',
     currency: 'TZS',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount)
+  }).format(value)
 }
 
 export function formatDate(date: string | Date): string {

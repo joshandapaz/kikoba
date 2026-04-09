@@ -218,10 +218,10 @@ export default function DashboardPage() {
   if (!data) return null
 
   const adminCards = [
-    { label: 'Fedha za Kikundi', value: formatCurrency(data.groupStats?.totalFunds || 0), icon: Wallet, link: '/dashboard/admin/report' },
-    { label: 'Jumla ya Akiba', value: formatCurrency(data.groupStats?.totalSavings || 0), icon: PiggyBank, link: '/dashboard/admin/report' },
-    { label: 'Mikopo Iliyotolewa', value: formatCurrency(data.groupStats?.totalLoansIssued || 0), icon: BarChart3, link: '/dashboard/admin/report' },
-    { label: 'Wanachama', value: data.groupStats?.membersCount || 0, icon: Users, link: '/dashboard/admin/members' },
+    { label: 'Fedha za Kikundi', value: formatCurrency(data?.groupStats?.totalFunds || 0), icon: Wallet, link: '/dashboard/admin/report' },
+    { label: 'Jumla ya Akiba', value: formatCurrency(data?.groupStats?.totalSavings || 0), icon: PiggyBank, link: '/dashboard/admin/report' },
+    { label: 'Mikopo Iliyotolewa', value: formatCurrency(data?.groupStats?.totalLoansIssued || 0), icon: BarChart3, link: '/dashboard/admin/report' },
+    { label: 'Wanachama', value: data?.groupStats?.membersCount || 0, icon: Users, link: '/dashboard/admin/members' },
   ]
 
   return (

@@ -110,8 +110,8 @@ export async function GET(req: NextRequest) {
       userStats: {
         walletBalance,
         totalSavings,
-        activeLoans: activeLoans.length,
-        loanBalance,
+        activeLoans: (activeLoans || []).length,
+        loanBalance: loanBalance || 0,
         pendingRequests: (userLoans || []).filter((l: any) => l.status === 'PENDING').length,
         registeredPhone: userData?.phone || undefined
       },
