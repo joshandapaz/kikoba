@@ -25,10 +25,11 @@ function AzamPayCallbackContent() {
 
     const poll = async () => {
       try {
-        // Always use Supabase Edge Function for polling
-        const statusUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-status?external_id=${externalId}`
-        const res = await fetch(statusUrl)
-        const data = await res.json()
+        // Use Supabase Functions client to automatically handle Authorization headers
+        const { data, error } = await supabase.functions.invoke('azampay-status', {
+          method: 'GET',
+          queryParams: { external_id: externalId }
+        })
 
         if (data.status === 'COMPLETED') {
           setStatus('success')

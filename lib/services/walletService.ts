@@ -49,24 +49,19 @@ export const walletService = {
 
     // 2. Use AzamPay (default) or ClickPesa
     if (provider === 'AZAMPAY') {
-      // Always route to Supabase Edge Function since the Next.js API routes are removed in static mobile builds.
-      const checkoutUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-checkout`
-
-      const res = await fetch(checkoutUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      // Use Supabase Functions client to automatically handle Authorization headers
+      const { data, error } = await supabase.functions.invoke('azampay-checkout', {
+        body: {
           amount,
           phone: targetPhone,
           walletType,
           groupId,
           userId: user.id,
-        }),
+        }
       })
-
-      const data = await res.json()
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'AzamPay checkout failed')
+      
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'AzamPay checkout failed')
       }
 
       return {
