@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 import { ClickPesa } from '@/lib/clickpesa'
+import { AzamPay } from '@/lib/azampay'
 
 export const walletService = {
   async getWalletData() {
@@ -26,12 +27,16 @@ export const walletService = {
     }
   },
 
-  async initiateDeposit(amount: number, phone?: string, walletType: 'PERSONAL' | 'GROUP' = 'PERSONAL', groupId?: string) {
+  async initiateDeposit(
+    amount: number,
+    phone?: string,
+    walletType: 'PERSONAL' | 'GROUP' = 'PERSONAL',
+    groupId?: string,
+    provider: 'CLICKPESA' | 'AZAMPAY' = 'AZAMPAY'
+  ) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
-    const encodedExternalId = `CP-${uuidv4().substring(0, 8)}__${walletType}__${groupId || 'none'}`
-    
     // 1. Fetch user profile for phone
     const { data: profile } = await supabase
       .from('users')
@@ -42,32 +47,63 @@ export const walletService = {
     const targetPhone = phone || profile?.phone
     if (!targetPhone) throw new Error('Namba ya simu haijapatikana')
 
-    // 2. Record the payment record (Pending)
-    const { error: insertError } = await supabase
-      .from('payments')
-      .insert({
-        user_id: user.id,
-        amount,
-        status: 'PENDING',
-        provider: 'CLICKPESA',
-        merchant_reference: encodedExternalId,
-        metadata: { type: 'DEPOSIT' }
+    // 2. Use AzamPay (default) or ClickPesa
+    if (provider === 'AZAMPAY') {
+      // On GitHub Pages (static export), use Supabase Edge Function.
+      // Locally, use Next.js API route.
+      const isStatic = process.env.NEXT_PUBLIC_EXPORT === 'true'
+      const checkoutUrl = isStatic
+        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-checkout`
+        : `/api/payments/azampay/checkout`
+
+      const res = await fetch(checkoutUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount,
+          phone: targetPhone,
+          walletType,
+          groupId,
+          userId: user.id,
+        }),
       })
 
-    if (insertError) throw insertError
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'AzamPay checkout failed')
+      }
 
-    // 3. Initiate USSD Push via ClickPesa
-    // Note: Reusing the existing ClickPesa library logic
-    const result = await ClickPesa.initiateUssdPush({
-      amount,
-      phone: targetPhone,
-      externalId: encodedExternalId
-    })
+      return {
+        success: true,
+        externalId: data.externalId,
+        provider: 'AZAMPAY',
+        message: data.message || 'Ombi la malipo limetumwa. Tafadhali angalia simu yako kukamilisha.',
+      }
+    } else {
+      // ClickPesa fallback
+      const externalId = `CP-${uuidv4().substring(0, 8)}__${walletType}__${groupId || 'none'}`
 
-    return {
-      success: true,
-      result,
-      message: 'Ombi la malipo limetumwa. Tafadhali angalia simu yako kukamilisha.'
+      const { error: insertError } = await supabase
+        .from('payments')
+        .insert({
+          user_id: user.id,
+          amount,
+          status: 'PENDING',
+          provider: 'CLICKPESA',
+          merchant_reference: externalId,
+          metadata: { type: 'DEPOSIT' },
+        })
+      if (insertError) throw insertError
+
+      const result = await ClickPesa.initiateUssdPush({ amount, phone: targetPhone, externalId })
+
+      return {
+        success: true,
+        externalId,
+        provider: 'CLICKPESA',
+        result,
+        message: 'Ombi la malipo limetumwa. Tafadhali angalia simu yako kukamilisha.',
+      }
     }
   },
 

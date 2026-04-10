@@ -83,9 +83,15 @@ export default function DashboardPage() {
     setIsTransacting(true)
     try {
       if (transactionType === 'DEPOSIT') {
-        const result = await walletService.initiateDeposit(Number(amount), undefined, 'PERSONAL')
+        const result = await walletService.initiateDeposit(
+          Number(amount),
+          undefined,
+          'PERSONAL',
+          undefined,
+          provider as 'AZAMPAY' | 'CLICKPESA'
+        )
         if (result.success) {
-          alert('Muamala umeanza.')
+          alert('Muamala umeanza. Angalia simu yako.')
           setAmount('')
           setShowDeposit(false)
           fetchData()
@@ -360,16 +366,35 @@ export default function DashboardPage() {
             <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32, fontSize: 15 }}>{t('payment_provider')}</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* AzamPay — Primary */}
+              <button 
+                onClick={() => executeTransaction('AZAMPAY')}
+                className="card hover-scale" 
+                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(0,184,148,0.08)', border: '1px solid rgba(0,184,148,0.3)' }}
+              >
+                <div style={{ background: '#00b894', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Smartphone size={24} color="#FFF" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    AzamPay
+                    <span style={{ fontSize: 10, fontWeight: 800, background: '#00b894', color: '#FFF', padding: '2px 8px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: 0.5 }}>Inapendekezwa</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>Airtel • Vodacom • Tigo • Halopesa</div>
+                </div>
+              </button>
+
+              {/* ClickPesa — Secondary */}
               <button 
                 onClick={() => executeTransaction('CLICKPESA')}
                 className="card hover-scale" 
-                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.2)' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.15)' }}
               >
-                <div style={{ background: '#FFF', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Smartphone size={24} color="#000" />
+                <div style={{ background: 'rgba(255,255,255,0.1)', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Smartphone size={24} color="var(--accent)" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF' }}>{t('mobile_money')}</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF' }}>{t('mobile_money')} (ClickPesa)</div>
                   <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{t('mobile_money_desc')}</div>
                 </div>
               </button>
