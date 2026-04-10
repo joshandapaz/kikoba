@@ -54,19 +54,8 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 12,
-            background: '#FFFFFF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Wallet size={24} color="#000" />
-          </div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: '-0.5px' }}>Kikoba Smart</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Premium Savings</div>
-          </div>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', width: '100%' }}>
+          <img src="/logo.png" alt="Kikoba Logo" style={{ width: '100%', maxWidth: 160, height: 'auto' }} />
         </Link>
       </div>
 

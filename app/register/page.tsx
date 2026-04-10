@@ -53,21 +53,7 @@ export default function RegisterPage() {
     <div className="auth-container">
       <div className="auth-card animate-fade-in" style={{ maxWidth: 520 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 20,
-            background: '#FFF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 24px',
-            boxShadow: '0 0 40px rgba(255,255,255,0.05)'
-          }}>
-            <Wallet size={36} color="#000" />
-          </div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#FFF', marginBottom: 8, letterSpacing: '-1px' }}>
-            Jisajili Kikoba Smart
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
-            Unda akaunti yako ya bure leo
-          </p>
+          <img src="/logo.png" alt="Kikoba Logo" className="logo-img-lg" style={{ width: 160, margin: '0 auto' }} />
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}

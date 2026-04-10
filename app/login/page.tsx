@@ -63,10 +63,10 @@ export default function LoginPage() {
           borderTopColor: '#FFF',
           animation: 'spin 0.8s linear infinite'
         }} />
-        <div style={{ width: 40, height: 40, borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Wallet size={22} color="#000" />
+        <div style={{ width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/logo.png" alt="Kikoba Logo" style={{ width: '100%', height: 'auto' }} />
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Kikoba Smart...</p>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>Inapakia...</p>
       </div>
     )
   }
@@ -76,21 +76,7 @@ export default function LoginPage() {
       <div className="auth-card animate-fade-in">
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 20,
-            background: '#FFF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 24px',
-            boxShadow: '0 0 40px rgba(255,255,255,0.05)'
-          }}>
-            <Wallet size={36} color="#000" />
-          </div>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#FFF', marginBottom: 8, letterSpacing: '-1px' }}>
-            Kikoba Smart
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 15, fontWeight: 500 }}>
-            Premium Savings &amp; Loans
-          </p>
+          <img src="/logo.png" alt="Kikoba Logo" className="logo-img-lg" style={{ width: 180, margin: '0 auto' }} />
         </div>
 
         <div style={{ marginBottom: 32 }}>

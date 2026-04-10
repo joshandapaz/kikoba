@@ -23,9 +23,8 @@ export default function MobileHeader() {
 
         <Link href="/dashboard" className="mobile-header-logo">
           <div className="mobile-header-logo-icon">
-            <Wallet size={18} color="#000" />
+            <img src="/logo.png" alt="Kikoba Logo" className="logo-img" />
           </div>
-          <span>Kikoba Smart</span>
         </Link>
 
         <button
