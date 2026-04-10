@@ -33,6 +33,9 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
+      - name: Remove API routes for static export
+        run: rm -rf app/api
+
       - name: Build Web Assets (Static Export)
         run: npm run static
         env:
