@@ -1,9 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { UserCircle, Mail, Phone, Calendar, ArrowRight, ShieldCheck, Copy, Check } from 'lucide-react'
+import { UserCircle, Mail, Phone, Calendar, ArrowRight, ShieldCheck, Copy, Check, Globe, ChevronRight } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { profileService } from '@/lib/services/profileService'
+
+const LANGUAGES = [
+  { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+]
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -17,8 +22,17 @@ export default function ProfilePage() {
   // Edit forms
   const [username, setUsername] = useState('')
   const [phone, setPhone] = useState('')
+  const [showEditForm, setShowEditForm] = useState(false)
+
+  // Language
+  const [language, setLanguage] = useState('sw')
+  const [showLangPicker, setShowLangPicker] = useState(false)
 
   useEffect(() => {
+    // Load saved language preference
+    const saved = localStorage.getItem('kikoba_lang')
+    if (saved) setLanguage(saved)
+
     profileService.getProfile()
       .then(data => {
         setUser(data)
@@ -32,6 +46,12 @@ export default function ProfilePage() {
         setLoading(false)
       })
   }, [])
+
+  const handleLanguageChange = (code: string) => {
+    setLanguage(code)
+    localStorage.setItem('kikoba_lang', code)
+    setShowLangPicker(false)
+  }
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -81,6 +101,7 @@ export default function ProfilePage() {
       
       setMessage({ type: 'success', text: 'Taarifa zako zimesasishwa kikamilifu' })
       setUser(updated)
+      setShowEditForm(false)
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
     } catch (err) {
       console.error(err)
@@ -97,137 +118,178 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0]
+
   if (loading) return <div className="spinner" style={{ margin: '64px auto', display: 'block' }} />
 
   return (
     <div className="animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Wasifu Wangu</h1>
-        <p className="page-subtitle">Dhibiti na hariri taarifa zako binafsi za Kikoba Smart</p>
+        <p className="page-subtitle">Taarifa zako binafsi za Kikoba Smart</p>
       </div>
 
       <div className="page-content">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 32, alignItems: 'stretch' }}>
-          
-          {/* User Card View */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '20px 0 40px', textAlign: 'center' }}>
-              <div 
-                className="avatar" 
-                style={{ 
-                  width: 128, height: 128, fontSize: 48, margin: '0 auto 28px', 
-                  position: 'relative', overflow: 'hidden', cursor: 'pointer',
-                  borderRadius: '50%',
-                  border: '4px solid rgba(255,255,255,0.1)',
-                  boxShadow: '0 0 30px rgba(255,255,255,0.05)'
+
+        {message.text && (
+          <div className={`alert ${message.type === 'error' ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: 24 }}>
+            {message.text}
+          </div>
+        )}
+
+        {/* Avatar + Name */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div 
+            className="avatar" 
+            style={{ 
+              width: 100, height: 100, fontSize: 40, margin: '0 auto 16px', 
+              position: 'relative', overflow: 'hidden', cursor: 'pointer',
+              borderRadius: '50%',
+              border: '3px solid rgba(34, 211, 238, 0.3)',
+              boxShadow: '0 0 40px rgba(34, 211, 238, 0.1)'
+            }}
+            onClick={() => document.getElementById('photo-upload')?.click()}
+          >
+            {uploadingPhoto ? (
+              <div className="spinner" style={{ width: 32, height: 32 }} />
+            ) : avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt="Avatar" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                onError={() => {
+                  setAvatarUrl(null);
                 }}
-                onClick={() => document.getElementById('photo-upload')?.click()}
-              >
-                {uploadingPhoto ? (
-                  <div className="spinner" style={{ width: 40, height: 40 }} />
-                ) : avatarUrl ? (
-                  <img 
-                    src={avatarUrl} 
-                    alt="Avatar" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    onError={() => {
-                      console.log('Avatar image load failed, falling back to initial');
-                      setAvatarUrl(null);
-                    }}
-                  />
-                ) : (
-                  user?.username ? user.username[0].toUpperCase() : 'U'
-                )}
-                <div style={{ 
-                  position: 'absolute', bottom: 0, left: 0, right: 0, 
-                  background: 'rgba(0,0,0,0.8)', padding: '6px 0', 
-                  fontSize: '9px', fontWeight: 900, color: '#FFF',
-                  opacity: 0, transition: 'opacity 0.3s',
-                  letterSpacing: '1px'
-                }} className="avatar-overlay">
-                  BADILI PICHA
-                </div>
-              </div>
-              <input 
-                type="file" 
-                id="photo-upload" 
-                hidden 
-                accept="image/*" 
-                onChange={handlePhotoUpload}
-                disabled={uploadingPhoto}
               />
-              <h2 style={{ fontSize: 32, fontWeight: 900, marginBottom: 4, letterSpacing: '-0.5px' }}>{user?.username || 'Mwanachama'}</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Kikoba Smart Member</p>
+            ) : (
+              user?.username ? user.username[0].toUpperCase() : 'U'
+            )}
+          </div>
+          <input 
+            type="file" 
+            id="photo-upload" 
+            hidden 
+            accept="image/*" 
+            onChange={handlePhotoUpload}
+            disabled={uploadingPhoto}
+          />
+          <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{user?.username || 'Mwanachama'}</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>Kikoba Smart Member</p>
+        </div>
+
+        {/* Member Code Card */}
+        <div className="card" style={{ 
+          padding: 20, marginBottom: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        }}>
+          <div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Namba ya Utambulisho</div>
+            <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 2, color: 'var(--accent)' }}>{user?.memberCode || 'KKB-PRO-01'}</div>
+          </div>
+          <button 
+            onClick={copyToClipboard}
+            style={{ 
+              background: copied ? 'var(--accent)' : 'rgba(255,255,255,0.05)', 
+              border: '1px solid var(--border)', 
+              borderRadius: 12, width: 44, height: 44, 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              color: copied ? '#000' : '#FFF', cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {copied ? <Check size={20} /> : <Copy size={20} />}
+          </button>
+        </div>
+
+        {/* Info Rows */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(34,211,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Mail size={18} color="var(--accent)" />
             </div>
-            
-            <div style={{ 
-              marginBottom: 32, 
-              background: 'rgba(255,255,255,0.03)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
-              borderRadius: 20, padding: '24px 28px', 
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
-            }}>
-              <div>
-                <div style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4, letterSpacing: 1.5 }}>Namba ya Utambulisho</div>
-                <div style={{ fontSize: 24, color: '#FFF', fontWeight: 900, letterSpacing: 2 }}>{user?.memberCode || 'KKB-PRO-01'}</div>
-              </div>
-              <button 
-                onClick={copyToClipboard}
-                style={{ 
-                  background: copied ? '#FFF' : 'rgba(255,255,255,0.05)', 
-                  border: '1px solid rgba(255,255,255,0.1)', 
-                  borderRadius: 14, width: 48, height: 48, 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                  color: copied ? '#000' : '#FFF', cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                title="Nakili Nambari"
-              >
-                {copied ? <Check size={22} strokeWidth={3} /> : <Copy size={22} strokeWidth={2.5} />}
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
-                <Mail size={18} color="rgba(255,255,255,0.4)" />
-                <div>
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Barua Pepe</div>
-                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.email || 'N/A'}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
-                <Phone size={18} color="rgba(255,255,255,0.4)" />
-                <div>
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Simu</div>
-                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.phone || 'Hujajaza'}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.03)' }}>
-                <Calendar size={18} color="rgba(255,255,255,0.4)" />
-                <div>
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: 0.5 }}>Mwanachama tangu</div>
-                  <div style={{ fontSize: 15, fontWeight: 600 }}>{user?.dateJoined ? formatDate(user.dateJoined) : 'N/A'}</div>
-                </div>
-              </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Barua Pepe</div>
+              <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || 'N/A'}</div>
             </div>
           </div>
 
-          {/* Edit Form */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 24, fontWeight: 900, marginBottom: 8 }}>
-              <UserCircle size={28} color="#FFF" /> Hariri Taarifa
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 40 }}>Sasisha taarifa zako za akaunti hapa.</p>
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(34,211,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Phone size={18} color="var(--accent)" />
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Simu</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.phone || 'Hujajaza'}</div>
+            </div>
+          </div>
 
-            {message.text && (
-              <div className={`alert ${message.type === 'error' ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: 32 }}>
-                {message.text}
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(34,211,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Calendar size={18} color="var(--accent)" />
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mwanachama tangu</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.dateJoined ? formatDate(user.dateJoined) : 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Language Selector */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Lugha / Language</div>
+          <div 
+            className="card" 
+            onClick={() => setShowLangPicker(!showLangPicker)} 
+            style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(34,211,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                {currentLang.flag}
               </div>
-            )}
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700 }}>{currentLang.label}</div>
+              </div>
+            </div>
+            <ChevronRight size={20} color="var(--text-secondary)" style={{ transition: 'transform 0.2s', transform: showLangPicker ? 'rotate(90deg)' : 'none' }} />
+          </div>
 
-            <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 24, flex: 1 }}>
-              <div className="form-group">
-                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Jina Lako (Username)</label>
+          {showLangPicker && (
+            <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {LANGUAGES.map(lang => (
+                <div 
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className="card"
+                  style={{ 
+                    padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+                    border: language === lang.code ? '1px solid var(--accent)' : '1px solid var(--border)',
+                    background: language === lang.code ? 'rgba(34,211,238,0.08)' : undefined
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>{lang.flag}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{lang.label}</span>
+                  {language === lang.code && <Check size={16} color="var(--accent)" style={{ marginLeft: 'auto' }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Edit Button / Form */}
+        {!showEditForm ? (
+          <button 
+            className="btn-primary" 
+            style={{ width: '100%', borderRadius: 16, height: 52 }}
+            onClick={() => setShowEditForm(true)}
+          >
+            <UserCircle size={20} /> Hariri Taarifa
+          </button>
+        ) : (
+          <div className="card" style={{ padding: 24 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24 }}>Hariri Taarifa</h3>
+            <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Jina Lako (Username)</label>
                 <input
                   type="text"
                   className="input-field"
@@ -238,22 +300,22 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Barua Pepe</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Barua Pepe</label>
                 <input
                   type="email"
                   className="input-field"
                   value={user?.email || ''}
                   disabled
-                  style={{ opacity: 0.6, cursor: 'not-allowed', background: 'rgba(255,255,255,0.02)' }}
+                  style={{ opacity: 0.5, cursor: 'not-allowed' }}
                 />
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
-                  <ShieldCheck size={14} color="rgba(255,255,255,0.4)" /> Barua pepe haiwezi kubadilishwa kwa sasa.
+                <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <ShieldCheck size={13} /> Barua pepe haiwezi kubadilishwa.
                 </p>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, marginBottom: 10, display: 'block' }}>Nambari ya Simu</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Nambari ya Simu</label>
                 <input
                   type="text"
                   className="input-field"
@@ -263,15 +325,18 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div style={{ marginTop: 'auto', paddingTop: 20 }}>
-                <button type="submit" className="btn-primary" style={{ width: '100%', height: 56, fontSize: 16, borderRadius: 16 }} disabled={updating}>
-                  {updating ? <span className="spinner" /> : <>Hifadhi Mabadiliko <ArrowRight size={20} /></>}
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, borderRadius: 14 }} onClick={() => setShowEditForm(false)}>
+                  Ghairi
+                </button>
+                <button type="submit" className="btn-primary" style={{ flex: 1, borderRadius: 14 }} disabled={updating}>
+                  {updating ? <span className="spinner" /> : 'Hifadhi'}
                 </button>
               </div>
             </form>
           </div>
+        )}
 
-        </div>
       </div>
     </div>
   )
