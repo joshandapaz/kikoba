@@ -228,8 +228,8 @@ export default function DashboardPage() {
             <Wallet size={40} opacity={0.5} />
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={() => { setWalletType('PERSONAL'); setShowDeposit(true); }} className="btn-primary" style={{ padding: '12px 24px', borderRadius: 16 }}>Weka Pesa</button>
-            <button onClick={() => { setWalletType('PERSONAL'); setShowWithdraw(true); }} className="btn-secondary" style={{ padding: '12px 24px', borderRadius: 16, background: 'rgba(0,0,0,0.1)', borderColor: 'rgba(0,0,0,0.1)', color: '#000' }}>Toa</button>
+            <button onClick={() => { setWalletType('PERSONAL'); setShowDeposit(true); }} className="btn-primary" style={{ padding: '12px 24px', borderRadius: 16, background: 'var(--accent)', color: '#000' }}>Weka Pesa</button>
+            <button onClick={() => { setWalletType('PERSONAL'); setShowWithdraw(true); }} className="btn-secondary" style={{ padding: '12px 24px', borderRadius: 16, borderColor: 'rgba(255,255,255,0.2)' }}>Toa</button>
           </div>
         </div>
 
