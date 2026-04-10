@@ -1,12 +1,40 @@
+'use client'
+import { useState } from 'react'
 import Sidebar from '@/components/Sidebar'
+import BottomNav from '@/components/BottomNav'
+import MobileHeader from '@/components/MobileHeader'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <main className="main-content">
-        {children}
-      </main>
-    </div>
+    <ProtectedRoute>
+      <div className="app-layout">
+        {/* Desktop sidebar */}
+        <Sidebar />
+
+        {/* Mobile: overlay when sidebar is open */}
+        {sidebarOpen && (
+          <div
+            className="sidebar-overlay"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Mobile Header (hidden on desktop) */}
+        <MobileHeader
+          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          menuOpen={sidebarOpen}
+        />
+
+        <main className="main-content">
+          {children}
+        </main>
+
+        {/* Bottom Nav (mobile only) */}
+        <BottomNav />
+      </div>
+    </ProtectedRoute>
   )
 }

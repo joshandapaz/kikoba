@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -10,17 +10,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
   const router = useRouter()
+
+  // KEY FIX: Check if user is already logged in. If yes, skip login.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace('/dashboard')
+      } else {
+        setChecking(false)
+      }
+    })
+  }, [router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
-    
-    // Switch to Native Supabase Auth (Email)
+
     const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
+      email,
+      password,
     })
 
     setLoading(false)
@@ -29,8 +40,35 @@ export default function LoginPage() {
       setError('Barua pepe au nywila si sahihi. Jaribu tena.')
       console.error('Login Failed:', authError.message)
     } else {
-      router.push('/dashboard')
+      router.replace('/dashboard')
     }
+  }
+
+  // Show full-screen loading while checking session
+  if (checking) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#000',
+        flexDirection: 'column',
+        gap: 16
+      }}>
+        <div style={{
+          width: 56, height: 56,
+          borderRadius: '50%',
+          border: '3px solid rgba(255,255,255,0.1)',
+          borderTopColor: '#FFF',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <div style={{ width: 40, height: 40, borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Wallet size={22} color="#000" />
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Kikoba Smart...</p>
+      </div>
+    )
   }
 
   return (
@@ -51,7 +89,7 @@ export default function LoginPage() {
             Kikoba Smart
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: 15, fontWeight: 500 }}>
-            Premium Savings & Loans
+            Premium Savings &amp; Loans
           </p>
         </div>
 
@@ -61,7 +99,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
             <span>{error}</span>
           </div>
         )}
@@ -99,7 +137,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button className="btn-primary" type="submit" disabled={loading}>
+          <button className="btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginTop: 8 }}>
             {loading ? <span className="spinner" /> : <><span>Ingia</span><ArrowRight size={16} /></>}
           </button>
         </form>
