@@ -25,10 +25,8 @@ function AzamPayCallbackContent() {
 
     const poll = async () => {
       try {
-        // Use Supabase Edge Function when deployed statically (GitHub Pages)
-        const statusUrl = process.env.NEXT_PUBLIC_EXPORT === 'true'
-          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-status?external_id=${externalId}`
-          : `/api/payments/azampay/status?external_id=${externalId}`
+        // Always use Supabase Edge Function for polling
+        const statusUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-status?external_id=${externalId}`
         const res = await fetch(statusUrl)
         const data = await res.json()
 

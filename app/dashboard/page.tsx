@@ -105,9 +105,9 @@ export default function DashboardPage() {
           fetchData()
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert(t('failed_load'))
+      alert(err.message || t('failed_load'))
     } finally {
       setIsTransacting(false)
     }

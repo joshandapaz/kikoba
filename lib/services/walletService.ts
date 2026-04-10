@@ -49,12 +49,8 @@ export const walletService = {
 
     // 2. Use AzamPay (default) or ClickPesa
     if (provider === 'AZAMPAY') {
-      // On GitHub Pages (static export), use Supabase Edge Function.
-      // Locally, use Next.js API route.
-      const isStatic = process.env.NEXT_PUBLIC_EXPORT === 'true'
-      const checkoutUrl = isStatic
-        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-checkout`
-        : `/api/payments/azampay/checkout`
+      // Always route to Supabase Edge Function since the Next.js API routes are removed in static mobile builds.
+      const checkoutUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/azampay-checkout`
 
       const res = await fetch(checkoutUrl, {
         method: 'POST',
