@@ -147,14 +147,20 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fade-in" style={{ position: 'relative' }}>
-      <div className="topbar" style={{ paddingBottom: 24, paddingLeft: 20 }}>
+      
+      {/* Quick Inspirational / Welcome Banner replacing the empty space */}
+      <div style={{ padding: '24px 24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 24, fontWeight: 900 }}>{t('greeting')}, {data.username} 👋</div>
-          <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>{t('app_name')}</div>
+          <div style={{ fontSize: 28, fontWeight: 900, background: 'linear-gradient(90deg, #FFF 0%, var(--text-secondary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {t('greeting')}, {data.username} 👋
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
+            Utajiri unaanza na akiba
+          </div>
         </div>
       </div>
 
-      <div className="page-content" style={{ paddingTop: 20 }}>
+      <div className="page-content" style={{ paddingTop: 0 }}>
         {/* Wallet Hero */}
         <div style={{ 
           background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
