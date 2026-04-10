@@ -89,7 +89,7 @@ export default function ProfilePage() {
       setMessage({ type: 'success', text: 'Picha ya wasifu imesasishwa!' })
     } catch (err: any) {
       console.error(err)
-      setMessage({ type: 'error', text: 'Imeshindwa kupakia picha: ' + (err.message || 'Error') })
+      setMessage({ type: 'error', text: 'Imeshindwa kupakia picha: ' + (err.message || t('failed_load')) })
     } finally {
       setUploadingPhoto(false)
     }
@@ -97,19 +97,31 @@ export default function ProfilePage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent update if nothing changed
+    if (username === user?.username && phone === user?.phone) {
+      setShowEditForm(false)
+      return
+    }
+
     setUpdating(true)
     setMessage({ type: '', text: '' })
     
     try {
+      // Basic TZ phone validation
+      if (phone && !/^(?:\+255|255|0)?(6|7)[0-9]{8}$/.test(phone.replace(/\s/g, ''))) {
+        throw new Error('Namba ya simu haiko kwenye mpangilio sahihi (mfano: 0700000000)')
+      }
+
       const updated = await profileService.updateProfile({ username, phone })
       
       setMessage({ type: 'success', text: 'Taarifa zako zimesasishwa kikamilifu' })
       setUser(updated)
       setShowEditForm(false)
       setTimeout(() => setMessage({ type: '', text: '' }), 3000)
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      setMessage({ type: 'error', text: 'Imeshindwa kusasisha. Jaribu tena.' })
+      setMessage({ type: 'error', text: err.message || 'Imeshindwa kusasisha. Jaribu tena.' })
     } finally {
       setUpdating(false)
     }

@@ -34,7 +34,24 @@ export const profileService = {
 
     const updateData: any = {}
     if (updates.username) updateData.username = updates.username
-    if (updates.phone !== undefined) updateData.phone = updates.phone
+    
+    if (updates.phone !== undefined) {
+      let phone = updates.phone.trim()
+      if (phone) {
+        // Normalize: remove non-digits
+        phone = phone.replace(/\D/g, '')
+        // Normalize: if 0..., convert to 255...
+        if (phone.startsWith('0')) {
+          phone = '255' + phone.substring(1)
+        }
+        // Normalize: if it doesn't have 255, it's probably too short or invalid for AzamPay
+        if (phone.length === 9 || phone.length === 10) {
+           if (!phone.startsWith('255')) phone = '255' + (phone.startsWith('0') ? phone.substring(1) : phone)
+        }
+      }
+      updateData.phone = phone || null
+    }
+    
     if (updates.avatarUrl) updateData.avatar_url = updates.avatarUrl
 
     const { data, error } = await supabase
@@ -45,6 +62,11 @@ export const profileService = {
       .single()
 
     if (error) {
+      if (error.code === '23505') {
+        if (error.message.includes('phone')) throw new Error('Namba hii ya simu tayari inatumiwa na akaunti nyingine.')
+        if (error.message.includes('username')) throw new Error('Jina hili la mtumiaji tayari limeshachukuliwa.')
+      }
+      
       if (error.code === '42703' && updateData.avatar_url) {
         delete updateData.avatar_url
         const { data: fallback, error: fallbackErr } = await supabase
@@ -57,6 +79,17 @@ export const profileService = {
         return fallback
       }
       throw error
+    }
+
+    // Log the activity
+    try {
+      await supabase.from('activities').insert({
+        userId: authUser.id,
+        action: 'Amesasisha taarifa za wasifu wake',
+        date: new Date().toISOString()
+      })
+    } catch (e) {
+      console.warn('Activity logging failed', e)
     }
 
     return data
