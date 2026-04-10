@@ -5,13 +5,14 @@ import { formatCurrency, formatRelativeTime } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import {
   PiggyBank, HandCoins, Users, TrendingUp,
-  Activity, Wallet, BarChart3, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2
+  Activity, Wallet, BarChart3, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2, Target, Plus
 } from 'lucide-react'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
 import { dashboardService } from '@/lib/services/dashboardService'
 import { walletService } from '@/lib/services/walletService'
 import { groupService } from '@/lib/services/groupService'
+import { planService } from '@/lib/services/planService'
 
 interface DashboardData {
   userId: string
@@ -31,6 +32,7 @@ interface DashboardData {
   }>
   recentActivities: Array<{ id: string; action: string; amount?: number; date: string; user: { username: string } }>
   recentTransactions: Array<{ id: string; type: string; amount: number; description: string; createdAt: string; user: { username: string } }>
+  personalPlans: Array<{ id: string; title: string; target_amount: number; saved_amount: number }>
 }
 
 export default function DashboardPage() {
@@ -47,10 +49,48 @@ export default function DashboardPage() {
   const [walletType, setWalletType] = useState<'PERSONAL' | 'GROUP'>('PERSONAL')
   const [withdrawalReason, setWithdrawalReason] = useState('')
 
+  const [showCreatePlan, setShowCreatePlan] = useState(false)
+  const [planTitle, setPlanTitle] = useState('')
+  const [planTarget, setPlanTarget] = useState('')
+  
+  const [showDepositPlan, setShowDepositPlan] = useState<string | null>(null)
+  const [planDepositAmount, setPlanDepositAmount] = useState('')
+
   const handleTransaction = (action: 'DEPOSIT' | 'WITHDRAW') => {
     if (!amount || Number(amount) <= 0) return
     setTransactionType(action)
     setShowGateway(true)
+  }
+
+  const handleCreatePlan = async () => {
+    if (!planTitle || !planTarget) return
+    setIsTransacting(true)
+    try {
+      await planService.createPlan(planTitle, Number(planTarget))
+      setShowCreatePlan(false)
+      setPlanTitle('')
+      setPlanTarget('')
+      fetchData()
+    } catch (e: any) {
+      alert(e.message)
+    } finally {
+      setIsTransacting(false)
+    }
+  }
+
+  const handleDepositToPlan = async () => {
+    if (!showDepositPlan || !planDepositAmount) return
+    setIsTransacting(true)
+    try {
+      await planService.depositToPlan(showDepositPlan, Number(planDepositAmount))
+      setShowDepositPlan(null)
+      setPlanDepositAmount('')
+      fetchData()
+    } catch (e: any) {
+      alert(e.message)
+    } finally {
+      setIsTransacting(false)
+    }
   }
 
   const executeTransaction = async (provider: string) => {
@@ -230,6 +270,37 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={() => { setWalletType('PERSONAL'); setShowDeposit(true); }} className="btn-primary" style={{ padding: '12px 24px', borderRadius: 16, background: 'var(--accent)', color: '#000' }}>Weka Pesa</button>
             <button onClick={() => { setWalletType('PERSONAL'); setShowWithdraw(true); }} className="btn-secondary" style={{ padding: '12px 24px', borderRadius: 16, borderColor: 'rgba(255,255,255,0.2)' }}>Toa</button>
+          </div>
+        </div>
+
+        {/* Personal Plans */}
+        <div style={{ marginBottom: 48 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Target size={16} /> Mipango Binafsi
+            </h2>
+            <button onClick={() => setShowCreatePlan(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: 12, padding: '6px 12px', color: '#FFF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <Plus size={16} /> Ongeza
+            </button>
+          </div>
+          
+          <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 16, msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            {data.personalPlans && data.personalPlans.length > 0 ? (
+              data.personalPlans.map(plan => {
+                const percent = Math.min(100, Math.round((plan.saved_amount / plan.target_amount) * 100))
+                return (
+                  <div key={plan.id} onClick={() => setShowDepositPlan(plan.id)} className="card" style={{ minWidth: 260, padding: 24, cursor: 'pointer', flexShrink: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{plan.title}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>{formatCurrency(plan.saved_amount)} <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>/ {formatCurrency(plan.target_amount)}</span></div>
+                    <div style={{ background: 'rgba(255,255,255,0.1)', height: 6, borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ background: 'var(--accent)', height: '100%', width: `${percent}%`, borderRadius: 999, transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', padding: '12px 0' }}>Huna mipango yoyote binafsi. <span style={{ color: 'var(--accent)', cursor: 'pointer' }} onClick={() => setShowCreatePlan(true)}>Tengeneza mpango mpya</span>.</div>
+            )}
           </div>
         </div>
 
@@ -483,6 +554,48 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      {/* Create Plan Modal */}
+      {showCreatePlan && (
+        <div className="modal-overlay" onClick={() => setShowCreatePlan(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h3>Tengeneza Mpango</h3>
+              <button className="mobile-header-btn" onClick={() => setShowCreatePlan(false)}><X size={20}/></button>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Jina la Mpango</label>
+              <input type="text" className="input-field" placeholder="Mfn: Kununua Gari" value={planTitle} onChange={(e) => setPlanTitle(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Lengo (Kiasi)</label>
+              <input type="number" className="input-field" placeholder="Lengo (Goal)" value={planTarget} onChange={(e) => setPlanTarget(e.target.value)} />
+            </div>
+            <button className="btn-primary" style={{ width: '100%' }} onClick={handleCreatePlan} disabled={isTransacting}>
+              {isTransacting ? <Loader2 className="spinner" /> : 'Hifadhi'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit to Plan Modal */}
+      {showDepositPlan && (
+        <div className="modal-overlay" onClick={() => setShowDepositPlan(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h3>Weka Pesa kwa Mpango</h3>
+              <button className="mobile-header-btn" onClick={() => setShowDepositPlan(null)}><X size={20}/></button>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Kiasi</label>
+              <input type="number" className="input-field" placeholder="Kiasi" value={planDepositAmount} onChange={(e) => setPlanDepositAmount(e.target.value)} />
+            </div>
+            <button className="btn-primary" style={{ width: '100%' }} onClick={handleDepositToPlan} disabled={isTransacting}>
+              {isTransacting ? <Loader2 className="spinner" /> : 'Weka Pesa'}
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

@@ -100,6 +100,23 @@ export const dashboardService = {
         .eq('groupId', group.id)
         .eq('status', 'PENDING')
 
+      // 7. Personal Plans
+      let personalPlans = []
+      try {
+        const { data: ppData, error: ppError } = await supabase
+          .from('personal_plans')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          
+        if (!ppError && ppData) {
+          personalPlans = ppData
+        }
+      } catch (e) {
+        // Table might not exist yet if user hasn't run SQL
+        console.warn('Personal plans table missing', e)
+      }
+
       return {
         userId,
         noGroup: false,
@@ -124,6 +141,7 @@ export const dashboardService = {
         withdrawalRequests: withdrawalRequests || [],
         recentActivities: activities || [],
         recentTransactions: transactions || [],
+        personalPlans: personalPlans || [],
       }
     } catch (err: any) {
       console.error('dashboardService error:', err)
