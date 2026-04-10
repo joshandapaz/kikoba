@@ -23,10 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {/* Mobile Header (hidden on desktop) */}
-        <MobileHeader
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
-          menuOpen={sidebarOpen}
-        />
+        <MobileHeader />
 
         <main className="main-content">
           {children}

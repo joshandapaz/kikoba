@@ -4,6 +4,7 @@ import { UserCircle, Mail, Phone, Calendar, ArrowRight, ShieldCheck, Copy, Check
 import { formatDate } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { profileService } from '@/lib/services/profileService'
+import { useI18n } from '@/lib/i18n'
 
 const LANGUAGES = [
   { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
@@ -23,6 +24,8 @@ export default function ProfilePage() {
   const [username, setUsername] = useState('')
   const [phone, setPhone] = useState('')
   const [showEditForm, setShowEditForm] = useState(false)
+
+  const { t, setLang } = useI18n()
 
   // Language
   const [language, setLanguage] = useState('sw')
@@ -49,7 +52,7 @@ export default function ProfilePage() {
 
   const handleLanguageChange = (code: string) => {
     setLanguage(code)
-    localStorage.setItem('kikoba_lang', code)
+    setLang(code)
     setShowLangPicker(false)
   }
 
@@ -125,8 +128,8 @@ export default function ProfilePage() {
   return (
     <div className="animate-fade-in">
       <div className="page-header">
-        <h1 className="page-title">Wasifu Wangu</h1>
-        <p className="page-subtitle">Taarifa zako binafsi za Kikoba Smart</p>
+        <h1 className="page-title">{t('my_profile')}</h1>
+        <p className="page-subtitle">{t('profile_subtitle')}</p>
       </div>
 
       <div className="page-content">
@@ -177,13 +180,12 @@ export default function ProfilePage() {
           <p style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>Kikoba Smart Member</p>
         </div>
 
-        {/* Member Code Card */}
         <div className="card" style={{ 
           padding: 20, marginBottom: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Namba ya Utambulisho</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{t('member_code')}</div>
             <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 2, color: 'var(--accent)' }}>{user?.memberCode || 'KKB-PRO-01'}</div>
           </div>
           <button 
@@ -208,7 +210,7 @@ export default function ProfilePage() {
               <Mail size={18} color="var(--accent)" />
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Barua Pepe</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('email')}</div>
               <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || 'N/A'}</div>
             </div>
           </div>
@@ -218,8 +220,8 @@ export default function ProfilePage() {
               <Phone size={18} color="var(--accent)" />
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Simu</div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.phone || 'Hujajaza'}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('phone')}</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.phone || t('not_filled')}</div>
             </div>
           </div>
 
@@ -228,7 +230,7 @@ export default function ProfilePage() {
               <Calendar size={18} color="var(--accent)" />
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Mwanachama tangu</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('member_since')}</div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.dateJoined ? formatDate(user.dateJoined) : 'N/A'}</div>
             </div>
           </div>
@@ -282,26 +284,26 @@ export default function ProfilePage() {
             style={{ width: '100%', borderRadius: 16, height: 52 }}
             onClick={() => setShowEditForm(true)}
           >
-            <UserCircle size={20} /> Hariri Taarifa
+            <UserCircle size={20} /> {t('edit_info')}
           </button>
         ) : (
           <div className="card" style={{ padding: 24 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24 }}>Hariri Taarifa</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24 }}>{t('edit_info')}</h3>
             <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Jina Lako (Username)</label>
+                <label className="form-label">{t('username')}</label>
                 <input
                   type="text"
                   className="input-field"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   required
-                  placeholder="Ingiza jina lako"
+                  placeholder={t('enter_name')}
                 />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Barua Pepe</label>
+                <label className="form-label">{t('email')}</label>
                 <input
                   type="email"
                   className="input-field"
@@ -310,16 +312,16 @@ export default function ProfilePage() {
                   style={{ opacity: 0.5, cursor: 'not-allowed' }}
                 />
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <ShieldCheck size={13} /> Barua pepe haiwezi kubadilishwa.
+                  <ShieldCheck size={13} /> {t('email_locked')}
                 </p>
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Nambari ya Simu</label>
+                <label className="form-label">{t('phone_number')}</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Mfano: +255 700 000 000"
+                  placeholder={t('phone_placeholder')}
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                 />
@@ -327,10 +329,10 @@ export default function ProfilePage() {
 
               <div style={{ display: 'flex', gap: 12 }}>
                 <button type="button" className="btn-secondary" style={{ flex: 1, borderRadius: 14 }} onClick={() => setShowEditForm(false)}>
-                  Ghairi
+                  {t('cancel')}
                 </button>
                 <button type="submit" className="btn-primary" style={{ flex: 1, borderRadius: 14 }} disabled={updating}>
-                  {updating ? <span className="spinner" /> : 'Hifadhi'}
+                  {updating ? <span className="spinner" /> : t('save')}
                 </button>
               </div>
             </form>

@@ -2,16 +2,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Menu, X, UserCircle, LogOut, Wallet, Vote, Activity, FileBarChart } from 'lucide-react'
+import { UserCircle, LogOut, Wallet, Vote, Activity } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/hooks/use-auth'
 
-interface MobileHeaderProps {
-  onMenuToggle: () => void
-  menuOpen: boolean
-}
-
-export default function MobileHeader({ onMenuToggle, menuOpen }: MobileHeaderProps) {
+export default function MobileHeader() {
   const router = useRouter()
   const { session } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -24,13 +19,7 @@ export default function MobileHeader({ onMenuToggle, menuOpen }: MobileHeaderPro
   return (
     <>
       <header className="mobile-header">
-        <button
-          className="mobile-header-btn"
-          onClick={onMenuToggle}
-          aria-label="Menu"
-        >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div style={{ width: 44 }} /> {/* Spacer to keep logo centered if needed, or just left-align */}
 
         <Link href="/dashboard" className="mobile-header-logo">
           <div className="mobile-header-logo-icon">

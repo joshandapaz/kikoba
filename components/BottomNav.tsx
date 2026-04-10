@@ -1,17 +1,19 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, PiggyBank, Target, UserCircle } from 'lucide-react'
-
-const navItems = [
-  { href: '/dashboard', label: 'Nyumbani', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/savings', label: 'Akiba', icon: PiggyBank },
-  { href: '/dashboard/group', label: 'Mipango', icon: Target },
-  { href: '/dashboard/profile', label: 'Wasifu', icon: UserCircle },
-]
+import { LayoutDashboard, PiggyBank, Users, UserCircle } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const { t } = useI18n()
+
+  const navItems = [
+    { href: '/dashboard', label: t('nav_home'), icon: LayoutDashboard, exact: true },
+    { href: '/dashboard/savings', label: t('nav_savings'), icon: PiggyBank },
+    { href: '/dashboard/group', label: t('nav_groups'), icon: Users },
+    { href: '/dashboard/profile', label: t('nav_profile'), icon: UserCircle },
+  ]
 
   return (
     <nav className="bottom-nav">

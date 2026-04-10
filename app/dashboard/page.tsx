@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react'
 import { formatCurrency } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import {
-  PiggyBank, HandCoins, TrendingUp,
-  Activity, Wallet, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2, Target, Plus
+  PiggyBank, TrendingUp, HandCoins,
+  Activity, Wallet, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2, Target, Plus, ShieldCheck
 } from 'lucide-react'
 import Link from 'next/link'
 import { dashboardService } from '@/lib/services/dashboardService'
 import { walletService } from '@/lib/services/walletService'
 import { planService } from '@/lib/services/planService'
+import { useI18n } from '@/lib/i18n'
 
 interface DashboardData {
   userId: string
@@ -36,6 +37,8 @@ export default function DashboardPage() {
   
   const [showDepositPlan, setShowDepositPlan] = useState<string | null>(null)
   const [planDepositAmount, setPlanDepositAmount] = useState('')
+
+  const { t } = useI18n()
 
   const handleTransaction = (action: 'DEPOSIT' | 'WITHDRAW') => {
     if (!amount || Number(amount) <= 0) return
@@ -81,27 +84,23 @@ export default function DashboardPage() {
       if (transactionType === 'DEPOSIT') {
         const result = await walletService.initiateDeposit(Number(amount), undefined, 'PERSONAL')
         if (result.success) {
-          alert(result.message)
+          alert('Muamala umeanza.')
           setAmount('')
           setShowDeposit(false)
           fetchData()
-        } else {
-          alert('Imeshindwa kuanzisha malipo')
         }
       } else {
         const result = await walletService.initiatePayout(Number(amount))
         if (result.success) {
-          alert(result.message)
+          alert('Muamala umeanza.')
           setAmount('')
           setShowWithdraw(false)
           fetchData()
-        } else {
-          alert('Imeshindwa kutoa pesa')
         }
       }
     } catch (err) {
       console.error(err)
-      alert('Kuna tatizo limetokea. Tafadhali jaribu tena.')
+      alert(t('failed_load'))
     } finally {
       setIsTransacting(false)
     }
@@ -135,135 +134,168 @@ export default function DashboardPage() {
   if (loading) return (
     <div style={{ padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}>
       <div className="spinner" style={{ width: 40, height: 40 }} />
-      <p style={{ color: 'var(--text-secondary)' }}>Inapakia...</p>
+      <p style={{ color: 'var(--text-secondary)' }}>{t('loading')}</p>
     </div>
   )
 
   if (!data) return (
     <div style={{ padding: 32, textAlign: 'center' }}>
-      <p style={{ color: '#FF4D4D', marginBottom: 16 }}>Imeshindwa kupakia data</p>
-      <button onClick={() => fetchData()} className="btn-secondary">Jaribu Tena</button>
+      <p style={{ color: '#FF4D4D', marginBottom: 16 }}>{t('failed_load')}</p>
+      <button onClick={() => fetchData()} className="btn-secondary">{t('retry')}</button>
     </div>
   )
 
   return (
     <div className="animate-fade-in" style={{ position: 'relative' }}>
-      <div className="topbar">
+      <div className="topbar" style={{ paddingBottom: 24, paddingLeft: 20 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 800 }}>Habari, {data.username} 👋</div>
-          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Kikoba Smart</div>
+          <div style={{ fontSize: 24, fontWeight: 900 }}>{t('greeting')}, {data.username} 👋</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>{t('app_name')}</div>
         </div>
       </div>
 
-      <div className="page-content" style={{ paddingTop: 40 }}>
+      <div className="page-content" style={{ paddingTop: 20 }}>
         {/* Wallet Hero */}
-        <div className="wallet-hero" style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Salio la Mfuko Binafsi</div>
-              <div className="hero-balance" style={{ fontSize: 42, fontWeight: 900, letterSpacing: '-2px', marginBottom: 20 }}>{formatCurrency(data.userStats.walletBalance)}</div>
+        <div style={{ 
+          background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+          borderRadius: 28,
+          padding: 28,
+          marginBottom: 32,
+          border: '1px solid rgba(255,255,255,0.05)',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle glow effect */}
+          <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, background: 'var(--accent)', filter: 'blur(100px)', opacity: 0.15, borderRadius: '50%' }} />
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ background: 'rgba(255,255,255,0.1)', padding: 8, borderRadius: 12 }}>
+                <Wallet size={20} color="#FFF" />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1 }}>{t('wallet_balance')}</span>
             </div>
-            <Wallet size={36} opacity={0.4} />
+            <div style={{ background: 'rgba(34, 211, 238, 0.1)', color: 'var(--accent)', padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 4 }}>
+               <ShieldCheck size={14} /> Personal
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <button onClick={() => setShowDeposit(true)} className="btn-primary" style={{ padding: '12px 24px', borderRadius: 16, background: 'var(--accent)', color: '#000', flex: 1, minWidth: 120 }}>Weka Pesa</button>
-            <button onClick={() => setShowWithdraw(true)} className="btn-secondary" style={{ padding: '12px 24px', borderRadius: 16, borderColor: 'rgba(255,255,255,0.2)', flex: 1, minWidth: 120 }}>Toa</button>
+          
+          <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: '-2px', marginBottom: 32, color: '#FFF', position: 'relative', zIndex: 1 }}>
+            {formatCurrency(data.userStats.walletBalance)}
+          </div>
+          
+          <div style={{ display: 'flex', gap: 16, position: 'relative', zIndex: 1 }}>
+            <button onClick={() => setShowDeposit(true)} className="btn-primary" style={{ flex: 1, padding: '16px 20px', borderRadius: 20, background: 'var(--accent)', color: '#000', fontSize: 15, display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center', fontWeight: 800 }}>
+               <ArrowDownLeft size={20} /> {t('deposit')}
+            </button>
+            <button onClick={() => setShowWithdraw(true)} className="btn-secondary" style={{ flex: 1, padding: '16px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center', fontWeight: 800 }}>
+              <ArrowUpRight size={20} /> {t('withdraw')}
+            </button>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 32 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 40 }}>
           <Link href="/dashboard/savings" style={{ textDecoration: 'none' }}>
-            <div className="stat-card" style={{ padding: 20 }}>
-              <div className="icon-bg" style={{ marginBottom: 12, width: 40, height: 40 }}><PiggyBank size={20} color="#FFF" /></div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>Akiba Yangu</div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{formatCurrency(data.userStats.totalSavings)}</div>
+            <div className="card" style={{ padding: 24, height: '100%', borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div style={{ background: 'rgba(34, 211, 238, 0.1)', padding: 14, borderRadius: 16, marginBottom: 16 }}>
+                <PiggyBank size={24} color="var(--accent)" />
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{t('my_savings')}</div>
+              <div style={{ fontSize: 24, fontWeight: 900 }}>{formatCurrency(data.userStats.totalSavings)}</div>
             </div>
           </Link>
           
-          <div className="stat-card" style={{ padding: 20 }}>
-            <div className="icon-bg" style={{ marginBottom: 12, width: 40, height: 40 }}><TrendingUp size={20} color="#FFF" /></div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>Baki ya Mkopo</div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{formatCurrency(data.userStats.loanBalance)}</div>
+          <div className="card" style={{ padding: 24, height: '100%', borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(255, 77, 77, 0.1)', padding: 14, borderRadius: 16, marginBottom: 16 }}>
+              <TrendingUp size={24} color="#FF4D4D" />
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{t('loan_balance')}</div>
+            <div style={{ fontSize: 24, fontWeight: 900 }}>{formatCurrency(data.userStats.loanBalance)}</div>
           </div>
         </div>
 
         {/* Personal Plans */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1.5, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Target size={16} /> Mipango Binafsi
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Target size={20} color="var(--accent)" /> {t('personal_plans')}
             </h2>
-            <button onClick={() => setShowCreatePlan(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: 12, padding: '6px 14px', color: '#FFF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-              <Plus size={14} /> Ongeza
+            <button onClick={() => setShowCreatePlan(true)} style={{ background: 'rgba(34, 211, 238, 0.1)', border: 'none', borderRadius: 999, padding: '8px 16px', color: 'var(--accent)', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <Plus size={16} strokeWidth={3} /> {t('add')}
             </button>
           </div>
           
           {data.personalPlans && data.personalPlans.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {data.personalPlans.map(plan => {
                 const percent = plan.target_amount > 0 ? Math.min(100, Math.round((plan.saved_amount / plan.target_amount) * 100)) : 0
                 return (
-                  <div key={plan.id} onClick={() => setShowDepositPlan(plan.id)} className="card" style={{ padding: 20, cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700 }}>{plan.title}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{percent}%</div>
+                  <div key={plan.id} onClick={() => setShowDepositPlan(plan.id)} className="card hover-scale" style={{ padding: 24, cursor: 'pointer', borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{plan.title}</div>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--accent)', background: 'rgba(34, 211, 238, 0.1)', padding: '4px 10px', borderRadius: 12 }}>{percent}%</div>
                     </div>
-                    <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>
+                    <div style={{ fontSize: 22, fontWeight: 900, marginBottom: 20, color: '#FFF' }}>
                       {formatCurrency(plan.saved_amount)} 
-                      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}> / {formatCurrency(plan.target_amount)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>/ {formatCurrency(plan.target_amount)}</span>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.08)', height: 6, borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{ background: 'var(--accent)', height: '100%', width: `${percent}%`, borderRadius: 999, transition: 'width 0.5s ease' }} />
+                    <div style={{ background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ background: 'linear-gradient(90deg, var(--accent) 0%, #00FF87 100%)', height: '100%', width: `${percent}%`, borderRadius: 999, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
                     </div>
                   </div>
                 )
               })}
             </div>
           ) : (
-            <div className="card" style={{ padding: 24, textAlign: 'center' }}>
-              <Target size={32} color="rgba(255,255,255,0.15)" style={{ marginBottom: 12 }} />
-              <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>Huna mipango yoyote binafsi bado.</div>
-              <button onClick={() => setShowCreatePlan(true)} className="btn-primary" style={{ borderRadius: 14, padding: '10px 20px', fontSize: 13, background: 'var(--accent)', color: '#000' }}>
-                <Plus size={16} /> Tengeneza Mpango
+            <div className="card" style={{ padding: 32, textAlign: 'center', borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', width: 64, height: 64, borderRadius: 32, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Target size={32} color="rgba(255,255,255,0.4)" />
+              </div>
+              <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', marginBottom: 20, fontWeight: 600 }}>{t('no_plans')}</div>
+              <button onClick={() => setShowCreatePlan(true)} className="btn-primary" style={{ borderRadius: 16, padding: '14px 24px', fontSize: 14, background: 'var(--accent)', color: '#000', fontWeight: 800 }}>
+                {t('create_plan')}
               </button>
             </div>
           )}
         </div>
 
         {/* Transaction History */}
-        <div className="card" style={{ padding: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-            <Activity size={18} color="#FFF" />
-            <h3 style={{ fontSize: 16, fontWeight: 700 }}>Historia ya Miamala</h3>
+        <div className="card" style={{ padding: 24, borderRadius: 28, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: 8, borderRadius: 10 }}>
+              <Activity size={18} color="#FFF" />
+            </div>
+            <h3 style={{ fontSize: 16, fontWeight: 800 }}>{t('transaction_history')}</h3>
           </div>
           
           {data.recentTransactions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <Activity size={40} color="rgba(255,255,255,0.1)" />
-              <p style={{ color: 'var(--text-secondary)', marginTop: 12, fontSize: 14 }}>Hakuna miamala bado</p>
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <Activity size={48} strokeWidth={1} color="rgba(255,255,255,0.05)" />
+              <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: 16, fontSize: 14, fontWeight: 600 }}>{t('no_transactions')}</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {data.recentTransactions.map((t) => (
-                <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 0, flex: 1 }}>
                     <div style={{ 
-                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                      width: 48, height: 48, borderRadius: 16, flexShrink: 0,
                       background: t.type === 'DEPOSIT' ? 'rgba(0,255,135,0.1)' : 'rgba(255,77,77,0.1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
-                      {t.type === 'DEPOSIT' ? <ArrowDownLeft size={18} color="#00FF87" /> : <ArrowUpRight size={18} color="#FF4D4D" />}
+                      {t.type === 'DEPOSIT' ? <ArrowDownLeft size={24} color="#00FF87" /> : <ArrowUpRight size={24} color="#FF4D4D" />}
                     </div>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4, color: '#FFF' }}>{t.description}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>
                         {new Date(t.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
                   <div style={{ 
-                    fontSize: 15, fontWeight: 700, flexShrink: 0, marginLeft: 8,
+                    fontSize: 16, fontWeight: 800, flexShrink: 0, marginLeft: 16,
                     color: t.type === 'DEPOSIT' ? '#00FF87' : '#FF4D4D'
                   }}>
                     {t.type === 'DEPOSIT' ? '+' : '-'}{formatCurrency(t.amount)}
@@ -278,30 +310,30 @@ export default function DashboardPage() {
       {/* Deposit / Withdraw Modal */}
       {(showDeposit || showWithdraw) && (
         <div className="modal-overlay" onClick={() => { setShowDeposit(false); setShowWithdraw(false); setAmount(''); }}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 800 }}>{showDeposit ? 'Weka Pesa' : 'Toa Pesa'}</h2>
-              <button className="mobile-header-btn" onClick={() => { setShowDeposit(false); setShowWithdraw(false); setAmount(''); }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900 }}>{showDeposit ? t('deposit') : t('withdraw')}</h2>
+              <button className="mobile-header-btn" onClick={() => { setShowDeposit(false); setShowWithdraw(false); setAmount(''); }} style={{ background: 'rgba(255,255,255,0.05)', width: 40, height: 40, borderRadius: 20 }}>
                 <X size={20} />
               </button>
             </div>
             
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 24, fontSize: 14 }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 15, lineHeight: 1.5 }}>
               {showDeposit 
-                ? 'Ingiza kiasi unachotaka kuweka kwenye mfuko wako binafsi.'
-                : `Pesa zitatumwa kwenye namba yako: ${data.userStats.registeredPhone || 'Hujasajili namba'}`
+                ? t('deposit_desc')
+                : `${t('withdraw_desc')}: ${data.userStats.registeredPhone || t('no_phone')}`
               }
             </p>
             
-            <div className="form-group">
-              <label className="form-label">Kiasi (TZS)</label>
+            <div className="form-group" style={{ marginBottom: 32 }}>
+              <label className="form-label" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5 }}>{t('amount_tzs')}</label>
               <input 
                 type="number" 
                 className="input-field" 
-                placeholder="10000"
+                placeholder="10,000"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                style={{ fontSize: 20, padding: '16px 20px', fontWeight: 700 }}
+                style={{ fontSize: 28, padding: '20px 24px', fontWeight: 900, borderRadius: 20, textAlign: 'center' }}
                 autoFocus
               />
             </div>
@@ -309,10 +341,10 @@ export default function DashboardPage() {
             <button 
               onClick={() => handleTransaction(showDeposit ? 'DEPOSIT' : 'WITHDRAW')} 
               className="btn-primary" 
-              style={{ width: '100%', borderRadius: 16 }}
+              style={{ width: '100%', borderRadius: 20, height: 60, fontSize: 16, fontWeight: 800 }}
               disabled={isTransacting || !amount || Number(amount) <= 0}
             >
-              {isTransacting ? <Loader2 className="spinner" /> : 'Endelea'}
+              {isTransacting ? <Loader2 className="spinner" /> : t('continue')}
             </button>
           </div>
         </div>
@@ -321,38 +353,38 @@ export default function DashboardPage() {
       {/* Payment Gateway Modal */}
       {showGateway && (
         <div className="modal-overlay" onClick={() => setShowGateway(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8, textAlign: 'center' }}>Chagua Njia ya Malipo</h2>
-            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 24, fontSize: 14 }}>Mtoa huduma unayetaka kutumia:</p>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32, background: 'rgba(20,20,20,0.95)', backdropFilter: 'blur(20px)' }}>
+            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 12, textAlign: 'center' }}>{t('choose_payment')}</h2>
+            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32, fontSize: 15 }}>{t('payment_provider')}</p>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <button 
                 onClick={() => executeTransaction('CLICKPESA')}
-                className="stat-card" 
-                style={{ display: 'flex', alignItems: 'center', gap: 14, textAlign: 'left', padding: 18, width: '100%', cursor: 'pointer' }}
+                className="card hover-scale" 
+                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.2)' }}
               >
-                <div className="icon-bg" style={{ marginBottom: 0, width: 40, height: 40 }}>
-                  <Smartphone size={20} color="#FFF" />
+                <div style={{ background: '#FFF', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Smartphone size={24} color="#000" />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>Mobile Money</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>M-Pesa, TigoPesa, AirtelMoney</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF' }}>{t('mobile_money')}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{t('mobile_money_desc')}</div>
                 </div>
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 18, borderRadius: 20, border: '1px solid var(--border)', opacity: 0.4 }}>
-                <div className="icon-bg" style={{ marginBottom: 0, width: 40, height: 40 }}>
-                  <CreditCard size={20} color="#666" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', opacity: 0.5 }}>
+                <div style={{ background: 'rgba(255,255,255,0.1)', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CreditCard size={24} color="#888" />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: '#666' }}>Kadi ya Benki</div>
-                  <div style={{ fontSize: 12, color: '#444' }}>Inakuja hivi karibuni...</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: '#888' }}>{t('bank_card')}</div>
+                  <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>{t('coming_soon')}</div>
                 </div>
               </div>
             </div>
 
-            <button onClick={() => setShowGateway(false)} className="btn-secondary" style={{ width: '100%', marginTop: 20, borderRadius: 14 }}>
-              Ghairi
+            <button onClick={() => setShowGateway(false)} className="btn-secondary" style={{ width: '100%', marginTop: 32, borderRadius: 20, height: 56, fontSize: 16, fontWeight: 800 }}>
+              {t('cancel')}
             </button>
           </div>
         </div>
@@ -361,21 +393,21 @@ export default function DashboardPage() {
       {/* Create Plan Modal */}
       {showCreatePlan && (
         <div className="modal-overlay" onClick={() => setShowCreatePlan(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800 }}>Tengeneza Mpango</h3>
-              <button className="mobile-header-btn" onClick={() => setShowCreatePlan(false)}><X size={20}/></button>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32, alignItems: 'center' }}>
+              <h3 style={{ fontSize: 20, fontWeight: 900 }}>{t('create_plan')}</h3>
+              <button className="mobile-header-btn" onClick={() => setShowCreatePlan(false)} style={{ background: 'rgba(255,255,255,0.05)', width: 40, height: 40, borderRadius: 20 }}><X size={20}/></button>
             </div>
-            <div className="form-group">
-              <label className="form-label">Jina la Mpango</label>
-              <input type="text" className="input-field" placeholder="Mfn: Kununua Gari" value={planTitle} onChange={(e) => setPlanTitle(e.target.value)} />
+            <div className="form-group" style={{ marginBottom: 24 }}>
+              <label className="form-label" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5 }}>{t('plan_name')}</label>
+              <input type="text" className="input-field" placeholder={t('plan_name_placeholder')} value={planTitle} onChange={(e) => setPlanTitle(e.target.value)} style={{ fontSize: 16, padding: '18px 24px', borderRadius: 16 }} />
             </div>
-            <div className="form-group">
-              <label className="form-label">Lengo (TZS)</label>
-              <input type="number" className="input-field" placeholder="500000" value={planTarget} onChange={(e) => setPlanTarget(e.target.value)} />
+            <div className="form-group" style={{ marginBottom: 32 }}>
+              <label className="form-label" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5 }}>{t('goal_amount')}</label>
+              <input type="number" className="input-field" placeholder="500,000" value={planTarget} onChange={(e) => setPlanTarget(e.target.value)} style={{ fontSize: 16, padding: '18px 24px', borderRadius: 16 }} />
             </div>
-            <button className="btn-primary" style={{ width: '100%', borderRadius: 14 }} onClick={handleCreatePlan} disabled={isTransacting}>
-              {isTransacting ? <Loader2 className="spinner" /> : 'Hifadhi'}
+            <button className="btn-primary" style={{ width: '100%', borderRadius: 20, height: 60, fontSize: 16, fontWeight: 800 }} onClick={handleCreatePlan} disabled={isTransacting}>
+              {isTransacting ? <Loader2 className="spinner" /> : t('save')}
             </button>
           </div>
         </div>
@@ -384,18 +416,18 @@ export default function DashboardPage() {
       {/* Deposit to Plan Modal */}
       {showDepositPlan && (
         <div className="modal-overlay" onClick={() => setShowDepositPlan(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 32 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800 }}>Weka Pesa kwa Mpango</h3>
-              <button className="mobile-header-btn" onClick={() => setShowDepositPlan(null)}><X size={20}/></button>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, alignItems: 'center' }}>
+              <h3 style={{ fontSize: 20, fontWeight: 900 }}>{t('deposit_to_plan')}</h3>
+              <button className="mobile-header-btn" onClick={() => setShowDepositPlan(null)} style={{ background: 'rgba(255,255,255,0.05)', width: 40, height: 40, borderRadius: 20 }}><X size={20}/></button>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 20 }}>Pesa zitatoka kwenye mfuko wako binafsi.</p>
-            <div className="form-group">
-              <label className="form-label">Kiasi (TZS)</label>
-              <input type="number" className="input-field" placeholder="10000" value={planDepositAmount} onChange={(e) => setPlanDepositAmount(e.target.value)} />
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15, marginBottom: 32, lineHeight: 1.5 }}>{t('deposit_from_wallet')}</p>
+            <div className="form-group" style={{ marginBottom: 32 }}>
+              <label className="form-label" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5 }}>{t('amount_tzs')}</label>
+              <input type="number" className="input-field" placeholder="10,000" value={planDepositAmount} onChange={(e) => setPlanDepositAmount(e.target.value)} style={{ fontSize: 24, padding: '20px 24px', borderRadius: 20, textAlign: 'center', fontWeight: 900 }} />
             </div>
-            <button className="btn-primary" style={{ width: '100%', borderRadius: 14 }} onClick={handleDepositToPlan} disabled={isTransacting}>
-              {isTransacting ? <Loader2 className="spinner" /> : 'Weka Pesa'}
+            <button className="btn-primary" style={{ width: '100%', borderRadius: 20, height: 60, fontSize: 16, fontWeight: 800 }} onClick={handleDepositToPlan} disabled={isTransacting}>
+              {isTransacting ? <Loader2 className="spinner" /> : t('deposit')}
             </button>
           </div>
         </div>
