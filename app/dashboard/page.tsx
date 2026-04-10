@@ -223,7 +223,7 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Salio la Mfuko Binafsi</div>
-              <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: '-2px', marginBottom: 24 }}>{formatCurrency(data.userStats.walletBalance)}</div>
+              <div className="hero-balance" style={{ fontSize: 48, fontWeight: 900, letterSpacing: '-2px', marginBottom: 24 }}>{formatCurrency(data.userStats.walletBalance)}</div>
             </div>
             <Wallet size={40} opacity={0.5} />
           </div>
