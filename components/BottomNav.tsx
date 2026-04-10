@@ -1,14 +1,13 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, PiggyBank, HandCoins, Users, Vote } from 'lucide-react'
+import { LayoutDashboard, PiggyBank, Target, UserCircle } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Nyumbani', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/savings', label: 'Akiba', icon: PiggyBank },
-  { href: '/dashboard/loans', label: 'Mikopo', icon: HandCoins },
-  { href: '/dashboard/loans/vote', label: 'Kura', icon: Vote },
-  { href: '/dashboard/group', label: 'Kikundi', icon: Users },
+  { href: '/dashboard/group', label: 'Mipango', icon: Target },
+  { href: '/dashboard/profile', label: 'Wasifu', icon: UserCircle },
 ]
 
 export default function BottomNav() {
