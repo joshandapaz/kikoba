@@ -5,6 +5,7 @@ import { formatDate } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { profileService } from '@/lib/services/profileService'
 import { useI18n } from '@/lib/i18n'
+import LoadingScreen from '@/components/LoadingScreen'
 
 const LANGUAGES = [
   { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
@@ -123,7 +124,7 @@ export default function ProfilePage() {
 
   const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0]
 
-  if (loading) return <div className="spinner" style={{ margin: '64px auto', display: 'block' }} />
+  if (loading) return <LoadingScreen />
 
   return (
     <div className="animate-fade-in">

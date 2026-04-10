@@ -981,12 +981,22 @@ tr:last-child td {
    RESPONSIVE — SMALL MOBILE
    max-width: 360px
 =========================== */
-@media (max-width: 360px) {
-  .bento-grid {
-    grid-template-columns: 1fr;
-  }
+@keyframes logo-pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0px var(--accent)); opacity: 0.8; }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 15px var(--accent)); opacity: 1; }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0px var(--accent)); opacity: 0.8; }
+}
 
-  .page-title {
-    font-size: 20px;
-  }
+@keyframes text-shimmer {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+
+.animate-logo-pulse {
+  animation: logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-text-shimmer {
+  animation: text-shimmer 3s ease-in-out infinite;
 }

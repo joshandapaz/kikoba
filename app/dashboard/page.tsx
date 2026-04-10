@@ -11,6 +11,7 @@ import { dashboardService } from '@/lib/services/dashboardService'
 import { walletService } from '@/lib/services/walletService'
 import { planService } from '@/lib/services/planService'
 import { useI18n } from '@/lib/i18n'
+import LoadingScreen from '@/components/LoadingScreen'
 
 interface DashboardData {
   userId: string
@@ -131,12 +132,7 @@ export default function DashboardPage() {
     }
   }, [])
 
-  if (loading) return (
-    <div style={{ padding: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}>
-      <div className="spinner" style={{ width: 40, height: 40 }} />
-      <p style={{ color: 'var(--text-secondary)' }}>{t('loading')}</p>
-    </div>
-  )
+  if (loading) return <LoadingScreen />
 
   if (!data) return (
     <div style={{ padding: 32, textAlign: 'center' }}>

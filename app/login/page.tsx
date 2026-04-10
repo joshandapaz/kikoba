@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
+import LoadingScreen from '@/components/LoadingScreen'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -46,29 +47,7 @@ export default function LoginPage() {
 
   // Show full-screen loading while checking session
   if (checking) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#000',
-        flexDirection: 'column',
-        gap: 16
-      }}>
-        <div style={{
-          width: 56, height: 56,
-          borderRadius: '50%',
-          border: '3px solid rgba(255,255,255,0.1)',
-          borderTopColor: '#FFF',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <div style={{ width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/logo.png" alt="Kikoba Logo" style={{ width: '100%', height: 'auto' }} />
-        </div>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>Inapakia...</p>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (

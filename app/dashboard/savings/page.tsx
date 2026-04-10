@@ -6,6 +6,7 @@ import { PiggyBank, Plus, ArrowRight, TrendingUp, History, Download, Target, Loa
 import { groupService } from '@/lib/services/groupService'
 import { savingsService } from '@/lib/services/savingsService'
 import { useI18n } from '@/lib/i18n'
+import LoadingScreen from '@/components/LoadingScreen'
 
 interface Saving {
   id: string
@@ -90,12 +91,7 @@ export default function SavingsPage() {
     }
   }
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}>
-      <Loader2 className="spinner" size={40} color="var(--accent)" />
-      <p style={{ color: 'var(--text-secondary)' }}>Inapakia taarifa za akiba...</p>
-    </div>
-  )
+  if (loading) return <LoadingScreen />
 
   return (
     <div className="animate-fade-in" style={{ paddingBottom: 40 }}>
