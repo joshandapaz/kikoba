@@ -1,7 +1,5 @@
 import { supabase } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
-import { ClickPesa } from '@/lib/clickpesa'
-import { AzamPay } from '@/lib/azampay'
 
 export const walletService = {
   async getWalletData() {

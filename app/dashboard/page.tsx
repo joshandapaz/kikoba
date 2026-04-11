@@ -4,7 +4,7 @@ import { formatCurrency } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import {
   PiggyBank, TrendingUp, HandCoins,
-  Activity, Wallet, ArrowUpRight, ArrowDownLeft, X, Smartphone, CreditCard, Loader2, Target, Plus, ShieldCheck
+  Activity, Wallet, ArrowUpRight, ArrowDownLeft, X, Loader2, Target, Plus, ShieldCheck
 } from 'lucide-react'
 import Link from 'next/link'
 import { dashboardService } from '@/lib/services/dashboardService'
