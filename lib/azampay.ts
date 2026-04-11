@@ -20,15 +20,23 @@ const API_BASE_URL =
     ? 'https://api.azampay.co.tz'
     : 'https://sandbox.azampay.co.tz'
 
-// Determine MNO provider from phone number prefix
+// Determine MNO provider from phone number prefix (Tanzania)
 function detectProvider(phone: string): string {
   const clean = phone.replace(/\D/g, '')
+  // Normalize to local part (e.g., 74..., 65...)
   const local = clean.startsWith('255') ? clean.substring(3) : clean.startsWith('0') ? clean.substring(1) : clean
 
-  if (/^(78|79|68|69)/.test(local)) return 'Mpesa'      // Vodacom
-  if (/^(75|74|73|71)/.test(local)) return 'Tigo'       // Tigo (Miitel)
-  if (/^(77|78)/.test(local)) return 'Halopesa'          // Halotel
-  if (/^(68|69)/.test(local)) return 'Airtel'           // Airtel
+  // Vodacom (074, 075, 076, 066)
+  if (/^(74|75|76|66)/.test(local)) return 'Mpesa'
+  // Tigo (065, 067, 071)
+  if (/^(65|67|71)/.test(local)) return 'Tigo'
+  // Airtel (068, 069, 078, 079)
+  if (/^(68|69|78|79)/.test(local)) return 'Airtel'
+  // Halotel (061, 062)
+  if (/^(61|62)/.test(local)) return 'Halopesa'
+  // TTCL (073)
+  if (/^(73)/.test(local)) return 'Tigo' // Fallback to Tigo or keep as is if AzamPay supports others
+
   return 'Tigo' // default fallback
 }
 
