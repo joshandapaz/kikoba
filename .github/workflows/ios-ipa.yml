@@ -66,10 +66,18 @@ jobs:
           zip -m -r Kikoba-App.ipa Payload
           echo "IPA created at $(pwd)/Kikoba-App.ipa"
 
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4.3.3
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
-          name: Kikoba-App-IPA
-          path: build/Kikoba-App.ipa
-          if-no-files-found: error
-          retention-days: 7
+          tag_name: build-${{ github.run_number }}
+          name: Release Build ${{ github.run_number }}
+          files: build/Kikoba-App.ipa
+          draft: false
+          prerelease: false
+          body: |
+            Automated build of the Kikoba App.
+            Contains PesaPal v3 integration and UI updates.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
