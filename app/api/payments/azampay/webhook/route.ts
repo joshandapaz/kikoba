@@ -148,6 +148,48 @@ export async function POST(req: NextRequest) {
           amount: Number(amount),
         })
       }
+      // 4c. Handle Disbursement (Withdrawal) confirmation
+      const paymentType = payment.metadata?.type
+      if (paymentType === 'WITHDRAWAL') {
+        // Balance was already debited when withdrawal was initiated.
+        // Just update the transaction status to COMPLETED.
+        await supabaseAdmin
+          .from('transactions')
+          .update({ status: 'COMPLETED' })
+          .eq('userId', payment.user_id)
+          .eq('type', 'WITHDRAWAL')
+          .eq('status', 'PENDING')
+
+        await supabaseAdmin.from('activities').insert({
+          userId: payment.user_id,
+          action: 'Kutoa pesa kumekamilika',
+          amount: Number(amount),
+        })
+      }
+    } else {
+      // Payment failed — if it was a withdrawal, refund the reserved balance
+      const paymentType = payment.metadata?.type
+      if (paymentType === 'WITHDRAWAL') {
+        const { data: user } = await supabaseAdmin
+          .from('users')
+          .select('wallet_balance')
+          .eq('id', payment.user_id)
+          .single()
+
+        await supabaseAdmin
+          .from('users')
+          .update({ wallet_balance: (user?.wallet_balance || 0) + Number(amount) })
+          .eq('id', payment.user_id)
+
+        await supabaseAdmin
+          .from('transactions')
+          .update({ status: 'FAILED' })
+          .eq('userId', payment.user_id)
+          .eq('type', 'WITHDRAWAL')
+          .eq('status', 'PENDING')
+
+        console.log('[AzamPay Webhook] Withdrawal failed — balance refunded for user:', payment.user_id)
+      }
     }
 
     return NextResponse.json({ message: 'Webhook processed successfully' }, { status: 200 })

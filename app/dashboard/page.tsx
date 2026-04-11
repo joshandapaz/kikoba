@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const [showWithdraw, setShowWithdraw] = useState(false)
   const [amount, setAmount] = useState('')
   const [isTransacting, setIsTransacting] = useState(false)
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   const [showGateway, setShowGateway] = useState(false)
   const [transactionType, setTransactionType] = useState<'DEPOSIT' | 'WITHDRAW'>('DEPOSIT')
@@ -41,10 +42,36 @@ export default function DashboardPage() {
 
   const { t } = useI18n()
 
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 4000)
+  }
+
   const handleTransaction = (action: 'DEPOSIT' | 'WITHDRAW') => {
     if (!amount || Number(amount) <= 0) return
     setTransactionType(action)
-    setShowGateway(true)
+    if (action === 'DEPOSIT') {
+      setShowGateway(true) // Deposit: let user choose AzamPay or ClickPesa
+    } else {
+      executeWithdraw() // Withdraw: goes directly to AzamPay
+    }
+  }
+
+  const executeWithdraw = async () => {
+    setShowWithdraw(false)
+    setIsTransacting(true)
+    try {
+      const result = await walletService.initiatePayout(Number(amount))
+      if (result.success) {
+        showToast('✅ ' + (result.message || 'Ombi la kutoa pesa limepokelewa!'))
+        setAmount('')
+        fetchData()
+      }
+    } catch (err: any) {
+      showToast('❌ ' + (err.message || 'Kutoa pesa kumeshindwa'), 'error')
+    } finally {
+      setIsTransacting(false)
+    }
   }
 
   const handleCreatePlan = async () => {
@@ -82,32 +109,21 @@ export default function DashboardPage() {
     setShowGateway(false)
     setIsTransacting(true)
     try {
-      if (transactionType === 'DEPOSIT') {
-        const result = await walletService.initiateDeposit(
-          Number(amount),
-          undefined,
-          'PERSONAL',
-          undefined,
-          provider as 'AZAMPAY' | 'CLICKPESA'
-        )
-        if (result.success) {
-          alert('Muamala umeanza. Angalia simu yako.')
-          setAmount('')
-          setShowDeposit(false)
-          fetchData()
-        }
-      } else {
-        const result = await walletService.initiatePayout(Number(amount))
-        if (result.success) {
-          alert('Muamala umeanza.')
-          setAmount('')
-          setShowWithdraw(false)
-          fetchData()
-        }
+      const result = await walletService.initiateDeposit(
+        Number(amount),
+        undefined,
+        'PERSONAL',
+        undefined,
+        provider as 'AZAMPAY' | 'CLICKPESA'
+      )
+      if (result.success) {
+        showToast('✅ Ombi la malipo limetumwa. Angalia simu yako kukamilisha.')
+        setAmount('')
+        setShowDeposit(false)
+        fetchData()
       }
     } catch (err: any) {
-      console.error(err)
-      alert(err.message || t('failed_load'))
+      showToast('❌ ' + (err.message || 'Amana imeshindwa'), 'error')
     } finally {
       setIsTransacting(false)
     }
@@ -150,6 +166,34 @@ export default function DashboardPage() {
   return (
     <div className="animate-fade-in" style={{ position: 'relative' }}>
       
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+          background: toast.type === 'success' ? 'rgba(0,200,100,0.95)' : 'rgba(220,50,50,0.95)',
+          color: '#FFF', padding: '14px 24px', borderRadius: 999,
+          fontWeight: 700, fontSize: 14, zIndex: 9999,
+          backdropFilter: 'blur(10px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          maxWidth: '90vw', textAlign: 'center',
+          animation: 'fade-in 0.3s ease',
+        }}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Full-screen processing overlay */}
+      {isTransacting && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          zIndex: 9998, backdropFilter: 'blur(8px)',
+        }}>
+          <Loader2 size={48} className="spinner" color="var(--accent)" style={{ marginBottom: 20 }} />
+          <div style={{ color: '#FFF', fontWeight: 700, fontSize: 16 }}>Inashughulikia...</div>
+          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginTop: 8 }}>Tafadhali subiri</div>
+        </div>
+      )}
+
       {/* Quick Inspirational / Welcome Banner replacing the empty space */}
       <div style={{ padding: '24px 24px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
