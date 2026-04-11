@@ -71,6 +71,24 @@ export default function DashboardPage() {
     }
   }
 
+  const executeWithdraw = async () => {
+    setShowWithdraw(false)
+    setIsTransacting(true)
+    try {
+      const result = await walletService.initiatePayout(Number(amount))
+      if (result.success) {
+        showToast('✅ ' + (result.message || 'Ombi la kutoa pesa limepokelewa!'))
+        setAmount('')
+        fetchData()
+      }
+    } catch (err: any) {
+      showToast('❌ ' + (err.message || 'Kutoa pesa kumeshindwa'), 'error')
+    } finally {
+      setIsTransacting(false)
+    }
+  }
+
+
   const fetchData = async () => {
     try {
       const d = await dashboardService.getDashboardData()
@@ -310,47 +328,98 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Deposit / Withdraw Modal */}
-      {(showDeposit || showWithdraw) && (
-        <div className="modal-overlay" onClick={() => { setShowDeposit(false); setShowWithdraw(false); setAmount(''); }}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32 }}>
+      {/* Deposit Bottom Sheet */}
+      {showDeposit && (
+        <div className="bottom-sheet-overlay" onClick={() => { setShowDeposit(false); setAmount(''); }}>
+          <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+            <div className="bottom-sheet-handle" />
+            
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 24, fontWeight: 900 }}>{showDeposit ? t('deposit') : t('withdraw')}</h2>
-              <button className="mobile-header-btn" onClick={() => { setShowDeposit(false); setShowWithdraw(false); setAmount(''); }} style={{ background: 'rgba(255,255,255,0.05)', width: 40, height: 40, borderRadius: 20 }}>
-                <X size={20} />
+              <h2 style={{ fontSize: 24, fontWeight: 900 }}>Weka Pesa</h2>
+              <button 
+                onClick={() => { setShowDeposit(false); setAmount(''); }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', padding: 8, borderRadius: 12, cursor: 'pointer' }}
+              >
+                <X size={20} color="var(--text-secondary)" />
               </button>
             </div>
-            
+
             <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 15, lineHeight: 1.5 }}>
-              {showDeposit 
-                ? t('deposit_desc')
-                : `${t('withdraw_desc')}: ${data.userStats.registeredPhone || t('no_phone')}`
-              }
+              Ingiza kiasi unachotaka kuweka kwenye mfuko wako wa Kikoba. Malipo yatashughulikiwa kupitia PesaPal.
             </p>
-            
-            <div className="form-group" style={{ marginBottom: 32 }}>
-              <label className="form-label" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1.5 }}>{t('amount_tzs')}</label>
-              <input 
-                type="number" 
-                className="input-field" 
-                placeholder="10,000"
+
+            <div className="form-group">
+              <label className="form-label">Kiasi (TZS)</label>
+              <input
+                type="number"
+                placeholder="0.00"
+                className="input-field"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                style={{ fontSize: 28, padding: '20px 24px', fontWeight: 900, borderRadius: 20, textAlign: 'center' }}
+                style={{ fontSize: 32, fontWeight: 900, height: 80, paddingLeft: 24, borderRadius: 24, background: 'rgba(255,255,255,0.03)' }}
                 autoFocus
               />
             </div>
 
-            <button 
-              onClick={() => handleTransaction(showDeposit ? 'DEPOSIT' : 'WITHDRAW')} 
-              className="btn-primary" 
-              style={{ width: '100%', borderRadius: 20, height: 60, fontSize: 16, fontWeight: 800 }}
-              disabled={isTransacting || !amount || Number(amount) <= 0}
-            >
-              {isTransacting ? <Loader2 className="spinner" /> : t('continue')}
-            </button>
+            <div style={{ marginTop: 'auto', paddingTop: 24 }}>
+              <button 
+                onClick={() => handleTransaction('DEPOSIT')}
+                className="btn-primary" 
+                style={{ width: '100%', borderRadius: 24, height: 64, fontSize: 18, fontWeight: 900, background: 'var(--accent)', color: '#000' }}
+              >
+                Endelea na PesaPal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Bottom Sheet */}
+      {showWithdraw && (
+        <div className="bottom-sheet-overlay" onClick={() => { setShowWithdraw(false); setAmount(''); }}>
+          <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+            <div className="bottom-sheet-handle" />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900 }}>Toa Pesa</h2>
+              <button 
+                onClick={() => { setShowWithdraw(false); setAmount(''); }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', padding: 8, borderRadius: 12, cursor: 'pointer' }}
+              >
+                <X size={20} color="var(--text-secondary)" />
+              </button>
+            </div>
+
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 15, lineHeight: 1.5 }}>
+              Kiasi hiki kitatolewa na kutumwa kwenye namba yako ya simu. Muamala huu utathibitishwa na msimamizi.
+            </p>
+
+            <div className="form-group">
+              <label className="form-label">Kiasi (TZS)</label>
+              <input
+                type="number"
+                placeholder="0.00"
+                className="input-field"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                style={{ fontSize: 32, fontWeight: 900, height: 80, paddingLeft: 24, borderRadius: 24, background: 'rgba(255,255,255,0.03)' }}
+                autoFocus
+              />
+              <div style={{ marginTop: 12, fontSize: 13, color: 'var(--accent)', fontWeight: 700 }}>
+                Salio linalopatikana: {formatCurrency(data?.userStats.walletBalance || 0)}
+              </div>
+            </div>
+
+            <div style={{ marginTop: 'auto', paddingTop: 24 }}>
+              <button 
+                onClick={() => handleTransaction('WITHDRAW')}
+                className="btn-primary" 
+                style={{ width: '100%', borderRadius: 24, height: 64, fontSize: 18, fontWeight: 900, background: '#FFF', color: '#000' }}
+              >
+                Toa Pesa Sasa
+              </button>
+            </div>
           </div>
         </div>
       )}

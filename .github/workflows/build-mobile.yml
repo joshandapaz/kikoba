@@ -1,0 +1,158 @@
+name: Multi-Platform Build (iOS & Android)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Web Assets (Static Export)
+        run: npm run static
+        env:
+          NEXT_PUBLIC_EXPORT: "true"
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_API_URL: "https://anti-three-orpin.vercel.app"
+
+      - name: Capacitor Sync
+        run: npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: Kikoba-App-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  build_ios:
+    name: Build iOS IPA
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Web Assets (Static Export)
+        run: npm run static
+        env:
+          NEXT_PUBLIC_EXPORT: "true"
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_API_URL: "https://anti-three-orpin.vercel.app"
+
+      - name: Capacitor Sync
+        run: npx cap sync ios
+
+      - name: Patch Xcode Project Target
+        run: |
+          echo "Forcing iOS 15.3 in Xcode project..."
+          sed -i '' "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9\.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.3/g" ios/App/App.xcodeproj/project.pbxproj
+
+      - name: Xcode Build (Unsigned Archive)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -configuration Release \
+                     -destination 'generic/platform=iOS' \
+                     -archivePath ios/App/App.xcarchive \
+                     CODE_SIGN_STYLE=Manual \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGN_IDENITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     AD_HOC_CODE_SIGNING_ALLOWED=YES \
+                     archive
+
+      - name: Create IPA Package (Unsigned)
+        run: |
+          mkdir -p build/Payload
+          cp -r ios/App/App.xcarchive/Products/Applications/App.app build/Payload/
+          cd build
+          zip -m -r Kikoba-App.ipa Payload
+          echo "IPA created at $(pwd)/Kikoba-App.ipa"
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: Kikoba-App-IPA
+          path: build/Kikoba-App.ipa
+
+  create_release:
+    name: Create GitHub Release
+    needs: [build_android, build_ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: Kikoba-App-APK
+          path: release-assets
+
+      - name: Download IPA
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: Kikoba-App-IPA
+          path: release-assets
+
+      - name: Rename APK for clarity
+        run: mv release-assets/app-debug.apk release-assets/Kikoba-App.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Mobile Build ${{ github.run_number }}
+          files: |
+            release-assets/Kikoba-App.apk
+            release-assets/Kikoba-App.ipa
+          draft: false
+          prerelease: false
+          body: |
+            Automated build for iOS (IPA) and Android (APK).
+            Version: ${{ github.run_number }}
+            Platform: Capacitor
+            Includes latest PesaPal integration.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
