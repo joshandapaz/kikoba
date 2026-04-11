@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Wallet, Mail, Lock, User, Phone, ArrowRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { Mail, Lock, User, Phone, ArrowRight } from 'lucide-react'
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ username: '', email: '', password: '', phone: '' })
@@ -21,24 +20,26 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      // Register with Email
-      const { data, error: authError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          data: {
-            username: form.username,
-            phone: form.phone,
-            full_name: form.username,
-          }
-        }
+      // Call server-side registration API which creates both auth user AND users table row
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+        }),
       })
 
-      if (authError) {
-        setError(authError.message || 'Hitilafu imetokea wakati wa usajili')
+      const result = await res.json()
+
+      if (!res.ok) {
+        setError(result.error || 'Hitilafu imetokea wakati wa usajili')
         return
       }
 
+      // Registration successful — send to login
       router.push('/login?registered=1')
     } catch (err: any) {
       const errMsg = err?.message || String(err)

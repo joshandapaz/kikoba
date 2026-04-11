@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
 import LoadingScreen from '@/components/LoadingScreen'
@@ -10,9 +10,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('registered') === '1') {
+      setSuccess('✅ Akaunti imefunguliwa! Ingia sasa na nywila yako.')
+    }
+  }, [searchParams])
 
   // KEY FIX: Check if user is already logged in. If yes, skip login.
   useEffect(() => {
@@ -63,6 +71,7 @@ export default function LoginPage() {
           <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Karibu tena 👋</p>
         </div>
 
+        {success && <div className="alert alert-success" style={{ marginBottom: 16 }}>{success}</div>}
         {error && (
           <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
             <span>{error}</span>
