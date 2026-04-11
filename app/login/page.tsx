@@ -1,12 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
+import { Mail, Lock, ArrowRight } from 'lucide-react'
 import LoadingScreen from '@/components/LoadingScreen'
 
-export default function LoginPage() {
+// Inner component that uses useSearchParams — must be wrapped in Suspense
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -22,7 +23,7 @@ export default function LoginPage() {
     }
   }, [searchParams])
 
-  // KEY FIX: Check if user is already logged in. If yes, skip login.
+  // Check if user is already logged in
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -38,7 +39,7 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -53,7 +54,6 @@ export default function LoginPage() {
     }
   }
 
-  // Show full-screen loading while checking session
   if (checking) {
     return <LoadingScreen />
   }
@@ -136,5 +136,14 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Default export wraps with Suspense (required for useSearchParams in Next.js 15)
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <LoginForm />
+    </Suspense>
   )
 }
