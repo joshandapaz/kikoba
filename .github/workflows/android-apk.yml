@@ -1,6 +1,4 @@
-# Forced trigger for Android Build
 name: Build Android APK
-
 
 on:
   push:
@@ -11,15 +9,11 @@ jobs:
   build_android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4.1.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
-          cache: 'npm'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -27,14 +21,17 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
       - name: Install Project Dependencies
         run: npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npx prisma generate
-
-      - name: Remove API routes for static export
-        run: rm -rf app/api
 
       - name: Build Web Assets (Static Export)
         run: npm run static
@@ -42,25 +39,31 @@ jobs:
           NEXT_PUBLIC_EXPORT: "true"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          # The app is now standalone
-
-      - name: Add Capacitor Android
-        run: npx cap add android || echo "Android already added"
+          NEXT_PUBLIC_API_URL: "https://anti-three-orpin.vercel.app"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Capacitor Sync
         run: npx cap sync android
 
-      - name: Build APK (Unsigned)
+      - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-          echo "APK created at android/app/build/outputs/apk/debug/app-debug.apk"
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4.3.3
+      - name: Rename APK for clarity
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/Kikoba-App.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Kikoba-App-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 5
+          tag_name: android-build-${{ github.run_number }}
+          name: Android Build ${{ github.run_number }}
+          files: android/app/build/outputs/apk/debug/Kikoba-App.apk
+          draft: false
+          prerelease: false
+          body: |
+            Automated Android (APK) Build.
+            PesaPal v3 integration included.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
