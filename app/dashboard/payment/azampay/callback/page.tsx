@@ -25,11 +25,10 @@ function AzamPayCallbackContent() {
 
     const poll = async () => {
       try {
-        // Use Supabase Functions client to automatically handle Authorization headers
-        const { data, error } = await supabase.functions.invoke('azampay-status', {
-          method: 'GET',
-          queryParams: { external_id: externalId }
-        })
+        // Use the newly deployed Vercel API route to completely bypass the Kong Gateway 401 Invalid JWT bug
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+        const res = await fetch(`${apiUrl}/api/payments/azampay/status?external_id=${externalId}`)
+        const data = await res.json()
 
         if (data.status === 'COMPLETED') {
           setStatus('success')

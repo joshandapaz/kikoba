@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
       user_id: userId,
       amount,
       status: 'PENDING',
-      provider: 'AZAMPAY',
       merchant_reference: externalId,
       metadata: { type: 'DEPOSIT', walletType, groupId },
     })

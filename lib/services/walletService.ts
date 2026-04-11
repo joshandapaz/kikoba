@@ -49,19 +49,26 @@ export const walletService = {
 
     // 2. Use AzamPay (default) or ClickPesa
     if (provider === 'AZAMPAY') {
-      // Use Supabase Functions client to automatically handle Authorization headers
-      const { data, error } = await supabase.functions.invoke('azampay-checkout', {
-        body: {
+      // Use the newly deployed Vercel API route to completely bypass the Kong Gateway 401 Invalid JWT bug
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const checkoutUrl = `${apiUrl}/api/payments/azampay/checkout`
+
+      const res = await fetch(checkoutUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           amount,
           phone: targetPhone,
           walletType,
           groupId,
           userId: user.id,
-        }
+        })
       })
+
+      const data = await res.json()
       
-      if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || 'AzamPay checkout failed')
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.message || 'AzamPay checkout failed')
       }
 
       return {
@@ -80,7 +87,6 @@ export const walletService = {
           user_id: user.id,
           amount,
           status: 'PENDING',
-          provider: 'CLICKPESA',
           merchant_reference: externalId,
           metadata: { type: 'DEPOSIT' },
         })
