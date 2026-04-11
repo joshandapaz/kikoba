@@ -4,16 +4,16 @@
  * Docs: https://developerdocs.azampay.co.tz
  */
 
-const CLIENT_ID = process.env.AZAMPAY_CLIENT_ID
-const CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET
-const API_KEY = process.env.AZAMPAY_API_KEY
-const APP_NAME = process.env.AZAMPAY_APP_NAME || 'Kikoba'
-const ENV = (process.env.AZAMPAY_ENV || 'SANDBOX') as 'SANDBOX' | 'LIVE'
+const CLIENT_ID = process.env.AZAMPAY_CLIENT_ID?.trim()
+const CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET?.trim()
+const API_KEY = process.env.AZAMPAY_API_KEY?.trim()
+const APP_NAME = (process.env.AZAMPAY_APP_NAME || 'Kikoba').trim()
+const ENV = (process.env.AZAMPAY_ENV?.trim() || 'SANDBOX') as 'SANDBOX' | 'LIVE'
 
 const AUTH_BASE_URL =
   ENV === 'LIVE'
     ? 'https://authenticator.azampay.co.tz'
-    : 'https://authenticator.sandbox.azampay.co.tz'
+    : 'https://authenticator-sandbox.azampay.co.tz'
 
 const API_BASE_URL =
   ENV === 'LIVE'

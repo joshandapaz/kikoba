@@ -1,15 +1,15 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const AZAMPAY_APP_NAME = Deno.env.get('AZAMPAY_APP_NAME') || 'Kikoba'
-const AZAMPAY_CLIENT_ID = Deno.env.get('AZAMPAY_CLIENT_ID')!
-const AZAMPAY_CLIENT_SECRET = Deno.env.get('AZAMPAY_CLIENT_SECRET')!
-const AZAMPAY_API_KEY = Deno.env.get('AZAMPAY_API_KEY')!
-const AZAMPAY_ENV = Deno.env.get('AZAMPAY_ENV') || 'SANDBOX'
+const AZAMPAY_APP_NAME = (Deno.env.get('AZAMPAY_APP_NAME') || 'Kikoba').trim()
+const AZAMPAY_CLIENT_ID = Deno.env.get('AZAMPAY_CLIENT_ID')?.trim()!
+const AZAMPAY_CLIENT_SECRET = Deno.env.get('AZAMPAY_CLIENT_SECRET')?.trim()!
+const AZAMPAY_API_KEY = Deno.env.get('AZAMPAY_API_KEY')?.trim()!
+const AZAMPAY_ENV = (Deno.env.get('AZAMPAY_ENV') || 'SANDBOX').trim()
 
 const AUTH_URL = AZAMPAY_ENV === 'LIVE'
   ? 'https://authenticator.azampay.co.tz'
-  : 'https://authenticator.sandbox.azampay.co.tz'
+  : 'https://authenticator-sandbox.azampay.co.tz'
 
 const API_URL = AZAMPAY_ENV === 'LIVE'
   ? 'https://api.azampay.co.tz'

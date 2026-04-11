@@ -87,6 +87,7 @@ export const walletService = {
           user_id: user.id,
           amount,
           status: 'PENDING',
+          provider: 'CLICKPESA',
           merchant_reference: externalId,
           metadata: { type: 'DEPOSIT' },
         })
