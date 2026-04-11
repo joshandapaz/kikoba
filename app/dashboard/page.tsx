@@ -49,82 +49,24 @@ export default function DashboardPage() {
 
   const handleTransaction = (action: 'DEPOSIT' | 'WITHDRAW') => {
     if (!amount || Number(amount) <= 0) return
-    setTransactionType(action)
     if (action === 'DEPOSIT') {
-      setShowGateway(true) // Deposit: let user choose AzamPay or ClickPesa
+      executeDeposit()
     } else {
-      executeWithdraw() // Withdraw: goes directly to AzamPay
+      executeWithdraw()
     }
   }
 
-  const executeWithdraw = async () => {
-    setShowWithdraw(false)
+  const executeDeposit = async () => {
+    setShowDeposit(false)
     setIsTransacting(true)
     try {
-      const result = await walletService.initiatePayout(Number(amount))
-      if (result.success) {
-        showToast('✅ ' + (result.message || 'Ombi la kutoa pesa limepokelewa!'))
-        setAmount('')
-        fetchData()
+      const result = await walletService.initiateDeposit(Number(amount))
+      if (result.success && result.redirectUrl) {
+        showToast('Inakuelekeza PesaPal...')
+        window.location.href = result.redirectUrl
       }
     } catch (err: any) {
-      showToast('❌ ' + (err.message || 'Kutoa pesa kumeshindwa'), 'error')
-    } finally {
-      setIsTransacting(false)
-    }
-  }
-
-  const handleCreatePlan = async () => {
-    if (!planTitle || !planTarget) return
-    setIsTransacting(true)
-    try {
-      await planService.createPlan(planTitle, Number(planTarget))
-      setShowCreatePlan(false)
-      setPlanTitle('')
-      setPlanTarget('')
-      fetchData()
-    } catch (e: any) {
-      alert(e.message)
-    } finally {
-      setIsTransacting(false)
-    }
-  }
-
-  const handleDepositToPlan = async () => {
-    if (!showDepositPlan || !planDepositAmount) return
-    setIsTransacting(true)
-    try {
-      await planService.depositToPlan(showDepositPlan, Number(planDepositAmount))
-      setShowDepositPlan(null)
-      setPlanDepositAmount('')
-      fetchData()
-    } catch (e: any) {
-      alert(e.message)
-    } finally {
-      setIsTransacting(false)
-    }
-  }
-
-  const executeTransaction = async (provider: string) => {
-    setShowGateway(false)
-    setIsTransacting(true)
-    try {
-      const result = await walletService.initiateDeposit(
-        Number(amount),
-        undefined,
-        'PERSONAL',
-        undefined,
-        provider as 'AZAMPAY' | 'CLICKPESA'
-      )
-      if (result.success) {
-        showToast('✅ Ombi la malipo limetumwa. Angalia simu yako kukamilisha.')
-        setAmount('')
-        setShowDeposit(false)
-        fetchData()
-      }
-    } catch (err: any) {
-      showToast('❌ ' + (err.message || 'Amana imeshindwa'), 'error')
-    } finally {
+      showToast('❌ ' + (err.message || 'Muamala umeshindwa'), 'error')
       setIsTransacting(false)
     }
   }
@@ -142,6 +84,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData()
+
+    // Handle PesaPal callback redirects
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('payment') === 'success') {
+      showToast('Kikoba inathibitisha malipo yako na PesaPal...')
+      // Clean url to remove query state
+      window.history.replaceState({}, document.title, '/dashboard')
+    } else if (params.get('payment') === 'cancelled') {
+      showToast('Muamala umehairishwa.', 'error')
+      window.history.replaceState({}, document.title, '/dashboard')
+    }
 
     const channel = supabase
       .channel('dashboard_changes')
@@ -402,64 +355,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Payment Gateway Modal */}
-      {showGateway && (
-        <div className="modal-overlay" onClick={() => setShowGateway(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ padding: 40, borderRadius: 32, background: 'rgba(20,20,20,0.95)', backdropFilter: 'blur(20px)' }}>
-            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 12, textAlign: 'center' }}>{t('choose_payment')}</h2>
-            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32, fontSize: 15 }}>{t('payment_provider')}</p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* AzamPay — Primary */}
-              <button 
-                onClick={() => executeTransaction('AZAMPAY')}
-                className="card hover-scale" 
-                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(0,184,148,0.08)', border: '1px solid rgba(0,184,148,0.3)' }}
-              >
-                <div style={{ background: '#00b894', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Smartphone size={24} color="#FFF" />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    AzamPay
-                    <span style={{ fontSize: 10, fontWeight: 800, background: '#00b894', color: '#FFF', padding: '2px 8px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: 0.5 }}>Inapendekezwa</span>
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>Airtel • Vodacom • Tigo • Halopesa</div>
-                </div>
-              </button>
-
-              {/* ClickPesa — Secondary */}
-              <button 
-                onClick={() => executeTransaction('CLICKPESA')}
-                className="card hover-scale" 
-                style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', padding: 20, width: '100%', cursor: 'pointer', borderRadius: 24, background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.15)' }}
-              >
-                <div style={{ background: 'rgba(255,255,255,0.1)', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Smartphone size={24} color="var(--accent)" />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: '#FFF' }}>{t('mobile_money')} (ClickPesa)</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{t('mobile_money_desc')}</div>
-                </div>
-              </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', opacity: 0.5 }}>
-                <div style={{ background: 'rgba(255,255,255,0.1)', width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CreditCard size={24} color="#888" />
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: '#888' }}>{t('bank_card')}</div>
-                  <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>{t('coming_soon')}</div>
-                </div>
-              </div>
-            </div>
-
-            <button onClick={() => setShowGateway(false)} className="btn-secondary" style={{ width: '100%', marginTop: 32, borderRadius: 20, height: 56, fontSize: 16, fontWeight: 800 }}>
-              {t('cancel')}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Payment Gateway Modal Removed */}
 
       {/* Create Plan Modal */}
       {showCreatePlan && (

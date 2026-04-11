@@ -31,11 +31,15 @@ function normalizePhone(phone: string): string {
 
 function detectProvider(phone: string): string {
   const local = phone.startsWith('255') ? phone.substring(3) : phone
-  if (/^(78|79|68|69)/.test(local)) return 'Mpesa'
-  if (/^(75|74|73|71)/.test(local)) return 'Tigo'
-  if (/^77/.test(local)) return 'Halopesa'
-  if (/^(68|69)/.test(local)) return 'Airtel'
-  return 'Tigo'
+  // Vodacom (074, 075, 076, 066)
+  if (/^(74|75|76|66)/.test(local)) return 'Mpesa'
+  // Tigo (065, 067, 071)
+  if (/^(65|67|71)/.test(local)) return 'Tigo'
+  // Airtel (068, 069, 078, 079)
+  if (/^(68|69|78|79)/.test(local)) return 'Airtel'
+  // Halotel (061, 062)
+  if (/^(61|62)/.test(local)) return 'Halopesa'
+  return 'Tigo' // fallback
 }
 
 let cachedToken: string | null = null
@@ -136,7 +140,7 @@ serve(async (req) => {
 
   } catch (err: any) {
     console.error('[azampay-checkout]', err)
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: err.message || 'The string did not match the expected pattern' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

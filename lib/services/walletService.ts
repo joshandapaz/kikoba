@@ -31,77 +31,36 @@ export const walletService = {
     amount: number,
     phone?: string,
     walletType: 'PERSONAL' | 'GROUP' = 'PERSONAL',
-    groupId?: string,
-    provider: 'CLICKPESA' | 'AZAMPAY' = 'AZAMPAY'
+    groupId?: string
   ) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
-    // 1. Fetch user profile for phone
-    const { data: profile } = await supabase
-      .from('users')
-      .select('phone')
-      .eq('id', user.id)
-      .single()
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const checkoutUrl = `${apiUrl}/api/payments/pesapal/checkout`
 
-    const targetPhone = phone || profile?.phone
-    if (!targetPhone) throw new Error('Namba ya simu haijapatikana')
-
-    // 2. Use AzamPay (default) or ClickPesa
-    if (provider === 'AZAMPAY') {
-      // Use the newly deployed Vercel API route to completely bypass the Kong Gateway 401 Invalid JWT bug
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      const checkoutUrl = `${apiUrl}/api/payments/azampay/checkout`
-
-      const res = await fetch(checkoutUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount,
-          phone: targetPhone,
-          walletType,
-          groupId,
-          userId: user.id,
-        })
+    const res = await fetch(checkoutUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount,
+        walletType,
+        groupId,
+        userId: user.id
       })
+    })
 
-      const data = await res.json()
-      
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || data.message || 'AzamPay checkout failed')
-      }
+    const data = await res.json()
+    
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'PesaPal checkout failed')
+    }
 
-      return {
-        success: true,
-        externalId: data.externalId,
-        provider: 'AZAMPAY',
-        message: data.message || 'Ombi la malipo limetumwa. Tafadhali angalia simu yako kukamilisha.',
-      }
-    } else {
-      // ClickPesa fallback
-      const externalId = `CP-${uuidv4().substring(0, 8)}__${walletType}__${groupId || 'none'}`
-
-      const { error: insertError } = await supabase
-        .from('payments')
-        .insert({
-          user_id: user.id,
-          amount,
-          status: 'PENDING',
-          provider: 'CLICKPESA',
-          merchant_reference: externalId,
-          metadata: { type: 'DEPOSIT' },
-        })
-      if (insertError) throw insertError
-
-      const result = await ClickPesa.initiateUssdPush({ amount, phone: targetPhone, externalId })
-
-      return {
-        success: true,
-        externalId,
-        provider: 'CLICKPESA',
-        result,
-        message: 'Ombi la malipo limetumwa. Tafadhali angalia simu yako kukamilisha.',
-      }
+    return {
+      success: true,
+      redirectUrl: data.redirectUrl,
+      externalId: data.externalId,
+      message: data.message,
     }
   },
 
@@ -109,28 +68,57 @@ export const walletService = {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    const withdrawUrl = `${apiUrl}/api/payments/azampay/withdraw`
+    // 1. Check user balance
+    const { data: profile } = await supabase
+      .from('users')
+      .select('wallet_balance, phone, username')
+      .eq('id', user.id)
+      .single()
 
-    const res = await fetch(withdrawUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount,
-        userId: user.id,
-      }),
+    if (!profile) throw new Error('User not found')
+    if ((profile?.wallet_balance || 0) < amount) {
+      throw new Error('Salio halitoshi kutoa pesa hii')
+    }
+
+    // Since PesaPal standard API focuses on Collections, automated B2C (Withdrawals) is handled 
+    // manually via the PesaPal Merchant Dashboard. We will lock the funds and record the request.
+    
+    // 2. Reserve balance
+    await supabase
+      .from('users')
+      .update({ wallet_balance: (profile.wallet_balance || 0) - amount })
+      .eq('id', user.id)
+
+    // 3. Record pending transaction for Admin to payout manually
+    const externalId = `PP-WD-${uuidv4().substring(0, 8)}`
+    
+    await supabase.from('payments').insert({
+      user_id: user.id,
+      amount,
+      status: 'PENDING',
+      provider: 'PESAPAL_MANUAL',
+      merchant_reference: externalId,
+      metadata: { type: 'WITHDRAWAL', phone: profile.phone },
     })
 
-    const data = await res.json()
+    await supabase.from('transactions').insert({
+      userId: user.id,
+      type: 'WITHDRAWAL',
+      amount,
+      description: 'Ombi la kutoa pesa (Pending)',
+      status: 'PENDING'
+    })
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || data.message || 'Kutoa pesa kumeshindwa')
-    }
+    await supabase.from('activities').insert({
+      userId: user.id,
+      action: 'Ameomba kutoa pesa (PesaPal)',
+      amount,
+    })
 
     return {
       success: true,
-      externalId: data.externalId,
-      message: data.message || 'Ombi la kutoa pesa limepokelewa. Pesa itafika kwenye simu yako hivi karibuni.',
+      externalId,
+      message: 'Ombi lako la kutoa pesa limepokelewa na linashughulikiwa na msimamizi.'
     }
   }
 }
