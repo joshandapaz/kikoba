@@ -34,7 +34,7 @@ jobs:
           NEXT_PUBLIC_EXPORT: "true"
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          # The app is now standalone; server-side URLs are no longer critical for the build
+          NEXT_PUBLIC_API_URL: "https://anti-three-orpin.vercel.app"
 
       - name: Capacitor Sync
         run: npx cap sync ios
