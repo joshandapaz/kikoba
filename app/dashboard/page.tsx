@@ -89,6 +89,42 @@ export default function DashboardPage() {
   }
 
 
+  const handleCreatePlan = async () => {
+    if (!planTitle || !planTarget) return
+    setIsTransacting(true)
+    try {
+      await planService.createPlan({
+        title: planTitle,
+        target_amount: Number(planTarget)
+      })
+      showToast('✅ Mpango mpya umewekwa!')
+      setShowCreatePlan(false)
+      setPlanTitle('')
+      setPlanTarget('')
+      fetchData()
+    } catch (err: any) {
+      showToast('❌ Imeshindwa: ' + (err.message || 'Error'), 'error')
+    } finally {
+      setIsTransacting(false)
+    }
+  }
+
+  const handleDepositToPlan = async () => {
+    if (!planDepositAmount || !showDepositPlan) return
+    setIsTransacting(true)
+    try {
+      await planService.depositToPlan(showDepositPlan, Number(planDepositAmount))
+      showToast('✅ Pesa imewekwa kwenye mpango!')
+      setShowDepositPlan(null)
+      setPlanDepositAmount('')
+      fetchData()
+    } catch (err: any) {
+      showToast('❌ Imeshindwa: ' + (err.message || 'Error'), 'error')
+    } finally {
+      setIsTransacting(false)
+    }
+  }
+
   const fetchData = async () => {
     try {
       const d = await dashboardService.getDashboardData()
