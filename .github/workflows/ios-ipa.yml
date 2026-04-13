@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
-          node-version: 20
 
       - name: Install Project Dependencies
         run: npm install --legacy-peer-deps
