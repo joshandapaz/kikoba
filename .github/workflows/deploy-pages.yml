@@ -28,13 +28,15 @@ jobs:
         uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
-          cache: 'npm'
+          node-version: 20
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Remove API routes for static export
         run: rm -rf app/api
